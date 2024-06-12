@@ -62,7 +62,7 @@ jobs:
         - name: Create Github release
           run: bundle exec ./build.sh publish-github ${{ github.sha }}
   publish-cocoapods:
-      runs-on: macos-latest
+      runs-on: macos-13
       name: Publish Cocoapods specs
       needs: [tag-release, prepare]
       env:
