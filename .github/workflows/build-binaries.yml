@@ -49,6 +49,9 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Patch CMake
+        run: sed -i '' 's/CMAKE_HOST_APPLE AND CMAKE_SYSTEM_NAME STREQUAL "Darwin"/CMAKE_HOST_APPLE AND CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND NOT CMAKE_GENERATOR STREQUAL "Xcode"/' /opt/homebrew/Cellar/cmake/*/share/cmake/Modules/CMakeDetermineCompilerABI.cmake 
+
       - name: Checkout Core@${{ steps.get-core-version.outputs.version }}
         run: git checkout ${{ steps.get-core-version.outputs.version }} --recurse-submodules -f
         working-directory: core
