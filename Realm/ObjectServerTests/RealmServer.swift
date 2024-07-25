@@ -410,18 +410,18 @@ class AdminSession {
     /// The initial endpoint to access the admin server
     lazy var apps = AdminEndpoint(accessToken: accessToken,
                                   groupId: groupId,
-                                  url: URL(string: "http://localhost:9090/api/admin/v3.0/groups/\(groupId)/apps")!)
+                                  url: URL(string: "http://127.0.0.0:9090/api/admin/v3.0/groups/\(groupId)/apps")!)
 
     /// The initial endpoint to access the private API
     lazy var privateApps = AdminEndpoint(accessToken: accessToken,
                                   groupId: groupId,
-                                  url: URL(string: "http://localhost:9090/api/private/v1.0/groups/\(groupId)/apps")!)
+                                  url: URL(string: "http://127.0.0.0:9090/api/private/v1.0/groups/\(groupId)/apps")!)
 }
 
 // MARK: - Admin
 class Admin {
     private func userProfile(accessToken: String) -> Result<AdminProfile, Error> {
-        var request = URLRequest(url: URL(string: "http://localhost:9090/api/admin/v3.0/auth/profile")!)
+        var request = URLRequest(url: URL(string: "http://127.0.0.0:9090/api/admin/v3.0/auth/profile")!)
         request.allHTTPHeaderFields = [
             "Authorization": "Bearer \(String(describing: accessToken))"
         ]
@@ -435,7 +435,7 @@ class Admin {
 
     /// Synchronously authenticate an admin session
     func login() throws -> AdminSession {
-        let authUrl = URL(string: "http://localhost:9090/api/admin/v3.0/auth/providers/local-userpass/login")!
+        let authUrl = URL(string: "http://127.0.0.0:9090/api/admin/v3.0/auth/providers/local-userpass/login")!
         var loginRequest = URLRequest(url: authUrl)
         loginRequest.httpMethod = "POST"
         loginRequest.allHTTPHeaderFields = ["Content-Type": "application/json;charset=utf-8",
@@ -583,7 +583,7 @@ public class RealmServer: NSObject {
         mongoProcess.arguments = [
             "--quiet",
             "--dbpath", tempDir.path,
-            "--bind_ip", "localhost",
+            "--bind_ip", "127.0.0.0",
             "--port", "26000",
             "--replSet", "test"
         ]
@@ -625,7 +625,7 @@ public class RealmServer: NSObject {
                 "addUser",
                 "-domainID",
                 "000000000000000000000000",
-                "-mongoURI", "mongodb://localhost:26000",
+                "-mongoURI", "mongodb://127.0.0.0:26000",
                 "-salt", "DQOWene1723baqD!_@#",
                 "-id", "unique_user@domain.com",
                 "-password", "password"
@@ -704,7 +704,7 @@ public class RealmServer: NSObject {
             let session = URLSession(configuration: URLSessionConfiguration.default,
                                      delegate: nil,
                                      delegateQueue: OperationQueue())
-            session.dataTask(with: URL(string: "http://localhost:9090/api/admin/v3.0/groups/groupId/apps/appId")!) { (_, _, error) in
+            session.dataTask(with: URL(string: "http://127.0.0.0:9090/api/admin/v3.0/groups/groupId/apps/appId")!) { (_, _, error) in
                 if error != nil {
                     Thread.sleep(forTimeInterval: 0.1)
                     pingServer(tries + 1)
@@ -724,7 +724,7 @@ public class RealmServer: NSObject {
         p.launchPath = RealmServer.binDir.appendingPathComponent("mongo").path
         p.arguments = [
             "--quiet",
-            "mongodb://localhost:26000/auth",
+            "mongodb://127.0.0.0:26000/auth",
             "--eval", """
                 // Sometimes the user seems to not exist immediately
                 let id = null;
@@ -817,7 +817,7 @@ public class RealmServer: NSObject {
 
         app.secrets.post(on: group, [
             "name": "BackingDB_uri",
-            "value": "mongodb://localhost:26000"
+            "value": "mongodb://127.0.0.0:26000"
         ], failOnError)
 
         try group.throwingWait(timeout: .now() + 5.0)
@@ -826,7 +826,7 @@ public class RealmServer: NSObject {
             "name": "mongodb1",
             "type": "mongodb",
             "config": [
-                "uri": "mongodb://localhost:26000"
+                "uri": "mongodb://127.0.0.0:26000"
             ]
         ]
 
