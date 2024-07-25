@@ -499,7 +499,7 @@ public class RealmServer: NSObject {
         .deletingLastPathComponent() // RealmServer.swift
         .deletingLastPathComponent() // ObjectServerTests
         .deletingLastPathComponent() // Realm
-    private static let buildDir = rootUrl.appendingPathComponent("ci_scripts/scripts/.baas")
+    private static let buildDir = rootUrl.appendingPathComponent("ci_scripts/.baas")
     private static let binDir = buildDir.appendingPathComponent("bin")
 
     /// The directory where mongo stores its files. This is a unique value so that
