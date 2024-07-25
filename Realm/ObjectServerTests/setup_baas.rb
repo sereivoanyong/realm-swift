@@ -5,7 +5,7 @@ require 'fileutils'
 require 'pathname'
 
 BASE_DIR = Dir.pwd
-BUILD_DIR = "#{BASE_DIR}/ci_scripts/setup_baas/.baas"
+BUILD_DIR = "#{BASE_DIR}/ci_scripts/scripts/.baas"
 BIN_DIR = "#{BUILD_DIR}/bin"
 LIB_DIR = "#{BUILD_DIR}/lib"
 PID_FILE = "#{BUILD_DIR}/pid.txt"
