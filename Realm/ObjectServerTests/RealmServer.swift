@@ -487,7 +487,7 @@ public class RealmServer: NSObject {
     @objc public static let shared = RealmServer()
 
     /// Log level for the server and mongo processes.
-    public var logLevel = LogLevel.none
+    public var logLevel = LogLevel.info
 
     /// Process that runs the local mongo server. Should be terminated on exit.
     private let mongoProcess = Process()
