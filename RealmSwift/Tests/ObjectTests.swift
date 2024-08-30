@@ -2054,7 +2054,7 @@ class ObjectTests: TestCase, @unchecked Sendable {
         let frozen = obj.freeze()
         XCTAssertTrue(frozen.isFrozen)
 
-        try! obj.realm!.write({ obj.boolCol = false })
+        try! obj.realm!.write { obj.boolCol = false }
         XCTAssert(frozen.boolCol, "Frozen objects shouldn't mutate")
 
         let thawed = frozen.thaw()!

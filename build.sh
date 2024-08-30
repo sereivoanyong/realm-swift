@@ -68,8 +68,7 @@ command:
   test-catalyst-swift:  tests RealmSwift Mac Catalyst framework
   test-swiftpm:         tests ObjC and Swift macOS frameworks via SwiftPM
   test-ios-swiftui:        tests SwiftUI framework UI tests
-  test-swiftuiserver-osx:  tests Server Sync in SwiftUI
-  verify:               verifies docs, cocoapods, swiftpm, xcframework, swiftuiserver-osx, swiftlint, spm-ios, objectserver-osx, watchos in both Debug and Release configurations
+  verify:               verifies docs, cocoapods, swiftpm, xcframework, swiftlint, spm-ios, watchos in both Debug and Release configurations
 
   docs:                 builds docs in docs/output
   examples:             builds all examples
@@ -445,11 +444,6 @@ case "$COMMAND" in
         exit 0
         ;;
 
-    "setup-baas")
-        ruby Realm/ObjectServerTests/setup_baas.rb
-        exit 0
-        ;;
-
     ######################################
     # Building
     ######################################
@@ -648,11 +642,6 @@ case "$COMMAND" in
         exit 0
         ;;
 
-    "test-objectserver-osx")
-        xctest 'Object Server Tests' -configuration "$CONFIGURATION" -sdk macosx -destination "platform=macOS,arch=$(uname -m)"
-        exit 0
-        ;;
-
     test-swiftpm*)
         SANITIZER=$(echo "$COMMAND" | cut -d - -f 3)
         # FIXME: throwing an exception from a property getter corrupts Swift's
@@ -683,11 +672,6 @@ case "$COMMAND" in
         exit 0
         ;;
 
-    "test-swiftuiserver-osx")
-        xctest 'SwiftUISyncTestHost' -configuration "$CONFIGURATION" -sdk macosx -destination 'platform=macOS'
-        exit 0
-        ;;
-
     ######################################
     # Full verification
     ######################################
@@ -695,12 +679,10 @@ case "$COMMAND" in
         sh build.sh verify-cocoapods
         sh build.sh verify-docs
         sh build.sh verify-spm-ios
-        sh build.sh verify-objectserver-osx
         sh build.sh verify-swiftlint
         sh build.sh verify-swiftpm
         sh build.sh verify-watchos
         sh buils.sh verify-xcframework
-        sh build.sh verify-swiftuiserver-osx
 
         sh build.sh verify-osx
         sh build.sh verify-osx-debug
@@ -798,11 +780,6 @@ case "$COMMAND" in
         cd examples/installation
 
         REALM_TEST_BRANCH="$sha" ./build.rb "$PLATFORM" spm "$LINKAGE"
-        exit 0
-        ;;
-
-    "verify-objectserver-osx")
-        REALM_TEST_BRANCH="$sha" sh build.sh test-objectserver-osx
         exit 0
         ;;
 
