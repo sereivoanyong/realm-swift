@@ -22,19 +22,13 @@ import Realm
 /**
  A homogenous key-value collection of `Object`s which can be retrieved, filtered, sorted, and operated upon.
 */
-public protocol RealmKeyedCollection: Sequence, ThreadConfined, CustomStringConvertible {
+public protocol RealmKeyedCollection<Key, Value>: RealmCollectionBase where Iterator: RealmKeyedCollectionIterator<Key, Value> {
     /// The type of key associated with this collection
     associatedtype Key: _MapKey
     /// The type of value associated with this collection.
     associatedtype Value: RealmCollectionValue
 
     // MARK: Properties
-
-    /// The Realm which manages the map, or `nil` if the map is unmanaged.
-    var realm: Realm? { get }
-
-    /// Indicates if the map can no longer be accessed.
-    var isInvalidated: Bool { get }
 
     /// Returns the number of key-value pairs in this map.
     var count: Int { get }
@@ -339,34 +333,6 @@ public protocol RealmKeyedCollection: Sequence, ThreadConfined, CustomStringConv
     func observe(keyPaths: [String]?,
                  on queue: DispatchQueue?,
                  _ block: @escaping (RealmMapChange<Self>) -> Void) -> NotificationToken
-
-    // MARK: Frozen Objects
-
-    /// Returns if this collection is frozen
-    var isFrozen: Bool { get }
-
-    /**
-     Returns a frozen (immutable) snapshot of this collection.
-
-     The frozen copy is an immutable collection which contains the same data as this collection
-    currently contains, but will not update when writes are made to the containing Realm. Unlike
-    live collections, frozen collections can be accessed from any thread.
-
-     - warning: This method cannot be called during a write transaction, or when the containing
-    Realm is read-only.
-     - warning: Holding onto a frozen collection for an extended period while performing write
-     transaction on the Realm may result in the Realm file growing to large sizes. See
-     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
-    */
-    func freeze() -> Self
-
-    /**
-     Returns a live (mutable) version of this frozen collection.
-
-     This method resolves a reference to a live copy of the same frozen collection.
-     If called on a live collection, will return itself.
-    */
-    func thaw() -> Self?
 }
 
 public extension RealmKeyedCollection {

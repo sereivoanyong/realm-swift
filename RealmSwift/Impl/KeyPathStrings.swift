@@ -143,21 +143,21 @@ extension _DefaultConstructible {
 extension List: KeypathRecorder where Element: _Persistable {}
 extension List: PropertyNameConvertible {
     var propertyInformation: (key: String, isLegacy: Bool)? {
-        return (key: rlmArray.propertyKey, isLegacy: rlmArray.isLegacyProperty)
+        return (key: collection.propertyKey, isLegacy: collection.isLegacyProperty)
     }
 }
 
 extension Map: KeypathRecorder where Value: _Persistable {}
 extension Map: PropertyNameConvertible {
     var propertyInformation: (key: String, isLegacy: Bool)? {
-        return (key: rlmDictionary.propertyKey, isLegacy: rlmDictionary.isLegacyProperty)
+        return (key: collection.propertyKey, isLegacy: collection.isLegacyProperty)
     }
 }
 
 extension MutableSet: KeypathRecorder where Element: _Persistable {}
 extension MutableSet: PropertyNameConvertible {
     var propertyInformation: (key: String, isLegacy: Bool)? {
-        return (key: rlmSet.propertyKey, isLegacy: rlmSet.isLegacyProperty)
+        return (key: collection.propertyKey, isLegacy: collection.isLegacyProperty)
     }
 }
 

@@ -19,10 +19,13 @@
 import Foundation
 import Realm
 
+public protocol RealmCollectionIterator<Element>: IteratorProtocol where Element: RealmCollectionValue {
+}
+
 /**
  An iterator for a `RealmCollection` instance.
  */
-@frozen public struct RLMIterator<Element: RealmCollectionValue>: IteratorProtocol {
+@frozen public struct RLMIterator<Element: RealmCollectionValue>: RealmCollectionIterator {
     private var generatorBase: NSFastEnumerationIterator
 
     init(collection: RLMCollection) {
@@ -69,28 +72,11 @@ public protocol _RealmMapValue {
     }
 }
 
-/**
- An iterator for `Map<Key, Value>` which produces `(key: Key, value: Value)` pairs for each entry in the map.
- */
-@frozen public struct RLMKeyValueIterator<Key: _MapKey, Value: RealmCollectionValue>: IteratorProtocol {
-    private var generatorBase: NSFastEnumerationIterator
-    private var collection: RLMDictionary<AnyObject, AnyObject>
-    public typealias Element = (key: Key, value: Value)
-
-    init(collection: RLMDictionary<AnyObject, AnyObject>) {
-        self.collection = collection
-        generatorBase = NSFastEnumerationIterator(collection)
-    }
-
-    /// Advance to the next element and return it, or `nil` if no next element exists.
-    public mutating func next() -> Element? {
-        let next = generatorBase.next()
-        if let key = next as? Key,
-           let value = collection[key as AnyObject].map(Value._rlmFromObjc(_:)), let value {
-            return (key: key, value: value)
-        }
-        return nil
-    }
+public protocol RealmKeyedCollectionIterator<Key, Value>: IteratorProtocol where Element == (key: Key, value: Value) {
+    /// The type of key associated with this collection
+    associatedtype Key: _MapKey
+    /// The type of value associated with this collection.
+    associatedtype Value: RealmCollectionValue
 }
 
 /**
@@ -218,10 +204,55 @@ extension Optional: RealmCollectionValue where Wrapped: _RealmCollectionValueIns
 }
 
 /// :nodoc:
-public protocol RealmCollectionBase: RandomAccessCollection, LazyCollectionProtocol, CustomStringConvertible, ThreadConfined where Element: RealmCollectionValue {
-    // This typealias was needed with Swift 3.1. It no longer is, but remains
-    // just in case someone was depending on it
-    typealias ElementType = Element
+public protocol RealmCollectionBase<Element>: Sequence, CustomStringConvertible, Equatable, ThreadConfined, _ObjcBridgeable {
+    associatedtype Collection: RLMCollection
+
+    var collection: Collection { get }
+    init(_ collection: Collection)
+}
+
+extension RealmCollectionBase {
+    /// The Realm which manages the collection, or `nil` for unmanaged collections.
+    public var realm: Realm? {
+        return collection.realm.map(Realm.init)
+    }
+
+    /// Indicates if the collection can no longer be accessed.
+    public var isInvalidated: Bool {
+        return collection.isInvalidated
+    }
+
+    /// Returns true if this collection is frozen
+    public var isFrozen: Bool {
+        return collection.isFrozen
+    }
+
+    /**
+     Returns a frozen (immutable) snapshot of this collection.
+
+     The frozen copy is an immutable collection which contains the same data as this collection
+    currently contains, but will not update when writes are made to the containing Realm. Unlike
+    live collections, frozen collections can be accessed from any thread.
+
+     - warning: This method cannot be called during a write transaction, or when the containing
+    Realm is read-only.
+     - warning: Holding onto a frozen collection for an extended period while performing write
+     transaction on the Realm may result in the Realm file growing to large sizes. See
+     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
+    */
+    public func freeze() -> Self {
+        return Self(collection.freeze())
+    }
+
+    /**
+     Returns a live (mutable) version of this frozen collection.
+
+     This method resolves a reference to a live copy of the same frozen collection.
+     If called on a live collection, will return itself.
+    */
+    public func thaw() -> Self? {
+        return Self(collection.thaw())
+    }
 }
 
 // MARK: - RealmCollection protocol
@@ -229,18 +260,10 @@ public protocol RealmCollectionBase: RandomAccessCollection, LazyCollectionProto
 /**
  A homogenous collection of `Object`s which can be retrieved, filtered, sorted, and operated upon.
 */
-public protocol RealmCollection: RealmCollectionBase, Equatable where Iterator == RLMIterator<Element> {
+public protocol RealmCollection<Element>: RealmCollectionBase, RandomAccessCollection, LazyCollectionProtocol where Element: RealmCollectionValue, Index == Int, SubSequence == Slice<Self>, Collection: RLMCollection {
+    associatedtype Iterator: RealmCollectionIterator<Element> = RLMIterator<Element>
+
     // MARK: Properties
-
-    /// The Realm which manages the collection, or `nil` for unmanaged collections.
-    var realm: Realm? { get }
-
-    /**
-     Indicates if the collection can no longer be accessed.
-
-     The collection can no longer be accessed if `invalidate()` is called on the `Realm` that manages the collection.
-     */
-    var isInvalidated: Bool { get }
 
     /// The number of objects in the collection.
     var count: Int { get }
@@ -721,34 +744,6 @@ public protocol RealmCollection: RealmCollectionBase, Equatable where Iterator =
                            _isolation: isolated (any Actor)?,
                            _ block: @Sendable @escaping (isolated A, RealmCollectionChange<Self>) -> Void) async -> NotificationToken
 #endif
-
-    // MARK: Frozen Objects
-
-    /// Returns true if this collection is frozen
-    var isFrozen: Bool { get }
-
-    /**
-     Returns a frozen (immutable) snapshot of this collection.
-
-     The frozen copy is an immutable collection which contains the same data as this collection
-    currently contains, but will not update when writes are made to the containing Realm. Unlike
-    live collections, frozen collections can be accessed from any thread.
-
-     - warning: This method cannot be called during a write transaction, or when the containing
-    Realm is read-only.
-     - warning: Holding onto a frozen collection for an extended period while performing write
-     transaction on the Realm may result in the Realm file growing to large sizes. See
-     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
-    */
-    func freeze() -> Self
-
-    /**
-     Returns a live (mutable) version of this frozen collection.
-
-     This method resolves a reference to a live copy of the same frozen collection.
-     If called on a live collection, will return itself.
-    */
-    func thaw() -> Self?
 
     /**
      Sorts this collection from a given array of sort descriptors and performs sectioning via a
@@ -1822,15 +1817,15 @@ extension RealmCollection {
  collections. It does not have any runtime overhead over using the original
  collection directly.
  */
-@frozen public struct AnyRealmCollection<Element: RealmCollectionValue>: RealmCollectionImpl {
-    internal let collection: RLMCollection
+@frozen public struct AnyRealmCollection<Element: RealmCollectionValue>: RealmCollection, RealmCollectionImpl {
+    public let collection: RLMCollection
     internal var lastAccessedNames: NSMutableArray?
-    internal init(collection: RLMCollection) {
+    public init(_ collection: RLMCollection) {
         self.collection = collection
     }
 
     /// Creates an `AnyRealmCollection` wrapping `base`.
-    public init<C: RealmCollection & _ObjcBridgeable>(_ base: C) where C.Element == Element {
+    public init<C: RealmCollection>(_ base: C) where C.Element == Element {
         self.collection = base._rlmObjcValue as! RLMCollection
     }
 
@@ -1857,6 +1852,17 @@ extension RealmCollection {
         return RLMIterator(collection: collection)
     }
 
+    public static func list<S: Sequence>(_ objects: S) -> AnyRealmCollection<Element> where S.Iterator.Element == Element {
+        let list = List<Element>()
+        list.append(objectsIn: objects)
+        return AnyRealmCollection(list)
+    }
+}
+
+extension RealmCollection {
+    public func eraseToAnyRealmCollection() -> AnyRealmCollection<Element> {
+        return AnyRealmCollection<Element>(self)
+    }
 }
 
 extension AnyRealmCollection: Encodable where Element: Encodable {}
@@ -2175,7 +2181,7 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
     private let propertyName: String
 
     init(_ collection: RLMCollection, keyPath: AnyKeyPath, propertyName: String) {
-        self.backingCollection = AnyRealmCollection(collection: collection)
+        self.backingCollection = AnyRealmCollection(collection)
         self.keyPath = keyPath
         self.propertyName = propertyName
     }

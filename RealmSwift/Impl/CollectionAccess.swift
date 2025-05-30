@@ -18,14 +18,14 @@
 
 import Realm
 
-private func isSameCollection(_ lhs: RLMCollection, _ rhs: Any) -> Bool {
+private func isSameCollection<C: RLMCollection>(_ lhs: C, _ rhs: Any) -> Bool {
     // Managed isEqual checks if they're backed by the same core field, so it does exactly what we need
     if lhs.realm != nil {
         return lhs.isEqual(rhs)
     }
     // For unmanaged we want to check if the backing collection is the same instance
-    if let rhs = rhs as? RLMSwiftCollectionBase {
-        return lhs === rhs._rlmCollection
+    if let rhs = rhs as? RLMSwiftCollectionBase<C> {
+        return lhs === rhs.collection
     }
     return lhs === rhs as AnyObject
 }
@@ -41,30 +41,30 @@ internal protocol MutableRealmCollection {
 
 extension List: MutableRealmCollection {
     func assign(_ value: Any) {
-        guard !isSameCollection(_rlmCollection, value) else { return }
-        RLMAssignToCollection(_rlmCollection, value)
+        guard !isSameCollection(collection, value) else { return }
+        RLMAssignToCollection(collection, value)
     }
     func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
-        rlmArray.setParent(object, property: property)
+        collection.setParent(object, property: property)
     }
 }
 
 extension MutableSet: MutableRealmCollection {
     func assign(_ value: Any) {
-        guard !isSameCollection(_rlmCollection, value) else { return }
-        RLMAssignToCollection(_rlmCollection, value)
+        guard !isSameCollection(collection, value) else { return }
+        RLMAssignToCollection(collection, value)
     }
     func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
-        rlmSet.setParent(object, property: property)
+        collection.setParent(object, property: property)
     }
 }
 
 extension Map: MutableRealmCollection {
     func assign(_ value: Any) {
-        guard !isSameCollection(_rlmCollection, value) else { return }
-        rlmDictionary.setDictionary(value)
+        guard !isSameCollection(collection, value) else { return }
+        collection.setDictionary(value)
     }
     func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
-        rlmDictionary.setParent(object, property: property)
+        collection.setParent(object, property: property)
     }
 }

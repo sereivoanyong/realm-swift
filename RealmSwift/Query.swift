@@ -219,7 +219,7 @@ public struct Query<T> {
         .init(appendKeyPath(_name(for: member), options: [.isCollection, .requiresAny]))
     }
     /// :nodoc:
-    public subscript<V: RealmCollectionBase>(dynamicMember member: KeyPath<T, V>) -> Query<V> where T: ObjectBase {
+    public subscript<V: RealmCollection>(dynamicMember member: KeyPath<T, V>) -> Query<V> where T: ObjectBase {
         .init(appendKeyPath(_name(for: member), options: [.isCollection, .requiresAny]))
     }
 

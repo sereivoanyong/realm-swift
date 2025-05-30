@@ -599,8 +599,8 @@ extension Object: _RealmCollectionValueInsideOptional {
         if let dynamic = self as? DynamicObject {
             return dynamic[propertyName] as! List<DynamicObject>
         }
-        let list = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase
-        return List<DynamicObject>(collection: list._rlmCollection as! RLMArray<AnyObject>)
+        let list = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase<RLMArray<AnyObject>>
+        return List<DynamicObject>(list.collection)
     }
 
     // MARK: Dynamic set
@@ -622,8 +622,8 @@ extension Object: _RealmCollectionValueInsideOptional {
         if let dynamic = self as? DynamicObject {
             return dynamic[propertyName] as! MutableSet<DynamicObject>
         }
-        let set = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase
-        return MutableSet<DynamicObject>(collection: set._rlmCollection as! RLMSet<AnyObject>)
+        let set = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase<RLMSet<AnyObject>>
+        return MutableSet<DynamicObject>(set.collection)
     }
 
     // MARK: Dynamic map
@@ -645,8 +645,8 @@ extension Object: _RealmCollectionValueInsideOptional {
         if let dynamic = self as? DynamicObject {
             return dynamic[propertyName] as! Map<Key, DynamicObject?>
         }
-        let base = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase
-        return Map<Key, DynamicObject?>(objc: base._rlmCollection as! RLMDictionary<AnyObject, AnyObject>)
+        let base = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase<RLMDictionary<AnyObject, AnyObject>>
+        return Map<Key, DynamicObject?>(base.collection)
     }
 
     // MARK: Comparison
@@ -821,93 +821,93 @@ public final class DynamicObject: Object {
     private func list(from array: RLMArray<AnyObject>) -> Any {
         switch array.type {
         case .int:
-            return array.isOptional ? List<Int?>(collection: array) : List<Int>(collection: array)
+            return array.isOptional ? List<Int?>(array) : List<Int>(array)
         case .double:
-            return array.isOptional ? List<Double?>(collection: array) : List<Double>(collection: array)
+            return array.isOptional ? List<Double?>(array) : List<Double>(array)
         case .float:
-            return array.isOptional ? List<Float?>(collection: array) : List<Float>(collection: array)
+            return array.isOptional ? List<Float?>(array) : List<Float>(array)
         case .decimal128:
-            return array.isOptional ? List<Decimal128?>(collection: array) : List<Decimal128>(collection: array)
+            return array.isOptional ? List<Decimal128?>(array) : List<Decimal128>(array)
         case .bool:
-            return array.isOptional ? List<Bool?>(collection: array) : List<Bool>(collection: array)
+            return array.isOptional ? List<Bool?>(array) : List<Bool>(array)
         case .UUID:
-            return array.isOptional ? List<UUID?>(collection: array) : List<UUID>(collection: array)
+            return array.isOptional ? List<UUID?>(array) : List<UUID>(array)
         case .string:
-            return array.isOptional ? List<String?>(collection: array) : List<String>(collection: array)
+            return array.isOptional ? List<String?>(array) : List<String>(array)
         case .data:
-            return array.isOptional ? List<Data?>(collection: array) : List<Data>(collection: array)
+            return array.isOptional ? List<Data?>(array) : List<Data>(array)
         case .date:
-            return array.isOptional ? List<Date?>(collection: array) : List<Date>(collection: array)
+            return array.isOptional ? List<Date?>(array) : List<Date>(array)
         case .any:
-            return List<AnyRealmValue>(collection: array)
+            return List<AnyRealmValue>(array)
         case .linkingObjects:
             throwRealmException("Unsupported migration type of 'LinkingObjects' for type 'List'.")
         case .objectId:
-            return array.isOptional ? List<ObjectId?>(collection: array) : List<ObjectId>(collection: array)
+            return array.isOptional ? List<ObjectId?>(array) : List<ObjectId>(array)
         case .object:
-            return List<DynamicObject>(collection: array)
+            return List<DynamicObject>(array)
         }
     }
 
     private func mutableSet(from set: RLMSet<AnyObject>) -> Any {
         switch set.type {
         case .int:
-            return set.isOptional ? MutableSet<Int?>(collection: set) : MutableSet<Int>(collection: set)
+            return set.isOptional ? MutableSet<Int?>(set) : MutableSet<Int>(set)
         case .double:
-            return set.isOptional ? MutableSet<Double?>(collection: set) : MutableSet<Double>(collection: set)
+            return set.isOptional ? MutableSet<Double?>(set) : MutableSet<Double>(set)
         case .float:
-            return set.isOptional ? MutableSet<Float?>(collection: set) : MutableSet<Float>(collection: set)
+            return set.isOptional ? MutableSet<Float?>(set) : MutableSet<Float>(set)
         case .decimal128:
-            return set.isOptional ? MutableSet<Decimal128?>(collection: set) : MutableSet<Decimal128>(collection: set)
+            return set.isOptional ? MutableSet<Decimal128?>(set) : MutableSet<Decimal128>(set)
         case .bool:
-            return set.isOptional ? MutableSet<Bool?>(collection: set) : MutableSet<Bool>(collection: set)
+            return set.isOptional ? MutableSet<Bool?>(set) : MutableSet<Bool>(set)
         case .UUID:
-            return set.isOptional ? MutableSet<UUID?>(collection: set) : MutableSet<UUID>(collection: set)
+            return set.isOptional ? MutableSet<UUID?>(set) : MutableSet<UUID>(set)
         case .string:
-            return set.isOptional ? MutableSet<String?>(collection: set) : MutableSet<String>(collection: set)
+            return set.isOptional ? MutableSet<String?>(set) : MutableSet<String>(set)
         case .data:
-            return set.isOptional ? MutableSet<Data?>(collection: set) : MutableSet<Data>(collection: set)
+            return set.isOptional ? MutableSet<Data?>(set) : MutableSet<Data>(set)
         case .date:
-            return set.isOptional ? MutableSet<Date?>(collection: set) : MutableSet<Date>(collection: set)
+            return set.isOptional ? MutableSet<Date?>(set) : MutableSet<Date>(set)
         case .any:
-            return MutableSet<AnyRealmValue>(collection: set)
+            return MutableSet<AnyRealmValue>(set)
         case .linkingObjects:
             throwRealmException("Unsupported migration type of 'LinkingObjects' for type 'MutableSet'.")
         case .objectId:
-            return set.isOptional ? MutableSet<ObjectId?>(collection: set) : MutableSet<ObjectId>(collection: set)
+            return set.isOptional ? MutableSet<ObjectId?>(set) : MutableSet<ObjectId>(set)
         case .object:
-            return MutableSet<DynamicObject>(collection: set)
+            return MutableSet<DynamicObject>(set)
         }
     }
 
     private func map(from dictionary: RLMDictionary<AnyObject, AnyObject>) -> Any {
         switch dictionary.type {
         case .int:
-            return dictionary.isOptional ? Map<String, Int?>(objc: dictionary) : Map<String, Int>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Int?>(dictionary) : Map<String, Int>(dictionary)
         case .double:
-            return dictionary.isOptional ? Map<String, Double?>(objc: dictionary) : Map<String, Double>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Double?>(dictionary) : Map<String, Double>(dictionary)
         case .float:
-            return dictionary.isOptional ? Map<String, Float?>(objc: dictionary) : Map<String, Float>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Float?>(dictionary) : Map<String, Float>(dictionary)
         case .decimal128:
-            return dictionary.isOptional ? Map<String, Decimal128?>(objc: dictionary) : Map<String, Decimal128>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Decimal128?>(dictionary) : Map<String, Decimal128>(dictionary)
         case .bool:
-            return dictionary.isOptional ? Map<String, Bool?>(objc: dictionary) : Map<String, Bool>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Bool?>(dictionary) : Map<String, Bool>(dictionary)
         case .UUID:
-            return dictionary.isOptional ? Map<String, UUID?>(objc: dictionary) : Map<String, UUID>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, UUID?>(dictionary) : Map<String, UUID>(dictionary)
         case .string:
-            return dictionary.isOptional ? Map<String, String?>(objc: dictionary) : Map<String, String>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, String?>(dictionary) : Map<String, String>(dictionary)
         case .data:
-            return dictionary.isOptional ? Map<String, Data?>(objc: dictionary) : Map<String, Data>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Data?>(dictionary) : Map<String, Data>(dictionary)
         case .date:
-            return dictionary.isOptional ? Map<String, Date?>(objc: dictionary) : Map<String, Date>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, Date?>(dictionary) : Map<String, Date>(dictionary)
         case .any:
-            return Map<String, AnyRealmValue>(objc: dictionary)
+            return Map<String, AnyRealmValue>(dictionary)
         case .linkingObjects:
             throwRealmException("Unsupported migration type of 'LinkingObjects' for type 'Map'.")
         case .objectId:
-            return dictionary.isOptional ? Map<String, ObjectId?>(objc: dictionary) : Map<String, ObjectId>(objc: dictionary)
+            return dictionary.isOptional ? Map<String, ObjectId?>(dictionary) : Map<String, ObjectId>(dictionary)
         case .object:
-            return Map<String, DynamicObject?>(objc: dictionary)
+            return Map<String, DynamicObject?>(dictionary)
         }
     }
 }

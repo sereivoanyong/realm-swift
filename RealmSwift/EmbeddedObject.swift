@@ -405,8 +405,8 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
      :nodoc:
      */
     public func dynamicList(_ propertyName: String) -> List<DynamicObject> {
-        let list = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase
-        return List<DynamicObject>(collection: list._rlmCollection as! RLMArray<AnyObject>)
+        let list = RLMDynamicGetByName(self, propertyName) as! RLMSwiftCollectionBase<RLMArray<AnyObject>>
+        return List<DynamicObject>(list.collection)
     }
 
     // MARK: Comparison

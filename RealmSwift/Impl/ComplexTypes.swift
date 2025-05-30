@@ -99,14 +99,14 @@ extension List: _HasPersistedType, _Persistable, _DefaultConstructible where Ele
     public static var _rlmRequiresCaching: Bool { true }
 
     public static func _rlmGetProperty(_ obj: ObjectBase, _ key: UInt16) -> Self {
-        return Self(collection: RLMGetSwiftPropertyArray(obj, key))
+        return Self(RLMGetSwiftPropertyArray(obj, key))
     }
 
     public static func _rlmSetProperty(_ obj: ObjectBase, _ key: UInt16, _ value: List) {
         let array = RLMGetSwiftPropertyArray(obj, key)
-        if array.isEqual(value.rlmArray) { return }
+        if array.isEqual(value.collection) { return }
         array.removeAllObjects()
-        array.addObjects(value.rlmArray)
+        array.addObjects(value.collection)
     }
 
     public static func _rlmSetAccessor(_ prop: RLMProperty) {
@@ -130,14 +130,14 @@ extension MutableSet: _HasPersistedType, _Persistable, _DefaultConstructible whe
     public static var _rlmRequiresCaching: Bool { true }
 
     public static func _rlmGetProperty(_ obj: ObjectBase, _ key: UInt16) -> Self {
-        return Self(collection: RLMGetSwiftPropertySet(obj, key))
+        return Self(RLMGetSwiftPropertySet(obj, key))
     }
 
     public static func _rlmSetProperty(_ obj: ObjectBase, _ key: UInt16, _ value: MutableSet) {
         let set = RLMGetSwiftPropertySet(obj, key)
-        if set.isEqual(value.rlmSet) { return }
+        if set.isEqual(value.collection) { return }
         set.removeAllObjects()
-        set.addObjects(value.rlmSet)
+        set.addObjects(value.collection)
     }
 
     public static func _rlmSetAccessor(_ prop: RLMProperty) {
@@ -162,14 +162,14 @@ extension Map: _HasPersistedType, _Persistable, _DefaultConstructible where Valu
     public static var _rlmRequiresCaching: Bool { true }
 
     public static func _rlmGetProperty(_ obj: ObjectBase, _ key: UInt16) -> Self {
-        return Self(objc: RLMGetSwiftPropertyMap(obj, key))
+        return Self(RLMGetSwiftPropertyMap(obj, key))
     }
 
     public static func _rlmSetProperty(_ obj: ObjectBase, _ key: UInt16, _ value: Map) {
         let map = RLMGetSwiftPropertyMap(obj, key)
-        if map.isEqual(value.rlmDictionary) { return }
+        if map.isEqual(value.collection) { return }
         map.removeAllObjects()
-        map.addEntries(fromDictionary: value.rlmDictionary)
+        map.addEntries(fromDictionary: value.collection)
     }
 
     public static func _rlmSetAccessor(_ prop: RLMProperty) {

@@ -780,7 +780,7 @@ RLMArray *RLMGetSwiftPropertyArray(__unsafe_unretained RLMObjectBase *const obj,
     return (RLMArray *)getCollection(obj, key);
 }
 RLMSet *RLMGetSwiftPropertySet(__unsafe_unretained RLMObjectBase *const obj, uint16_t key) {
-    return getCollection(obj, key);
+    return (RLMSet *)getCollection(obj, key);
 }
 RLMDictionary *RLMGetSwiftPropertyMap(__unsafe_unretained RLMObjectBase *const obj, uint16_t key) {
     return (RLMDictionary *)getCollection(obj, key);

@@ -613,7 +613,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      :nodoc:
      */
     public func delete<Element: ObjectBase>(_ objects: List<Element>) {
-        rlmRealm.deleteObjects(objects._rlmCollection)
+        rlmRealm.deleteObjects(objects.collection)
     }
 
     /**
@@ -626,7 +626,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      :nodoc:
      */
     public func delete<Key: _MapKey, Value: ObjectBase>(_ map: Map<Key, Value?>) {
-        rlmRealm.deleteObjects(map._rlmCollection)
+        rlmRealm.deleteObjects(map.collection)
     }
 
     /**

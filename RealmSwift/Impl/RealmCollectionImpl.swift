@@ -27,16 +27,12 @@ import Realm
 // The functions don't need to be documented here because Xcode/DocC inherit
 // the documentation from the RealmCollection protocol definition, and jazzy
 // excludes this file entirely.
-internal protocol RealmCollectionImpl: RealmCollection where Index == Int, SubSequence == Slice<Self>, Iterator == RLMIterator<Element> {
-    var collection: RLMCollection { get }
-    init(collection: RLMCollection)
+internal protocol RealmCollectionImpl: RealmCollection {
 }
 extension RealmCollectionImpl {
-    public var realm: Realm? { collection.realm.map(Realm.init) }
-    public var isInvalidated: Bool { collection.isInvalidated }
     public var count: Int { Int(collection.count) }
 
-    public subscript(bounds: Range<Self.Index>) -> SubSequence {
+    public subscript(bounds: Range<Index>) -> SubSequence {
         return SubSequence(base: self, bounds: bounds)
     }
     public var first: Element? {
@@ -112,8 +108,8 @@ extension RealmCollectionImpl {
         // callback is called.
         var col: Self?
         func wrapped(collection: RLMCollection?, change: RLMCollectionChange?, error: Error?) {
-            if col == nil, let collection = collection {
-                col = self.collection === collection ? self : Self(collection: collection)
+            if col == nil, let collection = collection as! Collection? {
+                col = self.collection === collection ? self : Self(collection)
             }
             block(.init(value: col, change: change, error: error))
         }
@@ -148,16 +144,6 @@ extension RealmCollectionImpl {
     }
 #endif
 
-    public var isFrozen: Bool {
-        return collection.isFrozen
-    }
-    public func freeze() -> Self {
-        return Self(collection: collection.freeze())
-    }
-    public func thaw() -> Self? {
-        return Self(collection: collection.thaw())
-    }
-
     public func sectioned<Key: _Persistable>(sortDescriptors: [SortDescriptor],
                                              _ keyBlock: @escaping ((Element) -> Key)) -> SectionedResults<Key, Element> {
         if sortDescriptors.isEmpty {
@@ -167,8 +153,15 @@ extension RealmCollectionImpl {
             return keyBlock(Element._rlmFromObjc(value)!)._rlmObjcValue as? RLMValue
         }
 
-        return SectionedResults(rlmSectionedResult: sectionedResults)
+        return SectionedResults(sectionedResults)
     }
+}
+
+internal protocol RealmKeyedCollectionImpl: RealmKeyedCollection {
+}
+
+extension RealmKeyedCollectionImpl {
+    public var count: Int { Int(collection.count) }
 }
 
 // A helper protocol which lets us check for Optional in where clauses

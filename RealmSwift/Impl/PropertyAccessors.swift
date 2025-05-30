@@ -34,11 +34,11 @@ internal class ListAccessor<Element: RealmCollectionValue>: RLMManagedPropertyAc
     }
 
     @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent)._rlmCollection = RLMManagedArray(parent: parent, property: property)
+        bound(property, parent).collection = RLMManagedArray(parent: parent, property: property)
     }
 
     @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent).rlmArray.setParent(parent, property: property)
+        bound(property, parent).collection.setParent(parent, property: property)
     }
 
     @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
@@ -56,11 +56,11 @@ internal class SetAccessor<Element: RealmCollectionValue>: RLMManagedPropertyAcc
     }
 
     @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent)._rlmCollection = RLMManagedSet(parent: parent, property: property)
+        bound(property, parent).collection = RLMManagedSet(parent: parent, property: property)
     }
 
     @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent).rlmSet.setParent(parent, property: property)
+        bound(property, parent).collection.setParent(parent, property: property)
     }
 
     @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
@@ -78,11 +78,11 @@ internal class MapAccessor<Key: _MapKey, Value: RealmCollectionValue>: RLMManage
     }
 
     @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent)._rlmCollection = RLMManagedDictionary(parent: parent, property: property)
+        bound(property, parent).collection = RLMManagedDictionary(parent: parent, property: property)
     }
 
     @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
-        bound(property, parent).rlmDictionary.setParent(parent, property: property)
+        bound(property, parent).collection.setParent(parent, property: property)
     }
 
     @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
@@ -197,7 +197,7 @@ internal class PersistedListAccessor<Element: RealmCollectionValue & _Persistabl
     @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
-            existing._rlmCollection = RLMGetSwiftPropertyArray(parent, key)
+            existing.collection = RLMGetSwiftPropertyArray(parent, key)
         }
     }
 }
@@ -209,7 +209,7 @@ internal class PersistedSetAccessor<Element: RealmCollectionValue & _Persistable
     @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
-            existing._rlmCollection = RLMGetSwiftPropertyArray(parent, key)
+            existing.collection = RLMGetSwiftPropertySet(parent, key)
         }
     }
 }
@@ -221,7 +221,7 @@ internal class PersistedMapAccessor<Key: _MapKey, Value: RealmCollectionValue & 
     @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
-            existing._rlmCollection = RLMGetSwiftPropertyMap(parent, PropertyKey(property.index))
+            existing.collection = RLMGetSwiftPropertyMap(parent, PropertyKey(property.index))
         }
     }
 }

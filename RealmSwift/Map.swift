@@ -40,29 +40,21 @@ extension String: _MapKey { }
  
  A Map can be filtered and sorted with the same predicates as `Results<Value>`.
 */
-public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftCollectionBase {
+public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftCollectionBase<RLMDictionary<AnyObject, AnyObject>>, RealmKeyedCollection, RealmKeyedCollectionImpl {
 
     // MARK: Properties
 
     /// Contains the last accessed property names when tracing the key path.
     internal var lastAccessedNames: NSMutableArray?
 
-    /// The Realm which manages the map, or `nil` if the map is unmanaged.
-    public var realm: Realm? {
-        return _rlmCollection.realm.map { Realm($0) }
-    }
-
-    /// Indicates if the map can no longer be accessed.
-    public var isInvalidated: Bool { return _rlmCollection.isInvalidated }
-
     /// Returns all of the keys in this map.
     public var keys: [Key] {
-        return rlmDictionary.allKeys.map(staticBridgeCast)
+        return collection.allKeys.map(staticBridgeCast)
     }
 
     /// Returns all of the values in this map.
     public var values: [Value] {
-        return rlmDictionary.allValues.map(staticBridgeCast)
+        return collection.allValues.map(staticBridgeCast)
     }
 
     // MARK: Initializers
@@ -72,17 +64,14 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
         super.init()
     }
     /// :nodoc:
-    public override init(collection: RLMCollection) {
-        super.init(collection: collection)
-    }
-    internal init(objc rlmDictionary: RLMDictionary<AnyObject, AnyObject>) {
-        super.init(collection: rlmDictionary)
+    public override init(_ collection: RLMDictionary<AnyObject, AnyObject>) {
+        super.init(collection)
     }
 
     // MARK: Count
 
     /// Returns the number of key-value pairs in this map.
-    @objc public var count: Int { return Int(_rlmCollection.count) }
+    @objc public var count: Int { return Int(collection.count) }
 
     // MARK: Mutation
 
@@ -98,7 +87,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter forKey: The direction to sort in.
      */
     public func updateValue(_ value: Value, forKey key: Key) {
-        rlmDictionary[objcKey(from: key)] = staticBridgeCast(fromSwift: value) as AnyObject
+        collection[objcKey(from: key)] = staticBridgeCast(fromSwift: value) as AnyObject
     }
 
     /**
@@ -125,12 +114,12 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
         for (key, value) in sequence {
             let key = objcKey(from: key)
             var selectedValue: Value
-            if let existing = rlmDictionary[key] {
+            if let existing = collection[key] {
                 selectedValue = try combine(staticBridgeCast(fromObjectiveC: existing), value)
             } else {
                 selectedValue = value
             }
-            rlmDictionary[key] = staticBridgeCast(fromSwift: selectedValue) as AnyObject
+            collection[key] = staticBridgeCast(fromSwift: selectedValue) as AnyObject
         }
     }
 
@@ -141,7 +130,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - warning: This method may only be called during a write transaction.
      */
     public func removeObject(for key: Key) {
-        rlmDictionary.removeObject(forKey: objcKey(from: key))
+        collection.removeObject(forKey: objcKey(from: key))
     }
 
     /**
@@ -150,7 +139,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - warning: This method may only be called during a write transaction.
      */
     public func removeAll() {
-        rlmDictionary.removeAllObjects()
+        collection.removeAllObjects()
     }
 
     /**
@@ -170,13 +159,13 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             if let lastAccessedNames = lastAccessedNames {
                 return ((Value.self as! KeypathRecorder.Type).keyPathRecorder(with: lastAccessedNames) as! Value)
             }
-            return rlmDictionary[objcKey(from: key)].map(staticBridgeCast)
+            return collection[objcKey(from: key)].map(staticBridgeCast)
         }
         set {
             if newValue == nil {
-                rlmDictionary.removeObject(forKey: key as AnyObject)
+                collection.removeObject(forKey: key as AnyObject)
             } else {
-                rlmDictionary[objcKey(from: key)] = staticBridgeCast(fromSwift: newValue) as AnyObject
+                collection[objcKey(from: key)] = staticBridgeCast(fromSwift: newValue) as AnyObject
             }
         }
     }
@@ -187,7 +176,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter key: The key to the property whose values are desired.
      */
     @objc public func object(forKey key: AnyObject) -> AnyObject? {
-        return rlmDictionary.object(forKey: key as AnyObject)
+        return collection.object(forKey: key as AnyObject)
     }
 
     // MARK: KVC
@@ -200,7 +189,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter key: The key to the property whose values are desired.
      */
     @nonobjc public func value(forKey key: String) -> AnyObject? {
-        return rlmDictionary.value(forKey: key as AnyObject)
+        return collection.value(forKey: key as AnyObject)
             .map(dynamicBridgeCast)
     }
 
@@ -210,7 +199,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter keyPath: The key to the property whose values are desired.
      */
     @nonobjc public func value(forKeyPath keyPath: String) -> AnyObject? {
-        return rlmDictionary.value(forKeyPath: keyPath)
+        return collection.value(forKeyPath: keyPath)
             .map(dynamicBridgeCast)
     }
 
@@ -223,7 +212,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter key:   The name of the property whose value should be set on each object.
     */
     public func setValue(_ value: Any?, forKey key: String) {
-        rlmDictionary.setValue(value, forKey: key)
+        collection.setValue(value, forKey: key)
     }
 
     // MARK: Filtering
@@ -236,7 +225,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter predicate: The predicate with which to filter the values.
      */
     public func filter(_ predicate: NSPredicate) -> Results<Value> {
-        return Results<Value>(rlmDictionary.objects(with: predicate))
+        return Results<Value>(collection.objects(with: predicate))
     }
 
     /**
@@ -267,7 +256,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      */
     public func contains(where predicate: @escaping (_ key: Key, _ value: Value) -> Bool) -> Bool {
         var found = false
-        rlmDictionary.enumerateKeysAndObjects { (k, v, shouldStop) in
+        collection.enumerateKeysAndObjects { (k, v, shouldStop) in
             if predicate(staticBridgeCast(fromObjectiveC: k), staticBridgeCast(fromObjectiveC: v)) {
                 found = true
                 shouldStop.pointee = true
@@ -317,7 +306,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
     */
     public func sorted<S: Sequence>(by sortDescriptors: S) -> Results<Value>
         where S.Iterator.Element == SortDescriptor {
-            return Results<Value>(_rlmCollection.sortedResults(using: sortDescriptors.map { $0.rlmSortDescriptorValue }))
+            return Results<Value>(collection.sortedResults(using: sortDescriptors.map { $0.rlmSortDescriptorValue }))
     }
 
     // MARK: Aggregate Operations
@@ -331,7 +320,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter property: The name of a property whose minimum value is desired.
      */
     public func min<T: _HasPersistedType>(ofProperty property: String) -> T? where T.PersistedType: MinMaxType {
-        return rlmDictionary.min(ofProperty: property).map(staticBridgeCast)
+        return collection.min(ofProperty: property).map(staticBridgeCast)
     }
 
     /**
@@ -343,7 +332,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter property: The name of a property whose minimum value is desired.
      */
     public func max<T: _HasPersistedType>(ofProperty property: String) -> T? where T.PersistedType: MinMaxType {
-        return rlmDictionary.max(ofProperty: property).map(staticBridgeCast)
+        return collection.max(ofProperty: property).map(staticBridgeCast)
     }
 
     /**
@@ -354,7 +343,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
     - parameter property: The name of a property conforming to `AddableType` to calculate sum on.
     */
     public func sum<T: _HasPersistedType>(ofProperty property: String) -> T where T.PersistedType: AddableType {
-        return staticBridgeCast(fromObjectiveC: rlmDictionary.sum(ofProperty: property))
+        return staticBridgeCast(fromObjectiveC: collection.sum(ofProperty: property))
     }
 
     /**
@@ -366,7 +355,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
      - parameter property: The name of a property whose values should be summed.
      */
     public func average<T: _HasPersistedType>(ofProperty property: String) -> T? where T.PersistedType: AddableType {
-        return rlmDictionary.average(ofProperty: property).map(staticBridgeCast)
+        return collection.average(ofProperty: property).map(staticBridgeCast)
     }
 
     // MARK: Notifications
@@ -488,11 +477,11 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
         var col: Map?
         let wrapped = { (collection: RLMDictionary<AnyObject, AnyObject>?, change: RLMDictionaryChange?, error: Error?) in
             if col == nil, let collection = collection {
-                col = collection === self._rlmCollection ? self : Self(objc: collection)
+                col = collection === self.collection ? self : Self(collection)
             }
             block(.fromObjc(value: col, change: change, error: error))
         }
-        return rlmDictionary.addNotificationBlock(wrapped, keyPaths: keyPaths, queue: queue)
+        return collection.addNotificationBlock(wrapped, keyPaths: keyPaths, queue: queue)
     }
 
 #if compiler(<6)
@@ -852,49 +841,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
     }
 #endif
 
-    // MARK: Frozen Objects
-
-    /**
-     Indicates if the `Map` is frozen.
-
-     Frozen `Map`s are immutable and can be accessed from any thread. Frozen `Map`s
-     are created by calling `-freeze` on a managed live `Map`. Unmanaged `Map`s are
-     never frozen.
-     */
-    public var isFrozen: Bool {
-        return _rlmCollection.isFrozen
-    }
-
-    /**
-     Returns a frozen (immutable) snapshot of a `Map`.
-
-     The frozen copy is an immutable `Map` which contains the same data as this
-     `Map` currently contains, but will not update when writes are made to the
-     containing Realm. Unlike live `Map`s, frozen `Map`s can be accessed from any
-     thread.
-
-     - warning: This method cannot be called during a write transaction, or when the
-                containing Realm is read-only.
-     - warning: This method may only be called on a managed `Map`.
-     - warning: Holding onto a frozen `Map` for an extended period while performing
-                write transaction on the Realm may result in the Realm file growing
-                to large sizes. See `RLMRealmConfiguration.maximumNumberOfActiveVersions`
-                for more information.
-     */
-    public func freeze() -> Map {
-        Map(objc: rlmDictionary.freeze())
-    }
-
-    /**
-     Returns a live version of this frozen `Map`.
-
-     This method resolves a reference to a live copy of the same frozen `Map`.
-     If called on a live `Map`, will return itself.
-    */
-    public func thaw() -> Map? {
-        Map(objc: rlmDictionary.thaw())
-    }
-
     @objc static func _unmanagedCollection() -> RLMDictionary<AnyObject, AnyObject> {
         if let type = Value.self as? HasClassName.Type ?? Value.PersistedType.self as? HasClassName.Type {
             return RLMDictionary(objectClassName: type.className(), keyType: Key._rlmType)
@@ -918,11 +864,13 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
     }
 
     @objc private func descriptionWithMaxDepth(_ depth: UInt) -> String {
-        return RLMDictionaryDescriptionWithMaxDepth("Map", rlmDictionary, depth)
+        return RLMDictionaryDescriptionWithMaxDepth("Map", collection, depth)
     }
 
-    internal var rlmDictionary: RLMDictionary<AnyObject, AnyObject> {
-        _rlmCollection as! RLMDictionary
+    // MARK: Equatable
+
+    public static func == (lhs: Map<Key, Value>, rhs: Map<Key, Value>) -> Bool {
+        return lhs.isEqual(rhs)
     }
 
     private func objcKey(from swiftKey: Key) -> AnyObject {
@@ -954,9 +902,43 @@ extension Map: Encodable where Key: Encodable, Value: Encodable {
 // MARK: Sequence Support
 
 extension Map: Sequence {
+    /**
+     An iterator for `Map<Key, Value>` which produces `(key: Key, value: Value)` pairs for each entry in the map.
+     */
+    @frozen public struct Iterator: RealmKeyedCollectionIterator {
+        private var generatorBase: NSFastEnumerationIterator
+        private var collection: RLMDictionary<AnyObject, AnyObject>
+
+        init(collection: RLMDictionary<AnyObject, AnyObject>) {
+            self.collection = collection
+            generatorBase = NSFastEnumerationIterator(collection)
+        }
+
+        /// Advance to the next element and return it, or `nil` if no next element exists.
+        public mutating func next() -> Element? {
+            let next = generatorBase.next()
+            if let key = next as? Key,
+               let value = collection[key as AnyObject].map(Value._rlmFromObjc(_:)), let value {
+                return (key: key, value: value)
+            }
+            return nil
+        }
+    }
+
     /// Returns a `RLMMapIterator` that yields successive elements in the `Map`.
-    public func makeIterator() -> RLMKeyValueIterator<Key, Value> {
-        return RLMKeyValueIterator<Key, Value>(collection: rlmDictionary)
+    public func makeIterator() -> Iterator {
+        return Iterator(collection: collection)
+    }
+}
+
+// MARK: - ExpressibleByDictionaryLiteral
+
+extension Map: ExpressibleByDictionaryLiteral {
+    public convenience init(dictionaryLiteral elements: (Key, Value)...) {
+        self.init()
+        for element in elements {
+            self[element.0] = element.1
+        }
     }
 }
 
@@ -1006,10 +988,6 @@ extension Map: Sequence {
         return .initial(value!)
     }
 }
-
-// MARK: - RealmKeyedCollection Conformance
-
-extension Map: RealmKeyedCollection { }
 
 // MARK: - MapIndex
 

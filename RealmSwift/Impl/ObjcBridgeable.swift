@@ -165,28 +165,16 @@ extension AnyRealmValue: BuiltInObjcBridgeable {
 
 // MARK: - Collections
 
-extension Map: BuiltInObjcBridgeable {
-    public var _rlmObjcValue: Any { _rlmCollection }
-    public static func _rlmFromObjc(_ value: Any) -> Self? {
-        (value as? RLMCollection).map(Self.init(collection:))
-    }
-}
-extension RealmCollectionImpl {
+extension RealmCollectionBase {
     public var _rlmObjcValue: Any { self.collection }
     public static func _rlmFromObjc(_ value: Any, insideOptional: Bool) -> Self? {
-        (value as? RLMCollection).map(Self.init(collection:))
+        (value as? Collection).map(Self.init)
     }
 }
-
-extension LinkingObjects: _ObjcBridgeable {}
-extension Results: _ObjcBridgeable {}
-extension AnyRealmCollection: _ObjcBridgeable {}
-extension List: _ObjcBridgeable {}
-extension MutableSet: _ObjcBridgeable {}
 
 extension SectionedResults: BuiltInObjcBridgeable {
     public static func _rlmFromObjc(_ value: Any, insideOptional: Bool) -> Self? {
-        (value as? RLMSectionedResults<RLMValue, RLMValue>).map(Self.init(rlmSectionedResult:))
+        (value as? RLMSectionedResults<RLMValue, RLMValue>).map(Self.init)
     }
     public var _rlmObjcValue: Any {
         self.collection
@@ -195,23 +183,12 @@ extension SectionedResults: BuiltInObjcBridgeable {
 
 extension ResultsSection: BuiltInObjcBridgeable {
     public static func _rlmFromObjc(_ value: Any, insideOptional: Bool) -> Self? {
-        (value as? RLMSection<RLMValue, RLMValue>).map(Self.init(rlmSectionedResult:))
+        (value as? RLMSection<RLMValue, RLMValue>).map(Self.init)
     }
     public var _rlmObjcValue: Any {
         self.collection
     }
 }
-
-extension RLMSwiftCollectionBase {
-    public static func == (lhs: RLMSwiftCollectionBase, rhs: RLMSwiftCollectionBase) -> Bool {
-        return lhs.isEqual(rhs)
-    }
-}
-#if compiler(>=6)
-extension RLMSwiftCollectionBase: @retroactive Equatable {}
-#else
-extension RLMSwiftCollectionBase: Equatable {}
-#endif
 
 extension Projection: BuiltInObjcBridgeable {
     public static func _rlmFromObjc(_ value: Any) -> Self? {

@@ -48,15 +48,15 @@
 #endif
 
 static inline RLMArray *asRLMArray(__unsafe_unretained id const value) {
-    return RLMDynamicCast<RLMArray>(value) ?: (RLMArray *)RLMDynamicCast<RLMSwiftCollectionBase>(value)._rlmCollection;
+    return RLMDynamicCast<RLMArray>(value) ?: (RLMArray *)RLMDynamicCast<RLMSwiftCollectionBase>(value).collection;
 }
 
 static inline RLMSet *asRLMSet(__unsafe_unretained id const value) {
-    return RLMDynamicCast<RLMSet>(value) ?: RLMDynamicCast<RLMSwiftCollectionBase>(value)._rlmCollection;
+    return RLMDynamicCast<RLMSet>(value) ?: (RLMSet *)RLMDynamicCast<RLMSwiftCollectionBase>(value).collection;
 }
 
 static inline RLMDictionary *asRLMDictionary(__unsafe_unretained id const value) {
-    return RLMDynamicCast<RLMDictionary>(value) ?: (RLMDictionary *)RLMDynamicCast<RLMSwiftCollectionBase>(value)._rlmCollection;
+    return RLMDynamicCast<RLMDictionary>(value) ?: (RLMDictionary *)RLMDynamicCast<RLMSwiftCollectionBase>(value).collection;
 }
 
 static inline bool checkCollectionType(__unsafe_unretained id<RLMCollection> const collection,

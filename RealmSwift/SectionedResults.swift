@@ -23,7 +23,7 @@ import Realm
  `RealmSectionedResult` defines properties and methods which are common between
  `SectionedResults` and `ResultSection`.
  */
-public protocol RealmSectionedResult: RandomAccessCollection, Equatable, ThreadConfined {
+public protocol RealmSectionedResult: RandomAccessCollection, Equatable, ThreadConfined where Index == Int {
     // MARK: Properties
 
     /// The Realm which manages the collection, or `nil` if the collection is invalidated.
@@ -783,8 +783,9 @@ public extension RealmSectionedResult where Element: ObjectBase {
 // Shared implementation of SectionedResults and ResultsSection
 private protocol SectionedResultImpl: RealmSectionedResult {
     associatedtype Collection: RLMSectionedResult
+
     var collection: Collection { get set }
-    init(rlmSectionedResult: Collection)
+    init(_ collection: Collection)
 }
 /// :nodoc:
 extension SectionedResultImpl {
@@ -801,17 +802,17 @@ extension SectionedResultImpl {
         collection.isFrozen
     }
     public func freeze() -> Self {
-        Self(rlmSectionedResult: collection.freeze())
+        Self(collection.freeze())
     }
     public func thaw() -> Self? {
-        Self(rlmSectionedResult: collection.thaw())
+        Self(collection.thaw())
     }
 
     public func observe(keyPaths: [String]?,
                         on queue: DispatchQueue?,
                         _ block: @escaping (SectionedResultsChange<Self>) -> Void) -> NotificationToken {
         let wrapped = { (collection: RLMSectionedResult, change: RLMSectionedResultsChange) in
-            block(SectionedResultsChange.fromObjc(value: Self(rlmSectionedResult: collection as! Self.Collection),
+            block(SectionedResultsChange.fromObjc(value: Self(collection as! Self.Collection),
                                                   change: change))
         }
         return collection.addNotificationBlock(wrapped, keyPaths: keyPaths, queue: queue)
@@ -823,8 +824,8 @@ extension SectionedResultImpl {
 /// A `SectionedResults` instance can be observed and it also conforms to `ThreadConfined`.
 public struct SectionedResults<Key: _Persistable & Hashable, SectionElement: RealmCollectionValue>: SectionedResultImpl {
     internal var collection: RLMSectionedResults<RLMValue, RLMValue>
-    internal init(rlmSectionedResult: RLMSectionedResults<RLMValue, RLMValue>) {
-        self.collection = rlmSectionedResult
+    internal init(_ collection: RLMSectionedResults<RLMValue, RLMValue>) {
+        self.collection = collection
     }
     public typealias Element = ResultsSection<Key, SectionElement>
 
@@ -838,7 +839,7 @@ public struct SectionedResults<Key: _Persistable & Hashable, SectionElement: Rea
      - parameter index: The index.
      */
     public subscript(_ index: Int) -> Element {
-        return Element(rlmSectionedResult: collection[UInt(index)])
+        return ResultsSection<Key, SectionElement>(collection[UInt(index)])
     }
 
     /**
@@ -850,8 +851,8 @@ public struct SectionedResults<Key: _Persistable & Hashable, SectionElement: Rea
     }
 
     /// :nodoc:
-    public func makeIterator() -> SectionedResultsIterator<Key, SectionElement> {
-        return SectionedResultsIterator(collection: collection)
+    public func makeIterator() -> Iterator {
+        return Iterator(collection: collection)
     }
 
     /// :nodoc:
@@ -860,14 +861,32 @@ public struct SectionedResults<Key: _Persistable & Hashable, SectionElement: Rea
     }
 }
 
+extension SectionedResults {
+    /**
+     An iterator for a `SectionedResults` instance.
+     */
+    @frozen public struct Iterator: IteratorProtocol {
+        private var generatorBase: NSFastEnumerationIterator
+
+        init(collection: RLMSectionedResults<RLMValue, RLMValue>) {
+            generatorBase = NSFastEnumerationIterator(collection)
+        }
+
+        /// Advance to the next element and return it, or `nil` if no next element exists.
+        public mutating func next() -> ResultsSection<Key, SectionElement>? {
+            guard let next = generatorBase.next() else { return nil }
+            return ResultsSection<Key, SectionElement>(next as! RLMSection<RLMValue, RLMValue>)
+        }
+    }
+}
+
 /// `ResultsSection` is a collection which allows access  to objects that belong to a given section key.
 /// The collection is lazily evaluated, meaning that if the underlying collection has changed a full recalculation of the section keys will take place.
 /// A `ResultsSection` instance can be observed and it also conforms to `ThreadConfined`.
-public struct ResultsSection<Key: _Persistable & Hashable, T: RealmCollectionValue>: SectionedResultImpl {
-    public typealias Element = T
+public struct ResultsSection<Key: _Persistable & Hashable, Element: RealmCollectionValue>: SectionedResultImpl {
     internal var collection: RLMSection<RLMValue, RLMValue>
-    internal init(rlmSectionedResult: RLMSection<RLMValue, RLMValue>) {
-        self.collection = rlmSectionedResult
+    internal init(_ collection: RLMSection<RLMValue, RLMValue>) {
+        self.collection = collection
     }
 
     /// The key which represents this section.
@@ -883,13 +902,13 @@ public struct ResultsSection<Key: _Persistable & Hashable, T: RealmCollectionVal
      Returns the object at the given `index`.
      - parameter index: The index.
      */
-    public subscript(_ index: Int) -> T {
-        return T._rlmFromObjc(collection[UInt(index)])!
+    public subscript(_ index: Int) -> Element {
+        return Element._rlmFromObjc(collection[UInt(index)])!
     }
 
     /// :nodoc:
-    public func makeIterator() -> SectionIterator<Element> {
-        return SectionIterator(collection: collection)
+    public func makeIterator() -> Iterator {
+        return Iterator(collection: collection)
     }
 
     /// :nodoc:
@@ -900,6 +919,25 @@ public struct ResultsSection<Key: _Persistable & Hashable, T: RealmCollectionVal
 
 @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 extension ResultsSection: Identifiable { }
+
+extension ResultsSection {
+    /**
+     An iterator for a `Section` instance.
+     */
+    @frozen public struct Iterator: IteratorProtocol {
+        private var generatorBase: NSFastEnumerationIterator
+
+        init(collection: RLMSection<RLMValue, RLMValue>) {
+            generatorBase = NSFastEnumerationIterator(collection)
+        }
+
+        /// Advance to the next element and return it, or `nil` if no next element exists.
+        public mutating func next() -> Element? {
+            guard let next = generatorBase.next() else { return nil }
+            return next as? Element
+        }
+    }
+}
 
 /**
  A `SectionedResultsChange` value encapsulates information about changes to
@@ -945,39 +983,5 @@ extension ResultsSection: Identifiable { }
                            sectionsToDelete: change.sectionsToRemove)
         }
         return .initial(value)
-    }
-}
-
-/**
- An iterator for a `SectionedResults` instance.
- */
-@frozen public struct SectionedResultsIterator<Key: _Persistable & Hashable, Element: RealmCollectionValue>: IteratorProtocol {
-    private var generatorBase: NSFastEnumerationIterator
-
-    init(collection: RLMSectionedResults<RLMValue, RLMValue>) {
-        generatorBase = NSFastEnumerationIterator(collection)
-    }
-
-    /// Advance to the next element and return it, or `nil` if no next element exists.
-    public mutating func next() -> ResultsSection<Key, Element>? {
-        guard let next = generatorBase.next() else { return nil }
-        return ResultsSection<Key, Element>(rlmSectionedResult: next as! RLMSection<RLMValue, RLMValue>)
-    }
-}
-
-/**
- An iterator for a `Section` instance.
- */
-@frozen public struct SectionIterator<Element: RealmCollectionValue>: IteratorProtocol {
-    private var generatorBase: NSFastEnumerationIterator
-
-    init(collection: RLMSection<RLMValue, RLMValue>) {
-        generatorBase = NSFastEnumerationIterator(collection)
-    }
-
-    /// Advance to the next element and return it, or `nil` if no next element exists.
-    public mutating func next() -> Element? {
-        guard let next = generatorBase.next() else { return nil }
-        return next as? Element
     }
 }

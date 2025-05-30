@@ -729,11 +729,11 @@ class ModernObjectAccessorTests: TestCase {
         XCTAssertNil(obj.optStringEnumCol)
 
         let collectionsObj = realm.create(ModernCollectionsOfEnums.self)
-        (collectionsObj.listIntOpt._rlmCollection as! RLMArray<AnyObject>).add(NSNumber(value: 10))
+        (collectionsObj.listIntOpt.collection).add(NSNumber(value: 10))
         XCTAssertNil(collectionsObj.listIntOpt[0])
-        (collectionsObj.setStringOpt._rlmCollection as! RLMSet<AnyObject>).add("abc" as AnyObject)
+        (collectionsObj.setStringOpt.collection).add("abc" as AnyObject)
         XCTAssertNil(collectionsObj.setStringOpt[0])
-        (collectionsObj.mapStringOpt._rlmCollection as! RLMDictionary<NSString, AnyObject>).setObject("abc" as AnyObject, forKey: "key")
+        (collectionsObj.mapStringOpt.collection).setObject("abc" as AnyObject, forKey: "key" as NSString)
         XCTAssertEqual(collectionsObj.mapStringOpt["key"], EnumString??.some(nil))
 
         realm.cancelWrite()
