@@ -51,9 +51,9 @@ public extension ObjectiveCSupport {
         case let .object(o):
             return o
         case let .dictionary(d):
-            return d.rlmDictionary
+            return d.collection
         case let .list(l):
-            return l.rlmArray
+            return l.collection
         default:
             return nil
         }
@@ -128,13 +128,13 @@ public extension ObjectiveCSupport {
             guard let val = value as? RLMDictionary<AnyObject, AnyObject> else {
                 return .none
             }
-            let d = Map<String, AnyRealmValue>(objc: val)
+            let d = Map<String, AnyRealmValue>(val)
             return AnyRealmValue.dictionary(d)
         case RLMAnyValueType.list:
-            guard let val = value as? RLMArray<RLMValue> else {
+            guard let val = value as? RLMArray<AnyObject> else {
                 return .none
             }
-            return AnyRealmValue.list(List<AnyRealmValue>(collection: val))
+            return AnyRealmValue.list(List<AnyRealmValue>(val))
         default:
             return .none
         }

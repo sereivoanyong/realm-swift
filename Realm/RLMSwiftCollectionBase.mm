@@ -49,53 +49,53 @@
 }
 
 - (instancetype)initWithCollection:(id<RLMCollection>)collection {
-    __rlmCollection = collection;
+    _collection = collection;
     return self;
 }
 
-- (id<RLMCollection>)_rlmCollection {
-    if (!__rlmCollection) {
-        __rlmCollection = self.class._unmanagedCollection;
+- (id<RLMCollection>)collection {
+    if (!_collection) {
+        _collection = self.class._unmanagedCollection;
     }
-    return __rlmCollection;
+    return _collection;
 }
 
 - (BOOL)isKindOfClass:(Class)aClass {
-    return [self._rlmCollection isKindOfClass:aClass] || RLMIsKindOfClass(object_getClass(self), aClass);
+    return [self.collection isKindOfClass:aClass] || RLMIsKindOfClass(object_getClass(self), aClass);
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)sel {
-    return [(id)self._rlmCollection methodSignatureForSelector:sel];
+    return [(id)self.collection methodSignatureForSelector:sel];
 }
 
 - (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self._rlmCollection];
+    [invocation invokeWithTarget:self.collection];
 }
 
 - (id)forwardingTargetForSelector:(__unused SEL)sel {
-    return self._rlmCollection;
+    return self.collection;
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector {
-    return [self._rlmCollection respondsToSelector:aSelector];
+    return [self.collection respondsToSelector:aSelector];
 }
 
 - (void)doesNotRecognizeSelector:(SEL)aSelector {
-    [(id)self._rlmCollection doesNotRecognizeSelector:aSelector];
+    [(id)self.collection doesNotRecognizeSelector:aSelector];
 }
 
 - (BOOL)isEqual:(id)object {
     if (auto collection = RLMDynamicCast<RLMSwiftCollectionBase>(object)) {
-        if (!__rlmCollection) {
-            return !collection->__rlmCollection.realm && collection->__rlmCollection.count == 0;
+        if (!_collection) {
+            return !collection->_collection.realm && collection->_collection.count == 0;
         }
-        return  [__rlmCollection isEqual:collection->__rlmCollection];
+        return  [_collection isEqual:collection->_collection];
     }
     return NO;
 }
 
 - (BOOL)conformsToProtocol:(Protocol *)aProtocol {
-    return aProtocol == @protocol(NSFastEnumeration) || [self._rlmCollection conformsToProtocol:aProtocol];
+    return aProtocol == @protocol(NSFastEnumeration) || [self.collection conformsToProtocol:aProtocol];
 }
 
 @end
@@ -109,7 +109,7 @@
     RLMRealm *_realm;
     RLMProperty *_property;
 
-    RLMResults *_results;
+    RLMLinkingObjects *_results;
 }
 
 - (instancetype)initWithObject:(RLMObjectBase *)object property:(RLMProperty *)prop {
@@ -130,7 +130,7 @@
     return self;
 }
 
-- (instancetype)initWithLinkingObjects:(RLMResults *)linkingObjects {
+- (instancetype)initWithLinkingObjects:(RLMLinkingObjects *)linkingObjects {
     if (!(self = [super init])) {
         return nil;
     }
@@ -140,7 +140,7 @@
     return self;
 }
 
-- (RLMResults *)results {
+- (RLMLinkingObjects *)results {
     if (_results) {
         return _results;
     }

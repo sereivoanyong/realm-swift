@@ -32,15 +32,8 @@ import Realm.Private
 
  MutableSet's can be filtered and sorted with the same predicates as `Results<Element>`.
 */
-public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollectionBase, RealmCollectionImpl {
+public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollectionBase<RLMSet<AnyObject>>, RealmCollection, RealmCollectionImpl {
     internal var lastAccessedNames: NSMutableArray?
-
-    internal var rlmSet: RLMSet<AnyObject> {
-        unsafeDowncast(_rlmCollection, to: RLMSet.self)
-    }
-    internal var collection: RLMCollection {
-        _rlmCollection
-    }
 
     // MARK: Initializers
 
@@ -49,8 +42,8 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
         super.init()
     }
     /// :nodoc:
-    public override init(collection: RLMCollection) {
-        super.init(collection: collection)
+    public override init(_ collection: RLMSet<AnyObject>) {
+        super.init(collection)
     }
 
     // MARK: KVC
@@ -60,7 +53,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      objects.
      */
     @nonobjc public func value(forKey key: String) -> [AnyObject] {
-        return (rlmSet.value(forKeyPath: key)! as! NSSet).allObjects as [AnyObject]
+        return (collection.value(forKeyPath: key)! as! NSSet).allObjects as [AnyObject]
     }
 
     // MARK: Object Retrieval
@@ -74,7 +67,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
         }
 
         throwForNegativeIndex(position)
-        return staticBridgeCast(fromObjectiveC: rlmSet.object(at: UInt(position)))
+        return staticBridgeCast(fromObjectiveC: collection.object(at: UInt(position)))
     }
 
     // MARK: Filtering
@@ -86,7 +79,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter object: The element to find in the MutableSet.
      */
     public func contains(_ object: Element) -> Bool {
-        return rlmSet.contains(staticBridgeCast(fromSwift: object) as AnyObject)
+        return collection.contains(staticBridgeCast(fromSwift: object) as AnyObject)
     }
 
     /**
@@ -96,7 +89,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - Parameter object: Another MutableSet to compare.
      */
     public func isSubset(of possibleSuperset: MutableSet<Element>) -> Bool {
-        return rlmSet.isSubset(of: possibleSuperset.rlmSet)
+        return collection.isSubset(of: possibleSuperset.collection)
     }
 
     /**
@@ -106,7 +99,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - Parameter object: Another MutableSet to compare.
      */
     public func intersects(_ otherSet: MutableSet<Element>) -> Bool {
-        return rlmSet.intersects(otherSet.rlmSet)
+        return collection.intersects(otherSet.collection)
     }
 
     // MARK: Mutation
@@ -119,7 +112,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter object: An object.
      */
     public func insert(_ object: Element) {
-        rlmSet.add(staticBridgeCast(fromSwift: object) as AnyObject)
+        collection.add(staticBridgeCast(fromSwift: object) as AnyObject)
     }
 
     /**
@@ -129,7 +122,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
     */
     public func insert<S: Sequence>(objectsIn objects: S) where S.Iterator.Element == Element {
         for obj in objects {
-            rlmSet.add(staticBridgeCast(fromSwift: obj) as AnyObject)
+            collection.add(staticBridgeCast(fromSwift: obj) as AnyObject)
         }
     }
 
@@ -141,7 +134,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter object: The object to remove.
      */
     public func remove(_ object: Element) {
-        rlmSet.remove(staticBridgeCast(fromSwift: object) as AnyObject)
+        collection.remove(staticBridgeCast(fromSwift: object) as AnyObject)
     }
 
     /**
@@ -150,7 +143,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - warning: This method may only be called during a write transaction.
      */
     public func removeAll() {
-        rlmSet.removeAllObjects()
+        collection.removeAllObjects()
     }
 
     /**
@@ -161,7 +154,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter other: Another set.
      */
     public func formIntersection(_ other: MutableSet<Element>) {
-        rlmSet.intersect(other.rlmSet)
+        collection.intersect(other.collection)
     }
 
     /**
@@ -172,7 +165,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter other: Another set.
      */
     public func subtract(_ other: MutableSet<Element>) {
-        rlmSet.minus(other.rlmSet)
+        collection.minus(other.collection)
     }
 
     /**
@@ -183,7 +176,7 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
      - parameter other: Another set.
      */
     public func formUnion(_ other: MutableSet<Element>) {
-        rlmSet.union(other.rlmSet)
+        collection.union(other.collection)
     }
 
     @objc static func _unmanagedCollection() -> RLMSet<AnyObject> {
@@ -210,7 +203,13 @@ public final class MutableSet<Element: RealmCollectionValue>: RLMSwiftCollection
     }
 
     @objc private func descriptionWithMaxDepth(_ depth: UInt) -> String {
-        return RLMDescriptionWithMaxDepth("MutableSet", rlmSet, depth)
+        return RLMDescriptionWithMaxDepth("MutableSet", collection, depth)
+    }
+
+    // MARK: Equatable
+
+    public static func == (lhs: MutableSet<Element>, rhs: MutableSet<Element>) -> Bool {
+        return lhs.isEqual(rhs)
     }
 
     /// :nodoc:
@@ -247,3 +246,14 @@ extension MutableSet: Decodable where Element: Decodable {
 }
 
 extension MutableSet: Encodable where Element: Encodable {}
+
+// MARK: - ExpressibleByArrayLiteral conformance
+
+extension MutableSet: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = Element
+
+    public convenience init(arrayLiteral elements: Element...) {
+        self.init()
+        insert(objectsIn: elements)
+    }
+}

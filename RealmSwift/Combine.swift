@@ -809,8 +809,8 @@ extension RealmCollectionImpl {
         -> NotificationToken where S: Subscriber, S.Input == Self {
         var col: Self?
         return collection.addNotificationBlock({ collection, _, _ in
-            if col == nil, let collection = collection {
-                col = self.collection === collection ? self : Self(collection: collection)
+            if col == nil, let collection = collection as! Collection? {
+                col = self.collection === collection ? self : Self(collection)
             }
             if let col = col {
                 _ = subscriber.receive(col)

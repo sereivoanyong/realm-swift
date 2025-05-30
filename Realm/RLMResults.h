@@ -562,7 +562,7 @@ __attribute__((warn_unused_result));
  For more information, please see the "Inverse Relationships" section in the
  [documentation](https://www.mongodb.com/docs/atlas/device-sdks/sdk/swift/model-data/relationships/).
  */
-@interface RLMLinkingObjects<RLMObjectType: RLMObject *> : RLMResults
+@interface RLMLinkingObjects<RLMObjectType> : RLMResults<RLMObjectType>
 @end
 
 RLM_HEADER_AUDIT_END(nullability, sendability)

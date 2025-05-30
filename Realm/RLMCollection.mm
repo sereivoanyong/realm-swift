@@ -276,8 +276,8 @@ NSArray *RLMCollectionValueForKey(Collection& collection, NSString *key, RLMClas
             Class cls = [[prop.swiftAccessor get:prop on:accessor] class];
             for (size_t i = 0; i < count; ++i) {
                 RLMSwiftCollectionBase *base = [[cls alloc] init];
-                base._rlmCollection = [[[cls _backingCollectionType] alloc]
-                                       initWithParent:collection.get(i) property:prop parentInfo:info];
+                base.collection = [[[cls _backingCollectionType] alloc]
+                                   initWithParent:collection.get(i) property:prop parentInfo:info];
                 [array addObject:base];
             }
             return array;

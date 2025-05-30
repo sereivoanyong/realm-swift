@@ -22,12 +22,12 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@interface RLMSwiftCollectionBase : NSProxy <NSFastEnumeration>
-@property (nonatomic, strong) id<RLMCollection> _rlmCollection;
+@interface RLMSwiftCollectionBase<CollectionType : id<RLMCollection>> : NSProxy <NSFastEnumeration>
+@property (nonatomic, strong) CollectionType collection;
 
 - (instancetype)init;
 + (Class)_backingCollectionType;
-- (instancetype)initWithCollection:(id<RLMCollection>)collection;
+- (instancetype)initWithCollection:(CollectionType)collection NS_SWIFT_NAME(init(_:));
 
 - (nullable id)valueForKey:(NSString *)key;
 - (nullable id)valueForKeyPath:(NSString *)keyPath;
@@ -36,7 +36,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface RLMLinkingObjectsHandle : NSObject
 - (instancetype)initWithObject:(RLMObjectBase *)object property:(RLMProperty *)property;
-- (instancetype)initWithLinkingObjects:(RLMResults *)linkingObjects;
+- (instancetype)initWithLinkingObjects:(RLMLinkingObjects *)linkingObjects;
 
 @property (nonatomic, readonly) RLMLinkingObjects *results;
 @property (nonatomic, readonly) NSString *_propertyKey;

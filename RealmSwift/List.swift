@@ -32,15 +32,8 @@ import Realm.Private
 
  Lists can be filtered and sorted with the same predicates as `Results<Element>`.
 */
-public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, RealmCollectionImpl {
+public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase<RLMArray<AnyObject>>, RealmCollection, RealmCollectionImpl {
     internal var lastAccessedNames: NSMutableArray?
-
-    internal var rlmArray: RLMArray<AnyObject> {
-        unsafeDowncast(collection, to: RLMArray<AnyObject>.self)
-    }
-    internal var collection: RLMCollection {
-        _rlmCollection
-    }
 
     // MARK: Initializers
 
@@ -49,8 +42,8 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
         super.init()
     }
     /// :nodoc:
-    public override init(collection: RLMCollection) {
-        super.init(collection: collection)
+    public override init(_ collection: RLMArray<AnyObject>) {
+        super.init(collection)
     }
 
     // MARK: Object Retrieval
@@ -68,11 +61,11 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
                 return elementKeyPathRecorder(for: Element.self, with: lastAccessedNames)
             }
             throwForNegativeIndex(position)
-            return staticBridgeCast(fromObjectiveC: _rlmCollection.object(at: UInt(position)))
+            return staticBridgeCast(fromObjectiveC: collection.object(at: UInt(position)))
         }
         set {
             throwForNegativeIndex(position)
-            rlmArray.replaceObject(at: UInt(position), with: staticBridgeCast(fromSwift: newValue) as AnyObject)
+            collection.replaceObject(at: UInt(position), with: staticBridgeCast(fromSwift: newValue) as AnyObject)
         }
     }
 
@@ -83,7 +76,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      objects.
      */
     @nonobjc public func value(forKey key: String) -> [AnyObject] {
-        return rlmArray.value(forKeyPath: key)! as! [AnyObject]
+        return collection.value(forKeyPath: key)! as! [AnyObject]
     }
 
     /**
@@ -93,7 +86,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      - parameter keyPath: The key path to the property whose values are desired.
      */
     @nonobjc public func value(forKeyPath keyPath: String) -> [AnyObject] {
-        return rlmArray.value(forKeyPath: keyPath) as! [AnyObject]
+        return collection.value(forKeyPath: keyPath) as! [AnyObject]
     }
 
     // MARK: Mutation
@@ -109,7 +102,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      - parameter object: An object.
      */
     public func append(_ object: Element) {
-        rlmArray.add(staticBridgeCast(fromSwift: object) as AnyObject)
+        collection.add(staticBridgeCast(fromSwift: object) as AnyObject)
     }
 
     /**
@@ -119,7 +112,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
     */
     public func append<S: Sequence>(objectsIn objects: S) where S.Iterator.Element == Element {
         for obj in objects {
-            rlmArray.add(staticBridgeCast(fromSwift: obj) as AnyObject)
+            collection.add(staticBridgeCast(fromSwift: obj) as AnyObject)
         }
     }
 
@@ -135,7 +128,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      */
     public func insert(_ object: Element, at index: Int) {
         throwForNegativeIndex(index)
-        rlmArray.insert(staticBridgeCast(fromSwift: object) as AnyObject, at: UInt(index))
+        collection.insert(staticBridgeCast(fromSwift: object) as AnyObject, at: UInt(index))
     }
 
     /**
@@ -149,7 +142,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      */
     public func remove(at index: Int) {
         throwForNegativeIndex(index)
-        rlmArray.removeObject(at: UInt(index))
+        collection.removeObject(at: UInt(index))
     }
 
     /**
@@ -158,7 +151,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      - warning: This method may only be called during a write transaction.
      */
     public func removeAll() {
-        rlmArray.removeAllObjects()
+        collection.removeAllObjects()
     }
 
     /**
@@ -173,7 +166,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
      */
     public func replace(index: Int, object: Element) {
         throwForNegativeIndex(index)
-        rlmArray.replaceObject(at: UInt(index), with: staticBridgeCast(fromSwift: object) as AnyObject)
+        collection.replaceObject(at: UInt(index), with: staticBridgeCast(fromSwift: object) as AnyObject)
     }
 
     /**
@@ -189,7 +182,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
     public func move(from: Int, to: Int) {
         throwForNegativeIndex(from)
         throwForNegativeIndex(to)
-        rlmArray.moveObject(at: UInt(from), to: UInt(to))
+        collection.moveObject(at: UInt(from), to: UInt(to))
     }
 
     /**
@@ -205,7 +198,7 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
     public func swapAt(_ index1: Int, _ index2: Int) {
         throwForNegativeIndex(index1, parameterName: "index1")
         throwForNegativeIndex(index2, parameterName: "index2")
-        rlmArray.exchangeObject(at: UInt(index1), withObjectAt: UInt(index2))
+        collection.exchangeObject(at: UInt(index1), withObjectAt: UInt(index2))
     }
 
     @objc static func _unmanagedCollection() -> RLMArray<AnyObject> {
@@ -235,7 +228,13 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase, 
     }
 
     @objc private func descriptionWithMaxDepth(_ depth: UInt) -> String {
-        return RLMDescriptionWithMaxDepth("List", _rlmCollection, depth)
+        return RLMDescriptionWithMaxDepth("List", collection, depth)
+    }
+
+    // MARK: Equatable
+
+    public static func == (lhs: List<Element>, rhs: List<Element>) -> Bool {
+        return lhs.isEqual(rhs)
     }
 }
 
@@ -246,7 +245,7 @@ extension List {
      - parameter subrange:    The range of elements to be replaced.
      - parameter newElements: The new elements to be inserted into the List.
      */
-    public func replaceSubrange<C: Collection, R>(_ subrange: R, with newElements: C)
+    public func replaceSubrange<C: Swift.Collection, R>(_ subrange: R, with newElements: C)
         where C.Iterator.Element == Element, R: RangeExpression, List<Element>.Index == R.Bound {
             let subrange = subrange.relative(to: self)
             for _ in subrange.lowerBound..<subrange.upperBound {
@@ -258,10 +257,8 @@ extension List {
     }
 }
 
-// MARK: - MutableCollection conformance, range replaceable collection emulation
-extension List: MutableCollection {
-    public typealias SubSequence = Slice<List>
-
+// MARK: - MutableCollection & RangeReplaceableCollection conformances
+extension List: MutableCollection, RangeReplaceableCollection {
     /**
      Returns the objects at the given range (get), or replaces the objects at the
      given range with new objects (set).
@@ -270,7 +267,7 @@ extension List: MutableCollection {
 
      - parameter index: The index of the object to retrieve or replace.
      */
-    public subscript(bounds: Range<Int>) -> SubSequence {
+    public subscript(bounds: Range<Int>) -> Slice<List<Element>> {
         get {
             return SubSequence(base: self, bounds: bounds)
         }
@@ -287,13 +284,13 @@ extension List: MutableCollection {
      */
     public func removeFirst(_ number: Int = 1) {
         throwForNegativeIndex(number)
-        let count = Int(_rlmCollection.count)
+        let count = Int(collection.count)
         guard number <= count else {
             throwRealmException("It is not possible to remove more objects (\(number)) from a list"
                 + " than it already contains (\(count)).")
         }
         for _ in 0..<number {
-            rlmArray.removeObject(at: 0)
+            collection.removeObject(at: 0)
         }
     }
 
@@ -305,13 +302,13 @@ extension List: MutableCollection {
      */
     public func removeLast(_ number: Int = 1) {
         throwForNegativeIndex(number)
-        let count = Int(_rlmCollection.count)
+        let count = Int(collection.count)
         guard number <= count else {
             throwRealmException("It is not possible to remove more objects (\(number)) from a list"
                 + " than it already contains (\(count)).")
         }
         for _ in 0..<number {
-            rlmArray.removeLastObject()
+            collection.removeLastObject()
         }
     }
 
@@ -320,7 +317,7 @@ extension List: MutableCollection {
 
      - warning: This method may only be called during a write transaction.
      */
-    public func insert<C: Collection>(contentsOf newElements: C, at i: Int) where C.Iterator.Element == Element {
+    public func insert<C: Swift.Collection>(contentsOf newElements: C, at i: Int) where C.Iterator.Element == Element {
         var currentIndex = i
         for item in newElements {
             insert(item, at: currentIndex)
@@ -374,3 +371,14 @@ extension List: Decodable where Element: Decodable {
 }
 
 extension List: Encodable where Element: Encodable {}
+
+// MARK: - ExpressibleByArrayLiteral conformance
+
+extension List: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = Element
+
+    public convenience init(arrayLiteral elements: Element...) {
+        self.init()
+        append(objectsIn: elements)
+    }
+}

@@ -65,7 +65,7 @@ private func createBinding<T: ThreadConfined, V>(
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 @MainActor
-private func createCollectionBinding<T: ThreadConfined, V: RLMSwiftCollectionBase & ThreadConfined>(
+private func createCollectionBinding<T: ThreadConfined, V: RealmCollectionBase>(
     _ value: T,
     forKeyPath keyPath: ReferenceWritableKeyPath<T, V>) -> Binding<V> {
 
@@ -583,7 +583,7 @@ extension Projection: _ObservedResultsValue { }
                                         filter: NSPredicate? = nil,
                                         keyPaths: [String]? = nil,
                                         sortDescriptor: SortDescriptor? = nil) where ResultType: Projection<ObjectType>, ObjectType: ThreadConfined {
-        let results = Results<ResultType>(RLMResults<ResultType>.emptyDetached())
+        let results = Results<ResultType>(RLMResults<AnyObject>.emptyDetached())
         self.storage = Storage(results, keyPaths)
         self.storage.configuration = configuration
         self.filter = filter
@@ -607,7 +607,7 @@ extension Projection: _ObservedResultsValue { }
                 filter: NSPredicate? = nil,
                 keyPaths: [String]? = nil,
                 sortDescriptor: SortDescriptor? = nil) where ResultType: Object {
-        self.storage = Storage(Results(RLMResults<ResultType>.emptyDetached()), keyPaths)
+        self.storage = Storage(Results<ResultType>(RLMResults<AnyObject>.emptyDetached()), keyPaths)
         self.storage.configuration = configuration
         self.filter = filter
         self.sortDescriptor = sortDescriptor
@@ -630,7 +630,7 @@ extension Projection: _ObservedResultsValue { }
                 where: ((Query<ResultType>) -> Query<Bool>)? = nil,
                 keyPaths: [String]? = nil,
                 sortDescriptor: SortDescriptor? = nil) where ResultType: Object {
-        self.storage = Storage(Results(RLMResults<ResultType>.emptyDetached()), keyPaths)
+        self.storage = Storage(Results<ResultType>(RLMResults<AnyObject>.emptyDetached()), keyPaths)
         self.storage.configuration = configuration
         self.where = `where`
         self.sortDescriptor = sortDescriptor
@@ -640,7 +640,7 @@ extension Projection: _ObservedResultsValue { }
                 keyPaths: [String]? = nil,
                 configuration: Realm.Configuration? = nil,
                 sortDescriptor: SortDescriptor? = nil) where ResultType: Object {
-        self.storage = Storage(Results(RLMResults<ResultType>.emptyDetached()), keyPaths)
+        self.storage = Storage(Results<ResultType>(RLMResults<AnyObject>.emptyDetached()), keyPaths)
         self.storage.configuration = configuration
         self.sortDescriptor = sortDescriptor
     }
@@ -810,7 +810,7 @@ extension Projection: _ObservedResultsValue { }
                  keyPaths: [String]? = nil,
                  keyPathString: String? = nil,
                  configuration: Realm.Configuration? = nil) where ResultType: AnyObject {
-        let results = Results<ResultType>(RLMResults<ResultType>.emptyDetached())
+        let results = Results<ResultType>(RLMResults<AnyObject>.emptyDetached())
         self.storage = Storage(results,
                                sectionBlock: sectionBlock,
                                sortDescriptors: sortDescriptors,
@@ -1103,7 +1103,7 @@ where ObjectType: RealmSubscribable & ThreadConfined & ObservableObject & Equata
         ///
         /// - Parameter keyPath  : A key path to a specific resulting value.
         /// - Returns: A new binding.
-        public subscript<Subject: RLMSwiftCollectionBase & ThreadConfined>(dynamicMember keyPath: ReferenceWritableKeyPath<ObjectType, Subject>) -> Binding<Subject> {
+        public subscript<Subject: RealmCollectionBase>(dynamicMember keyPath: ReferenceWritableKeyPath<ObjectType, Subject>) -> Binding<Subject> {
             createCollectionBinding(wrappedValue, forKeyPath: keyPath)
         }
     }
@@ -1173,7 +1173,7 @@ extension Binding where Value: ObjectBase & ThreadConfined {
     }
     /// :nodoc:
     @MainActor
-    public subscript<V>(dynamicMember member: ReferenceWritableKeyPath<Value, V>) -> Binding<V> where V: _Persistable & RLMSwiftCollectionBase & ThreadConfined {
+    public subscript<V>(dynamicMember member: ReferenceWritableKeyPath<Value, V>) -> Binding<V> where V: _Persistable & RealmCollectionBase {
         createCollectionBinding(wrappedValue, forKeyPath: member)
     }
     /// :nodoc:
@@ -1446,7 +1446,7 @@ extension ThreadConfined where Self: ProjectionObservable {
     }
     /// :nodoc:
     @MainActor
-    public func bind<V: _Persistable & RLMSwiftCollectionBase & ThreadConfined>(_ keyPath: ReferenceWritableKeyPath<Self, V>) -> Binding<V> {
+    public func bind<V: _Persistable & RealmCollectionBase>(_ keyPath: ReferenceWritableKeyPath<Self, V>) -> Binding<V> {
         createCollectionBinding(self, forKeyPath: keyPath)
     }
 }
@@ -1480,7 +1480,7 @@ extension ThreadConfined where Self: ObjectBase {
     }
     /// :nodoc:
     @MainActor
-    public func bind<V: _Persistable & RLMSwiftCollectionBase & ThreadConfined>(_ keyPath: ReferenceWritableKeyPath<Self, V>) -> Binding<V> {
+    public func bind<V: _Persistable & RealmCollectionBase>(_ keyPath: ReferenceWritableKeyPath<Self, V>) -> Binding<V> {
         createCollectionBinding(self, forKeyPath: keyPath)
     }
 }

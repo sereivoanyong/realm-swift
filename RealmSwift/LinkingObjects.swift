@@ -32,7 +32,7 @@ import Realm
 
  `LinkingObjects` can only be used as a property on `Object` models.
  */
-@frozen public struct LinkingObjects<Element: ObjectBase & RealmCollectionValue>: RealmCollectionImpl {
+@frozen public struct LinkingObjects<Element: ObjectBase & RealmCollectionValue>: RealmCollection, RealmCollectionImpl {
     // MARK: Initializers
 
     /**
@@ -83,16 +83,16 @@ import Realm
         self.propertyName = propertyName
         self.handle = handle
     }
-    internal init(collection: RLMCollection) {
-        self.propertyName = ""
-        self.handle = RLMLinkingObjectsHandle(linkingObjects: collection as! RLMResults<AnyObject>)
+    public init(_ collection: RLMLinkingObjects<AnyObject>) {
+        self.propertyName = nil
+        self.handle = RLMLinkingObjectsHandle(linkingObjects: collection)
     }
 
-    internal var collection: RLMCollection {
-        return handle?.results ?? RLMResults<AnyObject>.emptyDetached()
+    public var collection: RLMLinkingObjects<AnyObject> {
+        return handle?.results ?? RLMLinkingObjects<AnyObject>.emptyDetached()
     }
 
-    internal var propertyName: String
+    internal let propertyName: String?
     internal var handle: RLMLinkingObjectsHandle?
     internal var lastAccessedNames: NSMutableArray?
 
