@@ -90,12 +90,6 @@ import Realm
         return Realm(object)
     }
 
-    /// Convert a `Migration` to a `RLMMigration`.
-    @available(*, deprecated, message: "This function is now redundant")
-    public static func convert(object: Migration) -> RLMMigration {
-        return object
-    }
-
     /// Convert a `ObjectSchema` to a `RLMObjectSchema`.
     public static func convert(object: ObjectSchema) -> RLMObjectSchema {
         return object.rlmObjectSchema

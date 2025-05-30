@@ -23,13 +23,6 @@
 
 @implementation NSData (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeData;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeData;
 }
@@ -40,13 +33,6 @@
 
 @implementation NSDate (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeDate;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeDate;
 }
@@ -56,27 +42,6 @@
 #pragma mark NSNumber
 
 @implementation NSNumber (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    if ([self objCType][0] == 'c' && (self.intValue == 0 || self.intValue == 1)) {
-        return RLMPropertyTypeBool;
-    }
-    else if (numberIsInteger(self)) {
-        return RLMPropertyTypeInt;
-    }
-    else if (*@encode(float) == [self objCType][0]) {
-        return RLMPropertyTypeFloat;
-    }
-    else if (*@encode(double) == [self objCType][0]) {
-        return RLMPropertyTypeDouble;
-    }
-    else {
-        @throw RLMException(@"Unknown numeric type on type RLMValue.");
-    }
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     if ([self objCType][0] == 'c' && (self.intValue == 0 || self.intValue == 1)) {
@@ -102,13 +67,6 @@
 
 @implementation NSNull (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeAny;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeAny;
 }
@@ -118,13 +76,6 @@
 #pragma mark NSString
 
 @implementation NSString (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeString;
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeString;
@@ -136,13 +87,6 @@
 
 @implementation NSUUID (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeUUID;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeUUID;
 }
@@ -152,13 +96,6 @@
 #pragma mark RLMDecimal128
 
 @implementation RLMDecimal128 (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeDecimal128;
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeDecimal128;
@@ -170,13 +107,6 @@
 
 @implementation RLMObjectBase (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeObject;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeObject;
 }
@@ -186,13 +116,6 @@
 #pragma mark RLMObjectId
 
 @implementation RLMObjectId (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeObjectId;
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeObjectId;
@@ -204,13 +127,6 @@
 
 @implementation NSDictionary (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeAny;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeDictionary;
 }
@@ -218,13 +134,6 @@
 @end
 
 @implementation RLMDictionary (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType { return RLMPropertyTypeAny;
-    return RLMPropertyTypeAny;
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeDictionary;
@@ -236,13 +145,6 @@
 
 @implementation NSArray (RLMValue)
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeAny;
-}
-#pragma clang diagnostic pop
-
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeList;
 }
@@ -250,13 +152,6 @@
 @end
 
 @implementation RLMArray (RLMValue)
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (RLMPropertyType)rlm_valueType {
-    return RLMPropertyTypeAny;
-}
-#pragma clang diagnostic pop
 
 - (RLMAnyValueType)rlm_anyValueType {
     return RLMAnyValueTypeList;

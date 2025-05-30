@@ -911,9 +911,6 @@ NS_SWIFT_SENDABLE // is internally thread-safe
 ///
 /// @return True if the token was previously valid, and false if it was already invalidated.
 - (bool)invalidate;
-
-/// Stops notifications for the change subscription that returned this token.
-- (void)stop __attribute__((unavailable("Renamed to -invalidate."))) NS_REFINED_FOR_SWIFT;
 @end
 
 RLM_HEADER_AUDIT_END(nullability, sendability)
