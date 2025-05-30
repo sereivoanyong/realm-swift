@@ -948,10 +948,6 @@ extension ResultsSection: Identifiable { }
     }
 }
 
-/// :nodoc:
-@available(*, deprecated, renamed: "SectionedResultsChange")
-public typealias RealmSectionedResultsChange = SectionedResultsChange
-
 /**
  An iterator for a `SectionedResults` instance.
  */
@@ -969,10 +965,6 @@ public typealias RealmSectionedResultsChange = SectionedResultsChange
     }
 }
 
-/// :nodoc:
-@available(*, deprecated, renamed: "SectionedResultsIterator")
-public typealias RLMSectionedResultsIterator = SectionedResultsIterator
-
 /**
  An iterator for a `Section` instance.
  */
@@ -989,7 +981,3 @@ public typealias RLMSectionedResultsIterator = SectionedResultsIterator
         return next as? Element
     }
 }
-
-/// :nodoc:
-@available(*, deprecated, renamed: "SectionIterator")
-public typealias RLMSectionIterator = SectionIterator

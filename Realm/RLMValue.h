@@ -62,8 +62,6 @@
 @protocol RLMValue
 
 /// Describes the type of property stored.
-@property (readonly) RLMAnyValueType rlm_valueType __attribute__((deprecated("Use `rlm_anyValueType` instead, which includes collection types as well")));
-/// Describes the type of property stored.
 @property (readonly) RLMAnyValueType rlm_anyValueType;
 
 @end

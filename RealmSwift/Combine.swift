@@ -41,11 +41,6 @@ public protocol ObjectKeyIdentifiable: Identifiable {
     var id: UInt64 { get }
 }
 
-/// :nodoc:
-@available(*, deprecated, renamed: "ObjectKeyIdentifiable")
-@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public typealias ObjectKeyIdentifable = ObjectKeyIdentifiable
-
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension ObjectKeyIdentifiable where Self: ObjectBase {
     /// A stable identifier for this object. For managed Realm objects, this
@@ -459,12 +454,6 @@ extension RealmCollection where Self: RealmSubscribable {
         RealmPublishers.WillChange(self)
     }
 
-    /// :nodoc:
-    @available(*, deprecated, renamed: "collectionPublisher")
-    public var publisher: RealmPublishers.Value<Self> {
-        RealmPublishers.Value(self)
-    }
-
     /// A publisher that emits the collection each time the collection changes.
     public var collectionPublisher: RealmPublishers.Value<Self> {
         RealmPublishers.Value(self)
@@ -493,12 +482,6 @@ extension RealmKeyedCollection where Self: RealmSubscribable {
     /// Despite the name, this actually emits *after* the collection has changed.
     public var objectWillChange: RealmPublishers.WillChange<Self> {
         RealmPublishers.WillChange(self)
-    }
-
-    /// :nodoc:
-    @available(*, deprecated, renamed: "collectionPublisher")
-    public var publisher: RealmPublishers.Value<Self> {
-        RealmPublishers.Value(self)
     }
 
     /// A publisher that emits the collection each time the collection changes.
