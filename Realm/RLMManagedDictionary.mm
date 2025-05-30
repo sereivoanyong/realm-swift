@@ -494,11 +494,11 @@ static NSMutableArray *resultsToArray(RLMClassInfo& info, realm::Results r) {
 
 namespace {
 struct DictionaryCallbackWrapper {
-    void (^block)(id, RLMDictionaryChange *, NSError *);
+    void (^block)(id, RLMDictionaryChange *);
     RLMManagedDictionary *collection;
     realm::TransactionRef previousTransaction;
 
-    DictionaryCallbackWrapper(void (^block)(id, RLMDictionaryChange *, NSError *), RLMManagedDictionary *dictionary)
+    DictionaryCallbackWrapper(void (^block)(id, RLMDictionaryChange *), RLMManagedDictionary *dictionary)
     : block(block)
     , collection(dictionary)
     , previousTransaction(static_cast<realm::Transaction&>(collection.realm.group).duplicate())
@@ -507,10 +507,10 @@ struct DictionaryCallbackWrapper {
 
     void operator()(realm::DictionaryChangeSet const& changes) {
         if (changes.deletions.empty() && changes.insertions.empty() && changes.modifications.empty()) {
-            block(collection, nil, nil);
+            block(collection, nil);
         }
         else {
-            block(collection, [[RLMDictionaryChange alloc] initWithChanges:changes], nil);
+            block(collection, [[RLMDictionaryChange alloc] initWithChanges:changes]);
         }
         if (collection.isInvalidated) {
             previousTransaction->end_read();

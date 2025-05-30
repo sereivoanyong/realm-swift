@@ -161,8 +161,6 @@ extension Publisher {
                     return .initial(collection.freeze())
                 case .update(let collection, deletions: let deletions, insertions: let insertions, modifications: let modifications):
                     return .update(collection.freeze(), deletions: deletions, insertions: insertions, modifications: modifications)
-                case .error(let error):
-                    return .error(error)
                 }
             }
     }
@@ -235,8 +233,6 @@ extension Publisher {
                     return .initial(collection.freeze())
                 case .update(let collection, deletions: let deletions, insertions: let insertions, modifications: let modifications):
                     return .update(collection.freeze(), deletions: deletions, insertions: insertions, modifications: modifications)
-                case .error(let error):
-                    return .error(error)
                 }
             }
     }
@@ -808,7 +804,7 @@ extension RealmCollectionImpl {
     public func _observe<S>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S)
         -> NotificationToken where S: Subscriber, S.Input == Self {
         var col: Self?
-        return collection.addNotificationBlock({ collection, _, _ in
+        return collection.addNotificationBlock({ collection, _ in
             if col == nil, let collection = collection as! Collection? {
                 col = self.collection === collection ? self : Self(collection)
             }
@@ -820,7 +816,7 @@ extension RealmCollectionImpl {
 
     /// :nodoc:
     public func _observe<S: Subscriber>(_ keyPaths: [String]? = nil, _ subscriber: S) -> NotificationToken where S.Input == Void {
-        collection.addNotificationBlock({ _, _, _ in _ = subscriber.receive() },
+        collection.addNotificationBlock({ _, _ in _ = subscriber.receive() },
                                         keyPaths: keyPaths, queue: nil)
     }
 }
@@ -842,8 +838,6 @@ extension RealmKeyedCollection {
                     _ = subscriber.receive(collection)
                 case .update(let collection, deletions: _, insertions: _, modifications: _):
                     _ = subscriber.receive(collection)
-                case .error(let error):
-                    fatalError("Unexpected error \(error)")
                 }
             }
     }
@@ -1039,7 +1033,7 @@ public enum RealmPublishers {
     /// A publisher which emits an object or collection each time that object is mutated.
     @frozen public struct Value<Subscribable: RealmSubscribable>: Publisher where Subscribable: ThreadConfined {
         /// This publisher cannot actually fail and will change to Never in the future.
-        public typealias Failure = Error
+        public typealias Failure = Never
         /// This publisher emits the object or collection which it is publishing.
         public typealias Output = Subscribable
 
@@ -1113,7 +1107,7 @@ public enum RealmPublishers {
     /// A publisher which emits an object or collection each time that object is mutated.
     public class ValueWithToken<Subscribable: RealmSubscribable, T>: Publisher where Subscribable: ThreadConfined {
         /// This publisher cannot actually fail and will change to Never in the future.
-        public typealias Failure = Error
+        public typealias Failure = Never
         /// This publisher emits the object or collection which it is publishing.
         public typealias Output = Subscribable
 
@@ -1331,8 +1325,6 @@ public enum RealmPublishers {
                 switch change {
                 case .change(let o, let properties):
                     _ = subscriber.receive(.change(o, properties))
-                case .error(let error):
-                    _ = subscriber.receive(.error(error))
                 case .deleted:
                     subscriber.receive(completion: .finished)
                 }
@@ -1421,8 +1413,6 @@ public enum RealmPublishers {
                 switch change {
                 case .change(let o, let properties):
                     _ = subscriber.receive(.change(o, properties))
-                case .error(let error):
-                    _ = subscriber.receive(.error(error))
                 case .deleted:
                     subscriber.receive(completion: .finished)
                 }
@@ -2352,8 +2342,6 @@ public enum RealmPublishers {
                                        ThreadSafeReference(to: collection),
                                        deletions: deletions, insertions: insertions,
                                        modifications: modifications)
-                    case .error:
-                        return .passthrough(change)
                     }
                 }
                 .receive(on: scheduler)
@@ -2425,8 +2413,6 @@ public enum RealmPublishers {
                         return .update(RLMPinnedRealm(realm: realm.rlmRealm),
                                        ThreadSafeReference(to: collection),
                                        deletions: deletions, insertions: insertions, modifications: modifications)
-                    case .error:
-                        return .passthrough(change)
                     }
                 }
                 .receive(on: scheduler)

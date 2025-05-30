@@ -483,7 +483,7 @@ static double average(NSArray *values) {
 }
 
 - (void)testNotifications {
-    %unman RLMAssertThrowsWithReason([$array addNotificationBlock:^(__unused id a, __unused id c, __unused id e) { }], ^n @"Change notifications are only supported on managed collections.");
+    %unman RLMAssertThrowsWithReason([$array addNotificationBlock:^(__unused id a, __unused id c) { }], ^n @"Change notifications are only supported on managed collections.");
 }
 
 - (void)testMin {
@@ -871,10 +871,9 @@ static NSArray *sortedDistinctUnion(id array, NSString *type, NSString *prop) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
         uncheckedAssertNil(change);
-        uncheckedAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -887,9 +886,8 @@ static NSArray *sortedDistinctUnion(id array, NSString *type, NSString *prop) {
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
-        uncheckedAssertNil(error);
         if (first) {
             uncheckedAssertNil(change);
         }
@@ -919,7 +917,7 @@ static NSArray *sortedDistinctUnion(id array, NSString *type, NSString *prop) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(__unused RLMArray *array, __unused RLMCollectionChange *change, __unused NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(__unused RLMArray *array, __unused RLMCollectionChange *change) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -943,9 +941,8 @@ static NSArray *sortedDistinctUnion(id array, NSString *type, NSString *prop) {
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change) {
         XCTAssertNotNil(array);
-        uncheckedAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];
@@ -980,9 +977,8 @@ static NSArray *sortedDistinctUnion(id array, NSString *type, NSString *prop) {
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
-        uncheckedAssertNil(error);
         if (first) {
             uncheckedAssertNil(change);
             first = false;

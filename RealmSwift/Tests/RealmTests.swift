@@ -1341,8 +1341,6 @@ class RealmTests: TestCase {
                 return // ignore
             case .update:
                 updateComplete.fulfill()
-            case .error:
-                XCTFail("should not get here for this test")
             }
         }
 

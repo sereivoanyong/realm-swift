@@ -987,7 +987,7 @@
 
     __block auto expectation = [self expectationWithDescription:@""];
     __block RLMNotificationToken *token;
-    auto block = ^(RLMResults *results, RLMCollectionChange *changes, NSError *) {
+    auto block = ^(RLMResults *results, RLMCollectionChange *changes) {
         if (!changes) {
             [expectation fulfill];
             return;
@@ -1658,7 +1658,7 @@
     asyncComplete.expectedFulfillmentCount = 4;
 
     RLMResults<RLMObject *> *resultsUnderTest = [StringObject allObjects];
-    RLMNotificationToken *token = [resultsUnderTest addNotificationBlock:^(RLMResults<RLMObject *> *, RLMCollectionChange * _Nullable change, NSError *) {
+    RLMNotificationToken *token = [resultsUnderTest addNotificationBlock:^(RLMResults<RLMObject *> *, RLMCollectionChange * _Nullable change) {
         if (!change) { // ignore initial
             [expectInitial fulfill];
             return;
@@ -2481,7 +2481,7 @@
     RLMAssertThrowsWithReason([realm addNotificationBlock:^(RLMNotification, RLMRealm *) { }],
                               @"Frozen Realms do not change and do not have change notifications.");
     RLMAssertThrowsWithReason(([[IntObject allObjectsInRealm:realm]
-                                addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) { }]),
+                                addNotificationBlock:^(RLMResults *, RLMCollectionChange *) { }]),
                               @"Frozen Realms do not change and do not have change notifications.");
 }
 

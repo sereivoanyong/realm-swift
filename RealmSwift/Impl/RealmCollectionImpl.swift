@@ -108,11 +108,11 @@ extension RealmCollectionImpl {
         // wrapper for the obj-c type, which we'll construct the first time the
         // callback is called.
         var col: Self?
-        func wrapped(collection: RLMCollection?, change: RLMCollectionChange?, error: Error?) {
+        func wrapped(collection: RLMCollection?, change: RLMCollectionChange?) {
             if col == nil, let collection = collection as! Collection? {
                 col = self.collection === collection ? self : Self(collection)
             }
-            block(.init(value: col, change: change, error: error))
+            block(.init(value: col, change: change))
         }
         return collection.addNotificationBlock(wrapped, keyPaths: keyPaths, queue: queue)
     }

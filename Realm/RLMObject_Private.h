@@ -30,8 +30,7 @@ FOUNDATION_EXTERN void RLMInitializeWithValue(RLMObjectBase *, id, RLMSchema *);
 typedef void (^RLMObjectNotificationCallback)(RLMObjectBase *_Nullable object,
                                               NSArray<NSString *> *_Nullable propertyNames,
                                               NSArray *_Nullable oldValues,
-                                              NSArray *_Nullable newValues,
-                                              NSError *_Nullable error);
+                                              NSArray *_Nullable newValues);
 
 // RLMObject accessor and read/write realm
 @interface RLMObjectBase () {

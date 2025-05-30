@@ -929,10 +929,9 @@
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
 
-    id token = [obj.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [obj.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     } keyPaths:@[@"stringCol"]];
@@ -1277,10 +1276,9 @@
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [array.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [array.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
         XCTAssertNil(change);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -1296,10 +1294,9 @@
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [array.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change, NSError *error) {
+    id token = [array.array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *change) {
         XCTAssertNotNil(array);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     }];
@@ -1325,7 +1322,7 @@
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [array.array addNotificationBlock:^(__unused RLMArray *array, __unused RLMCollectionChange *change, __unused NSError *error) {
+    id token = [array.array addNotificationBlock:^(__unused RLMArray *array, __unused RLMCollectionChange *change) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -1352,9 +1349,8 @@
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [array.array addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change, NSError *error) {
+    id token = [array.array addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change) {
         XCTAssertNotNil(array);
-        XCTAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];
@@ -1390,9 +1386,8 @@
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [array.array addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change, NSError *error) {
+    id token = [array.array addNotificationBlock:^(RLMArray *array, __unused RLMCollectionChange *change) {
         XCTAssertNotNil(array);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
@@ -1603,7 +1598,7 @@ static RLMArray<IntObject *> *managedTestArray(void) {
 
 - (void)testObserveFrozenArray {
     RLMArray *frozen = [managedTestArray() freeze];
-    id block = ^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {};
+    id block = ^(__unused BOOL deleted, __unused NSArray *changes) {};
     RLMAssertThrowsWithReason([frozen addNotificationBlock:block],
                               @"Frozen Realms do not change and do not have change notifications.");
 }

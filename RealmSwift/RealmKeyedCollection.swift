@@ -250,8 +250,6 @@ public protocol RealmKeyedCollection<Key, Value>: RealmCollectionBase where Iter
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -287,8 +285,6 @@ public protocol RealmKeyedCollection<Key, Value>: RealmCollectionBase where Iter
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context

@@ -541,8 +541,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  `error` is always `nil` and will be removed in a future version.
  */
 typedef void (^RLMObjectChangeBlock)(BOOL deleted,
-                                     NSArray<RLMPropertyChange *> *_Nullable changes,
-                                     NSError *_Nullable error);
+                                     NSArray<RLMPropertyChange *> *_Nullable changes);
 
 /**
  Registers a block to be called each time the object changes.

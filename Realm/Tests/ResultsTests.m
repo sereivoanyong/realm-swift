@@ -421,10 +421,9 @@
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
     RLMResults<LinkToRenamedProperties *> *allObjects = [LinkToRenamedProperties allObjectsInRealm:realm];
-    id token = [allObjects addNotificationBlock:^(__unused RLMResults *results, RLMCollectionChange *change, __unused NSError *error) {
+    id token = [allObjects addNotificationBlock:^(__unused RLMResults *results, RLMCollectionChange *change) {
         XCTAssertNotNil(results);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     } keyPaths:@[@"link"]];
@@ -1088,7 +1087,7 @@ static vm_size_t get_resident_size(void) {
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
     RLMResults *results = [DogObject objectsWhere:@"ANY owners.name == 'James'"];
-    RLMNotificationToken *token = [results addNotificationBlock:^(__unused RLMResults *results, RLMCollectionChange *change, __unused NSError *error) {
+    RLMNotificationToken *token = [results addNotificationBlock:^(__unused RLMResults *results, RLMCollectionChange *change) {
         if (change != nil) {
             [expectation fulfill];
         }
@@ -1256,7 +1255,7 @@ static RLMResults<IntObject *> *testResults(void) {
 
 - (void)testObserveFrozenResults {
     RLMResults *frozen = [testResults() freeze];
-    id block = ^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {};
+    id block = ^(__unused BOOL deleted, __unused NSArray *changes) {};
     RLMAssertThrowsWithReason([frozen addNotificationBlock:block],
                               @"Frozen Realms do not change and do not have change notifications.");
 }

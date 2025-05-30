@@ -554,7 +554,7 @@ static RLMRealm *s_smallRealm, *s_mediumRealm, *s_largeRealm;
     [self measureMetrics:self.class.defaultPerformanceMetrics automaticallyStartMeasuring:NO forBlock:^{
         RLMRealm *realm = [self getStringObjects:5];
         RLMResults *results = [StringObject allObjectsInRealm:realm];
-        RLMNotificationToken *token = [results addNotificationBlock:^(__unused RLMResults *results, __unused RLMCollectionChange *change, __unused NSError *error) {
+        RLMNotificationToken *token = [results addNotificationBlock:^(__unused RLMResults *results, __unused RLMCollectionChange *change) {
             CFRunLoopStop(CFRunLoopGetCurrent());
         }];
         CFRunLoopRun();
@@ -576,7 +576,7 @@ static RLMRealm *s_smallRealm, *s_mediumRealm, *s_largeRealm;
         ArrayPropertyObject *arrayObj = [ArrayPropertyObject createInRealm:realm withValue:@[@"", [StringObject allObjectsInRealm:realm], @[]]];
         [realm commitWriteTransaction];
 
-        RLMNotificationToken *token = [arrayObj.array addNotificationBlock:^(__unused RLMArray *results, __unused RLMCollectionChange *change, __unused NSError *error) {
+        RLMNotificationToken *token = [arrayObj.array addNotificationBlock:^(__unused RLMArray *results, __unused RLMCollectionChange *change) {
             CFRunLoopStop(CFRunLoopGetCurrent());
         }];
         CFRunLoopRun();
@@ -595,7 +595,7 @@ static RLMRealm *s_smallRealm, *s_mediumRealm, *s_largeRealm;
     RLMRealm *realm = [self getStringObjects:5];
     NSMutableArray *tokens = [NSMutableArray new];
     for (StringObject *so in [StringObject allObjectsInRealm:realm]) {
-        [tokens addObject:[so addNotificationBlock:^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {
+        [tokens addObject:[so addNotificationBlock:^(__unused BOOL deleted, __unused NSArray *changes) {
             CFRunLoopStop(CFRunLoopGetCurrent());
         }]];
     }
@@ -628,7 +628,7 @@ static RLMRealm *s_smallRealm, *s_mediumRealm, *s_largeRealm;
         RLMRealm *realm = [self getStringObjects:1];
         NSMutableArray *tokens = [NSMutableArray new];
         for (StringObject *so in [StringObject allObjectsInRealm:realm]) {
-            [tokens addObject:[so addNotificationBlock:^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {
+            [tokens addObject:[so addNotificationBlock:^(__unused BOOL deleted, __unused NSArray *changes) {
                 CFRunLoopStop(CFRunLoopGetCurrent());
             }]];
         }

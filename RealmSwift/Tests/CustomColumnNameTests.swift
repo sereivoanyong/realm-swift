@@ -591,8 +591,6 @@ class CustomColumnResultsTest<O: CustomColumnObjectFactory, F: CustomColumnResul
                     XCTAssertGreaterThan(modifications.count, 0)
                     ex.fulfill()
                 case .initial: break
-                default:
-                    XCTFail("No other changes are done to the object")
                 }
             }
             notificationTokens.append(notificationToken)
@@ -917,8 +915,6 @@ class CustomColumnMapTest<O: CustomColumnObjectFactory, F: CustomColumnMapTypeFa
                     XCTAssertEqual(mapChanges.count, 1)
                     ex.fulfill()
                 case .initial: break
-                default:
-                    XCTFail("No other changes are done to the object")
                 }
             }
             notificationTokens.append(notificationToken)

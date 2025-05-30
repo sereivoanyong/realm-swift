@@ -95,7 +95,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state, NSUInteger len, id<RL
 - (instancetype)initWithChanges:(realm::CollectionChangeSet)indices;
 @end
 
-realm::CollectionChangeCallback RLMWrapCollectionChangeCallback(void (^block)(id, id, NSError *),
+realm::CollectionChangeCallback RLMWrapCollectionChangeCallback(void (^block)(id, id),
                                                                 id collection, bool skipFirst);
 
 template<typename Collection>

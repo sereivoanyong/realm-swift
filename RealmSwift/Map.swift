@@ -392,8 +392,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -428,8 +426,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      ```
@@ -476,11 +472,11 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
                         _ block: @escaping (RealmMapChange<Map>) -> Void)
     -> NotificationToken {
         var col: Map?
-        let wrapped = { (collection: RLMDictionary<AnyObject, AnyObject>?, change: RLMDictionaryChange?, error: Error?) in
+        let wrapped = { (collection: RLMDictionary<AnyObject, AnyObject>?, change: RLMDictionaryChange?) in
             if col == nil, let collection = collection {
                 col = collection === self.collection ? self : Self(collection)
             }
-            block(.fromObjc(value: col, change: change, error: error))
+            block(.fromObjc(value: col, change: change))
         }
         return collection.addNotificationBlock(wrapped, keyPaths: keyPaths, queue: queue)
     }
@@ -527,8 +523,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // No longer possible and left for backwards compatibility
         }
     }
     ```
@@ -616,8 +610,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // No longer possible and left for backwards compatibility
         }
     }
     ```
@@ -704,8 +696,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // No longer possible and left for backwards compatibility
         }
     }
     ```
@@ -794,8 +784,6 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // No longer possible and left for backwards compatibility
         }
     }
     ```
@@ -970,17 +958,8 @@ extension Map: ExpressibleByDictionaryLiteral {
      */
     case update(Collection, deletions: [Collection.Key], insertions: [Collection.Key], modifications: [Collection.Key])
 
-    /**
-     Errors can no longer occur. This case is unused and will be removed in the
-     next major version.
-     */
-    case error(Error)
-
-    static func fromObjc(value: Collection?, change: RLMDictionaryChange?, error: Error?) -> RealmMapChange {
-        if let error = error {
-            return .error(error)
-        }
-        if let change = change {
+    static func fromObjc(value: Collection?, change: RLMDictionaryChange?) -> RealmMapChange {
+        if let change {
             return .update(value!,
                            deletions: change.deletions as! [Collection.Key],
                            insertions: change.insertions as! [Collection.Key],

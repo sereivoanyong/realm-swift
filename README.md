@@ -67,8 +67,6 @@ token = dog.observe { change in
         for property in properties {
             print("Property '\(property.name)' changed to '\(property.newValue!)'");
         }
-    case .error(let error):
-        print("An error occurred: (error)")
     case .deleted:
         print("The object was deleted.")
     }

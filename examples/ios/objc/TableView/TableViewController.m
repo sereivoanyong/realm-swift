@@ -51,7 +51,7 @@ static NSString * const kTableName = @"table";
 
     // Set realm notification block
     __weak typeof(self) weakSelf = self;
-    self.notification = [self.array addNotificationBlock:^(RLMResults *data, RLMCollectionChange *changes, NSError *error) {
+    self.notification = [self.array addNotificationBlock:^(RLMResults *data, RLMCollectionChange *changes) {
         if (error) {
             NSLog(@"Failed to open Realm on background worker: %@", error);
             return;

@@ -634,10 +634,9 @@
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [obj.dictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change, NSError *error) {
+    id token = [obj.dictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     } keyPaths:@[@"stringCol"]];
@@ -1198,10 +1197,9 @@
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [dict.stringDictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change, NSError *error) {
+    id token = [dict.stringDictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
         XCTAssertNil(change);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -1217,10 +1215,9 @@
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [dict.stringDictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change, NSError *error) {
+    id token = [dict.stringDictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     }];
@@ -1247,8 +1244,7 @@
 
     id expectation = [self expectationWithDescription:@""];
     id token = [dict.stringDictionary addNotificationBlock:^(__unused RLMDictionary *dictionary,
-                                                             __unused RLMDictionaryChange *change,
-                                                             __unused NSError *error) {
+                                                             __unused RLMDictionaryChange *change) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -1276,10 +1272,8 @@
 
     __block id expectation = [self expectationWithDescription:@""];
     id token = [dict.stringDictionary addNotificationBlock:^(__unused RLMDictionary *dictionary,
-                                                             __unused RLMDictionaryChange *change,
-                                                             __unused NSError *error) {
+                                                             __unused RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
-        XCTAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];
@@ -1316,10 +1310,8 @@
     
     __block id expectation = [self expectationWithDescription:@""];
     id token = [dict.stringDictionary addNotificationBlock:^(__unused RLMDictionary *dictionary,
-                                                             __unused RLMDictionaryChange *change,
-                                                             __unused NSError *error) {
+                                                             __unused RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
@@ -1501,7 +1493,7 @@ static RLMDictionary<NSString *, IntObject *><RLMString, IntObject> *managedTest
 
 - (void)testObserveFrozenDictionary {
     RLMDictionary *frozen = [managedTestDictionary() freeze];
-    id block = ^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {};
+    id block = ^(__unused BOOL deleted, __unused NSArray *changes) {};
     RLMAssertThrowsWithReason([frozen addNotificationBlock:block],
                               @"Frozen Realms do not change and do not have change notifications.");
 }

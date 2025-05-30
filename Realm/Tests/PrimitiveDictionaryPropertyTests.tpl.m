@@ -352,7 +352,7 @@ static double average(NSDictionary *dictionary) {
 }
 
 - (void)testNotifications {
-    %unman RLMAssertThrowsWithReason([$dictionary addNotificationBlock:^(__unused id a, __unused id c, __unused id e) { }], ^n @"Change notifications are only supported on managed collections.");
+    %unman RLMAssertThrowsWithReason([$dictionary addNotificationBlock:^(__unused id a, __unused id c) { }], ^n @"Change notifications are only supported on managed collections.");
 }
 
 - (void)testMin {
@@ -585,10 +585,9 @@ static double average(NSDictionary *dictionary) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
         uncheckedAssertNil(change);
-        uncheckedAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -602,9 +601,8 @@ static double average(NSDictionary *dictionary) {
     __block bool first = true;
     __block bool second = false;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
-        uncheckedAssertNil(error);
         if (first) {
             uncheckedAssertNil(change);
         }
@@ -647,7 +645,7 @@ static double average(NSDictionary *dictionary) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(__unused RLMDictionary *dictionary, __unused RLMDictionaryChange *change, __unused NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(__unused RLMDictionary *dictionary, __unused RLMDictionaryChange *change) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -671,9 +669,8 @@ static double average(NSDictionary *dictionary) {
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, __unused RLMDictionaryChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMDictionary *dictionary, __unused RLMDictionaryChange *change) {
         XCTAssertNotNil(dictionary);
-        uncheckedAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];

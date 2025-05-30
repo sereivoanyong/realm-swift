@@ -4544,8 +4544,7 @@ struct NullTestData {
 
 @implementation AsyncQueryTests
 - (RLMResults *)evaluate:(RLMResults *)results {
-    id token = [results addNotificationBlock:^(RLMResults *r, __unused RLMCollectionChange *changed, NSError *e) {
-        XCTAssertNil(e);
+    id token = [results addNotificationBlock:^(RLMResults *r, __unused RLMCollectionChange *changed) {
         XCTAssertNotNil(r);
         CFRunLoopStop(CFRunLoopGetCurrent());
     }];

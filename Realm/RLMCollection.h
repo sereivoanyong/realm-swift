@@ -300,8 +300,7 @@ to be sent to the block. To stop receiving updates, call `-invalidate` on the to
 @return A token which must be held for as long as you want updates to be delivered.
 */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change,
-                                                         NSError *_Nullable error))block
+                                                         RLMCollectionChange *_Nullable change))block
 __attribute__((warn_unused_result));
 
 /**
@@ -342,8 +341,7 @@ to be sent to the block. To stop receiving updates, call `-invalidate` on the to
 @return A token which must be held for as long as you want updates to be delivered.
 */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change,
-                                                         NSError *_Nullable error))block
+                                                         RLMCollectionChange *_Nullable change))block
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
 
@@ -387,8 +385,7 @@ key paths are given, notifications are delivered for every property key path.
 @return A token which must be held for as long as you want updates to be delivered.
 */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change,
-                                                         NSError *_Nullable error))block
+                                                         RLMCollectionChange *_Nullable change))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));

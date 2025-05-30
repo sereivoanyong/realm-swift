@@ -452,20 +452,20 @@ static NSArray *toArray(realm::IndexSet const& set) {
 
 namespace {
 struct CollectionCallbackWrapper {
-    void (^block)(id, id, NSError *);
+    void (^block)(id, id);
     id collection;
     bool ignoreChangesInInitialNotification;
 
     void operator()(realm::CollectionChangeSet const& changes) {
         if (ignoreChangesInInitialNotification) {
             ignoreChangesInInitialNotification = false;
-            block(collection, nil, nil);
+            block(collection, nil);
         }
         else if (changes.empty()) {
-            block(collection, nil, nil);
+            block(collection, nil);
         }
         else if (!changes.collection_root_was_deleted || !changes.deletions.empty()) {
-            block(collection, [[RLMCollectionChange alloc] initWithChanges:changes], nil);
+            block(collection, [[RLMCollectionChange alloc] initWithChanges:changes]);
         }
     }
 };
@@ -541,7 +541,7 @@ RLMNotificationToken *RLMAddNotificationBlock(id c, id block,
     return token;
 }
 
-realm::CollectionChangeCallback RLMWrapCollectionChangeCallback(void (^block)(id, id, NSError *),
+realm::CollectionChangeCallback RLMWrapCollectionChangeCallback(void (^block)(id, id),
                                                                 id collection, bool skipFirst) {
     return CollectionCallbackWrapper{block, collection, skipFirst};
 }

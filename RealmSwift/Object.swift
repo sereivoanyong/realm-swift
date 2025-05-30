@@ -682,11 +682,6 @@ extension Object: _RealmCollectionValueInsideOptional {
  */
 @frozen public enum ObjectChange<T> {
     /**
-     Errors can no longer occur. This case is unused and will be removed in the
-     next major version.
-     */
-    case error(_ error: NSError)
-    /**
      One or more of the properties of the object have been changed.
      */
     case change(_: T, _: [PropertyChange])

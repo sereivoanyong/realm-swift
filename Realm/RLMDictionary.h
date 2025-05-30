@@ -387,8 +387,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary<RLMKeyType, RLMObjectType> *_Nullable dictionary,
-                                                         RLMDictionaryChange *_Nullable changes,
-                                                         NSError *_Nullable error))block
+                                                         RLMDictionaryChange *_Nullable changes))block
 __attribute__((warn_unused_result));
 
 /**
@@ -421,8 +420,7 @@ __attribute__((warn_unused_result));
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary<RLMKeyType, RLMObjectType> *_Nullable dictionary,
-                                                         RLMDictionaryChange *_Nullable changes,
-                                                         NSError *_Nullable error))block
+                                                         RLMDictionaryChange *_Nullable changes))block
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
 
@@ -457,8 +455,7 @@ __attribute__((warn_unused_result));
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary<RLMKeyType, RLMObjectType> *_Nullable dictionary,
-                                                         RLMDictionaryChange *_Nullable changes,
-                                                         NSError *_Nullable error))block
+                                                         RLMDictionaryChange *_Nullable changes))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
@@ -490,8 +487,7 @@ __attribute__((warn_unused_result));
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary<RLMKeyType, RLMObjectType> *_Nullable dictionary,
-                                                         RLMDictionaryChange *_Nullable changes,
-                                                         NSError *_Nullable error))block
+                                                         RLMDictionaryChange *_Nullable changes))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
 __attribute__((warn_unused_result));
 

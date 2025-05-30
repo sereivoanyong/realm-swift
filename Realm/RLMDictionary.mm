@@ -148,21 +148,21 @@ static void changeDictionary(__unsafe_unretained RLMDictionary *const dictionary
 // http://www.openradar.me/radar?id=6135653276319744
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *, NSError *))block {
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *))block {
     return RLMAddNotificationBlock(self, block, nil, nil);
 }
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *, NSError *))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *))block
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, nil, queue);
 }
 
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *, NSError *))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, keyPaths, queue);
 }
 
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *, NSError *))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMDictionary *, RLMDictionaryChange *))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths {
     return RLMAddNotificationBlock(self, block, keyPaths, nil);
 }

@@ -293,7 +293,7 @@ static double average(NSArray *values) {
 }
 
 - (void)testNotifications {
-    %unman RLMAssertThrowsWithReason([$set addNotificationBlock:^(__unused id a, __unused id c, __unused id e) { }], ^n @"Change notifications are only supported on managed collections.");
+    %unman RLMAssertThrowsWithReason([$set addNotificationBlock:^(__unused id a, __unused id c) { }], ^n @"Change notifications are only supported on managed collections.");
 }
 
 - (void)testSetSet {
@@ -1238,10 +1238,9 @@ static double average(NSArray *values) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change) {
         XCTAssertNotNil(set);
         uncheckedAssertNil(change);
-        uncheckedAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -1254,9 +1253,8 @@ static double average(NSArray *values) {
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change) {
         XCTAssertNotNil(set);
-        uncheckedAssertNil(error);
         if (first) {
             uncheckedAssertNil(change);
         }
@@ -1286,7 +1284,7 @@ static double average(NSArray *values) {
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(__unused RLMSet *set, __unused RLMCollectionChange *change, __unused NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(__unused RLMSet *set, __unused RLMCollectionChange *change) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -1310,9 +1308,8 @@ static double average(NSArray *values) {
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, __unused RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, __unused RLMCollectionChange *change) {
         XCTAssertNotNil(set);
-        uncheckedAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];
@@ -1347,9 +1344,8 @@ static double average(NSArray *values) {
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change, NSError *error) {
+    id token = [managed.intObj addNotificationBlock:^(RLMSet *set, RLMCollectionChange *change) {
         XCTAssertNotNil(set);
-        uncheckedAssertNil(error);
         if (first) {
             uncheckedAssertNil(change);
             first = false;
