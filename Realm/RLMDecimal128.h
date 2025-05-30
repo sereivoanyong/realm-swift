@@ -57,10 +57,10 @@ NS_SWIFT_SENDABLE // immutable
 + (instancetype)decimalWithNumber:(NSNumber *)number;
 
 /// The minimum value for RLMDecimal128.
-@property (class, readonly, copy) RLMDecimal128 *minimumDecimalNumber NS_REFINED_FOR_SWIFT;
+@property (class, readonly, copy) RLMDecimal128 *minimumDecimalNumber NS_SWIFT_NAME(min);
 
 /// The maximum value for RLMDecimal128.
-@property (class, readonly, copy) RLMDecimal128 *maximumDecimalNumber NS_REFINED_FOR_SWIFT;
+@property (class, readonly, copy) RLMDecimal128 *maximumDecimalNumber NS_SWIFT_NAME(max);
 
 /// Convert this value to a double. This is a lossy conversion.
 @property (nonatomic, readonly) double doubleValue;
@@ -75,7 +75,7 @@ NS_SWIFT_SENDABLE // immutable
 @property (nonatomic, readonly) BOOL isNaN;
 
 /// The magnitude of this RLMDecimal128.
-@property (nonatomic, readonly) RLMDecimal128 *magnitude NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) RLMDecimal128 *magnitude;
 
 /// Replaces this RLMDecimal128 value with its additive inverse.
 - (void)negate;

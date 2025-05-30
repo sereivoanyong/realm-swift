@@ -25,9 +25,9 @@ import Realm
  This type is similar to Swift's built-in Decimal type, but allocates bits differently, resulting in a different representable range. (NS)Decimal stores a significand of up to 38 digits long and an exponent from -128 to 127, while this type stores up to 34 digits of significand and an exponent from -6143 to 6144.
  */
 @objc(RealmSwiftDecimal128)
-public final class Decimal128: RLMDecimal128, Decodable, @unchecked Sendable {
+public final class Decimal128: RLMDecimal128, @unchecked Sendable {
     /// Creates a new zero-initialized Decimal128.
-    public override required init() {
+    public override init() {
         super.init()
     }
 
@@ -44,7 +44,7 @@ public final class Decimal128: RLMDecimal128, Decodable, @unchecked Sendable {
     /// Passing a value with a type not in this list is a fatal error. Passing a string which cannot be parsed as a valid Decimal128 is a fatal error.
     ///
     /// - parameter value: The value to convert to a Decimal128.
-    public override required init(value: Any) {
+    public init(_ value: Any) {
         super.init(value: value)
     }
 
@@ -53,8 +53,17 @@ public final class Decimal128: RLMDecimal128, Decodable, @unchecked Sendable {
     /// This initializer cannot fail and is never lossy.
     ///
     /// - parameter number: The number to convert to a Decimal128.
-    public override required init(number: NSNumber) {
+    public override init(number: NSNumber) {
         super.init(number: number)
+    }
+
+    /// Converts the given number bridgeable to a Decimal128.
+    ///
+    /// This initializer cannot fail and is never lossy.
+    ///
+    /// - parameter number: The number to convert to a Decimal128.
+    public init<Value: _ObjectiveCBridgeable>(_ value: Value) where Value._ObjectiveCType: NSNumber {
+        super.init(number: value._bridgeToObjectiveC())
     }
 
     /// Parse the given string as a Decimal128.
@@ -62,36 +71,40 @@ public final class Decimal128: RLMDecimal128, Decodable, @unchecked Sendable {
     /// Strings which cannot be parsed as a Decimal128 return a value where `isNaN` is `true`.
     ///
     /// - parameter string: The string to parse.
-    public override required init(string: String) {
+    public override init(string: String) {
         super.init(string: string)
     }
 
+    /// The minimum value for Decimal128
+    public static override var min: Decimal128 {
+        unsafeDowncast(super.min, to: Decimal128.self)
+    }
+
+    /// The maximum value for Decimal128
+    public static override var max: Decimal128 {
+        unsafeDowncast(super.max, to: Decimal128.self)
+    }
+}
+
+// MARK: - Codable
+
+extension Decimal128: Decodable {
     /// Creates a new Decimal128 by decoding from the given decoder.
     ///
     /// This initializer throws an error if the decoder is invalid or does not decode to a value which can be converted to Decimal128.
     ///
     /// - Parameter decoder: The decoder to read data from.
-    public required init(from decoder: Decoder) throws {
+    public convenience init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let strValue = try? container.decode(String.self) {
-            super.init(string: strValue)
+            self.init(string: strValue)
         } else if let intValue = try? container.decode(Int64.self) {
-            super.init(number: intValue as NSNumber)
+            self.init(number: intValue as NSNumber)
         } else if let doubleValue = try? container.decode(Double.self) {
-            super.init(number: doubleValue as NSNumber)
+            self.init(number: doubleValue as NSNumber)
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot convert value to Decimal128")
         }
-    }
-
-    /// The minimum value for Decimal128
-    public static var min: Decimal128 {
-        unsafeDowncast(__minimumDecimalNumber, to: Self.self)
-    }
-
-    /// The maximum value for Decimal128
-    public static var max: Decimal128 {
-        unsafeDowncast(__maximumDecimalNumber, to: Self.self)
     }
 }
 
@@ -110,14 +123,14 @@ extension Decimal128: Encodable {
 extension Decimal128: ExpressibleByIntegerLiteral {
     /// Creates a new Decimal128 from the given integer literal.
     public convenience init(integerLiteral value: Int64) {
-        self.init(number: value as NSNumber)
+        self.init(value as NSNumber)
     }
 }
 
 extension Decimal128: ExpressibleByFloatLiteral {
     /// Creates a new Decimal128 from the given float literal.
     public convenience init(floatLiteral value: Double) {
-        self.init(number: value as NSNumber)
+        self.init(value as NSNumber)
     }
 }
 
@@ -129,15 +142,6 @@ extension Decimal128: ExpressibleByStringLiteral {
 }
 
 extension Decimal128: Comparable {
-    /// Returns a Boolean value indicating whether two decimal128 values are equal.
-    ///
-    /// - Parameters:
-    ///   - lhs: A Decimal128 value to compare.
-    ///   - rhs: Another Decimal128 value to compare.
-    public static func == (lhs: Decimal128, rhs: Decimal128) -> Bool {
-        lhs.isEqual(rhs)
-    }
-
     /// Returns a Boolean value indicating whether the decimal128 value of the first
     /// argument is less than that of the second argument.
     ///
@@ -179,27 +183,13 @@ extension Decimal128: Comparable {
     }
 }
 
-extension Decimal128: Numeric {
-    /// Creates a new instance from the given integer, if it can be represented
-    /// exactly.
+extension Decimal128: AdditiveArithmetic {
+    /// The zero value.
     ///
-    /// If the value passed as `source` is not representable exactly, the result
-    /// is `nil`. In the following example, the constant `x` is successfully
-    /// created from a value of `100`, while the attempt to initialize the
-    /// constant `y` from `1_000` fails because the `Int8` type can represent
-    /// `127` at maximum:
-    ///
-    /// - Parameter source: A value to convert to this type of integer.
-    public convenience init?<T>(exactly source: T) where T: BinaryInteger {
-        self.init(value: source)
-    }
-
-    /// A type that can represent the absolute value of Decimal128
-    public typealias Magnitude = Decimal128
-
-    /// The magnitude of this Decimal128.
-    public var magnitude: Magnitude {
-        unsafeDowncast(self.__magnitude, to: Magnitude.self)
+    /// Zero is the identity element for addition. For any value,
+    /// `x + .zero == x` and `.zero + x == x`.
+    public static var zero: Decimal128 {
+        return Decimal128()
     }
 
     /// Adds two decimal128 values and produces their sum.
@@ -218,6 +208,30 @@ extension Decimal128: Numeric {
     ///   - rhs: The Decimal128 value to subtract from `lhs`.
     public static func - (lhs: Decimal128, rhs: Decimal128) -> Decimal128 {
         unsafeDowncast(lhs.decimalNumber(bySubtracting: rhs), to: Decimal128.self)
+    }
+}
+
+extension Decimal128: Numeric {
+    /// Creates a new instance from the given integer, if it can be represented
+    /// exactly.
+    ///
+    /// If the value passed as `source` is not representable exactly, the result
+    /// is `nil`. In the following example, the constant `x` is successfully
+    /// created from a value of `100`, while the attempt to initialize the
+    /// constant `y` from `1_000` fails because the `Int8` type can represent
+    /// `127` at maximum:
+    ///
+    /// - Parameter source: A value to convert to this type of integer.
+    public convenience init?<T: BinaryInteger>(exactly source: T) {
+        self.init(source)
+    }
+
+    /// A type that can represent the absolute value of Decimal128
+    public typealias Magnitude = Decimal128
+
+    /// The magnitude of this Decimal128.
+    public override var magnitude: Decimal128 {
+        unsafeDowncast(super.magnitude, to: Decimal128.self)
     }
 
     /// Multiplies two Decimal128 values and produces their product.
@@ -249,7 +263,14 @@ extension Decimal128: Numeric {
     }
 }
 
-extension Decimal128 {
+extension Decimal128: SignedNumeric {
+    /// Replaces this Decimal128 value with its additive inverse.
+    public override func negate() {
+        super.negate()
+    }
+}
+
+extension Decimal128: Strideable {
     /// A type that represents the distance between two values.
     public typealias Stride = Decimal128
 
@@ -275,14 +296,24 @@ extension Decimal128 {
     }
 }
 
-extension Decimal128 {
-    /// `true` if `self` is a signaling NaN, `false` otherwise.
-    public var isSignaling: Bool {
-        self.isNaN
+extension Decimal128: _ObjectiveCBridgeable {
+    public func _bridgeToObjectiveC() -> NSDecimalNumber {
+        return decimalValue._bridgeToObjectiveC()
     }
 
-    /// `true` if `self` is a signaling NaN, `false` otherwise.
-    public var isSignalingNaN: Bool {
-        self.isSignaling
+    public static func _forceBridgeFromObjectiveC(_ source: NSDecimalNumber, result: inout Decimal128?) {
+        result = Decimal128(source)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: NSDecimalNumber, result: inout Decimal128?) -> Bool {
+        result = Decimal128(source)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: NSDecimalNumber?) -> Decimal128 {
+        if let source {
+            return Decimal128(source)
+        }
+        return .init()
     }
 }
