@@ -133,7 +133,7 @@ extension Object: _RealmCollectionValueInsideOptional {
      It is not considered part of the public API.
      :nodoc:
      */
-    public override static func _getProperties() -> [RLMProperty] {
+    public override static func _getProperties() -> [RLMProperty]? {
         ObjectUtil.getSwiftProperties(self)
     }
 

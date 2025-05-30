@@ -34,7 +34,7 @@ final class ObjectCustomPropertiesTests: TestCase {
         XCTAssert(customProperties.first === CustomPropertiesObject.preMadeRLMProperty)
 
         // Assert properties are custom properties
-        let properties = CustomPropertiesObject._getProperties()
+        let properties = CustomPropertiesObject._getProperties() ?? []
         XCTAssertEqual(properties.count, 1)
         XCTAssert(properties.first === CustomPropertiesObject.preMadeRLMProperty)
     }
@@ -46,7 +46,7 @@ final class ObjectCustomPropertiesTests: TestCase {
         XCTAssertNil(customProperties)
 
         // Assert properties are generated despite `nil` custom properties
-        let properties = CustomPropertiesObject._getProperties()
+        let properties = CustomPropertiesObject._getProperties() ?? []
         XCTAssertEqual(properties.count, 1)
         XCTAssert(properties.first !== CustomPropertiesObject.preMadeRLMProperty)
     }
@@ -58,7 +58,7 @@ final class ObjectCustomPropertiesTests: TestCase {
         XCTAssertEqual(customProperties.count, 0)
 
         // Assert properties are custom properties (rather incorrectly)
-        let properties = CustomPropertiesObject._getProperties()
+        let properties = CustomPropertiesObject._getProperties() ?? []
         XCTAssertEqual(properties.count, 0)
     }
 }
