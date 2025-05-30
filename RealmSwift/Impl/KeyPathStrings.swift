@@ -110,8 +110,8 @@ extension ObjectBase: KeypathRecorder {
     internal static func keyPathRecorder(with lastAccessedNames: NSMutableArray) -> Self {
         let obj = Self()
         obj.lastAccessedNames = lastAccessedNames
-        let objectSchema = ObjectSchema(RLMObjectBaseObjectSchema(obj)!)
-        (objectSchema.rlmObjectSchema.properties + objectSchema.rlmObjectSchema.computedProperties)
+        let objectSchema = RLMObjectBaseObjectSchema(obj)!
+        (objectSchema.properties + objectSchema.computedProperties)
             .map { (prop: $0, accessor: $0.swiftAccessor) }
             .forEach { $0.accessor?.observe($0.prop, on: obj) }
         return obj
@@ -122,8 +122,8 @@ extension Projection: KeypathRecorder {
     internal static func keyPathRecorder(with lastAccessedNames: NSMutableArray) -> Self {
         let obj = Self(projecting: PersistedType())
         obj.rootObject.lastAccessedNames = lastAccessedNames
-        let objectSchema = ObjectSchema(RLMObjectBaseObjectSchema(obj.rootObject)!)
-        (objectSchema.rlmObjectSchema.properties + objectSchema.rlmObjectSchema.computedProperties)
+        let objectSchema = RLMObjectBaseObjectSchema(obj.rootObject)!
+        (objectSchema.properties + objectSchema.computedProperties)
             .map { (prop: $0, accessor: $0.swiftAccessor) }
             .forEach { $0.accessor?.observe($0.prop, on: obj.rootObject) }
         return obj

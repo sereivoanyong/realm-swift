@@ -118,7 +118,7 @@ typedef void (^RLMObjectChangeBlock)(BOOL deleted,
 
  @return    A dictionary mapping property names to their default values.
  */
-+ (nullable NSDictionary *)defaultPropertyValues;
++ (nullable NSDictionary<NSString *, id> *)defaultPropertyValues;
 
 /**
  Override this method to specify the names of properties to ignore. These properties will not be managed by the Realm
@@ -152,7 +152,7 @@ typedef void (^RLMObjectChangeBlock)(BOOL deleted,
  of the property name. The corresponding value must be an instance of `RLMPropertyDescriptor` that describes the class
  and property that the property is linked to.
 
-     return @{ @"owners": [RLMPropertyDescriptor descriptorWithClass:Owner.class propertyName:@"dogs"] };
+     return @{ @"owners": [[RLMPropertyDescriptor alloc] initWithObjectClass:Owner.class propertyName:@"dogs"] };
 
  @return     A dictionary mapping property names to `RLMPropertyDescriptor` instances.
  */

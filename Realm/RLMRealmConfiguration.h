@@ -45,24 +45,17 @@ typedef BOOL (^RLMShouldCompactOnLaunchBlock)(NSUInteger totalBytes, NSUInteger 
  cache and reuse a single configuration object for each distinct configuration rather than
  creating a new object each time you open a Realm.
  */
+NS_SWIFT_SENDABLE RLM_FINAL
+NS_SWIFT_NAME(RealmConfiguration)
 @interface RLMRealmConfiguration : NSObject<NSCopying>
 
 #pragma mark - Default Configuration
 
 /**
- Returns the default configuration used to create Realms when no other
+ The default configuration used to create Realms when no other
  configuration is explicitly specified (i.e. `+[RLMRealm defaultRealm]`).
-
- @return The default Realm configuration.
  */
-+ (instancetype)defaultConfiguration;
-
-/**
- Sets the default configuration to the given `RLMRealmConfiguration`.
-
- @param configuration The new default Realm configuration.
- */
-+ (void)setDefaultConfiguration:(RLMRealmConfiguration *)configuration;
+@property (nonatomic, class) RLMRealmConfiguration *defaultConfiguration;
 
 #pragma mark - Properties
 
@@ -124,10 +117,10 @@ typedef BOOL (^RLMShouldCompactOnLaunchBlock)(NSUInteger totalBytes, NSUInteger 
  Return `YES` to indicate that an attempt to compact the file should be made.
  The compaction will be skipped if another process is accessing it.
  */
-@property (nonatomic, copy, nullable) RLMShouldCompactOnLaunchBlock shouldCompactOnLaunch;
+@property (nonatomic, copy, nullable) RLMShouldCompactOnLaunchBlock shouldCompactOnLaunch NS_REFINED_FOR_SWIFT;
 
 /// The classes managed by the Realm.
-@property (nonatomic, copy, nullable) NSArray *objectClasses;
+@property (nonatomic, copy, nullable) NSArray<Class> *objectClasses NS_REFINED_FOR_SWIFT;
 
 /**
  The maximum number of live versions in the Realm file before an exception will

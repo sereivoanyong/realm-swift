@@ -531,6 +531,7 @@ __attribute__((warn_unused_result));
  `RLMSortDescriptor` instances are immutable.
  */
 NS_SWIFT_SENDABLE RLM_FINAL
+NS_SWIFT_NAME(SortDescriptor)
 @interface RLMSortDescriptor : NSObject
 
 #pragma mark - Properties
@@ -545,6 +546,18 @@ NS_SWIFT_SENDABLE RLM_FINAL
  */
 @property (nonatomic, readonly) BOOL ascending;
 
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Returns a new sort descriptor for the given key path and sort direction.
+ */
+- (instancetype)initWithKeyPath:(NSString *)keyPath ascending:(BOOL)ascending NS_DESIGNATED_INITIALIZER;
+
+/**
+ Returns a new sort descriptor for the given key path and sort direction.
+ */
+- (instancetype)initWithKeyPath:(NSString *)keyPath;
+
 #pragma mark - Methods
 
 /**
@@ -556,6 +569,11 @@ NS_SWIFT_SENDABLE RLM_FINAL
  Returns a copy of the receiver with the sort direction reversed.
  */
 - (instancetype)reversedSortDescriptor;
+
+/**
+ Returns whether two `RLMSortDescriptor` instances are equal.
+ */
+- (BOOL)isEqualToSortDescriptor:(RLMSortDescriptor *)sortDescriptor;
 
 @end
 

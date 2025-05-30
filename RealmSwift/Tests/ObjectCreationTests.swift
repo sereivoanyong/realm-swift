@@ -101,7 +101,7 @@ class ObjectCreationTests: TestCase {
         // test with valid dictionary literals
         let props = try! Realm().schema["SwiftObject"]!.properties
         for propNum in 0..<props.count {
-            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with valid value and init
                 var values = baselineValues
                 values[props[propNum].name] = validValue
@@ -113,7 +113,7 @@ class ObjectCreationTests: TestCase {
 
         // test with invalid dictionary literals
         for propNum in 0..<props.count {
-            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with invalid value and init
                 var values = baselineValues
                 values[props[propNum].name] = invalidValue
@@ -142,7 +142,7 @@ class ObjectCreationTests: TestCase {
         // test with valid dictionary literals
         let props = try! Realm().schema["SwiftObject"]!.properties
         for propNum in 0..<props.count {
-            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 var values = baselineValues
                 values[propNum] = validValue
                 let object = SwiftObject(value: values)
@@ -153,7 +153,7 @@ class ObjectCreationTests: TestCase {
 
         // test with invalid dictionary literals
         for propNum in 0..<props.count {
-            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with invalid value and init
                 var values = baselineValues
                 values[propNum] = invalidValue
@@ -266,7 +266,7 @@ class ObjectCreationTests: TestCase {
         let realm = try! Realm()
         let props = realm.schema["SwiftObject"]!.properties
         for propNum in 0..<props.count {
-            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with valid value and init
                 var values = baselineValues
                 values[props[propNum].name] = validValue
@@ -282,7 +282,7 @@ class ObjectCreationTests: TestCase {
 
         // test with invalid dictionary literals
         for propNum in 0..<props.count {
-            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with invalid value and init
                 var values = baselineValues
                 values[props[propNum].name] = invalidValue
@@ -319,7 +319,7 @@ class ObjectCreationTests: TestCase {
         let realm = try! Realm()
         let props = realm.schema["SwiftObject"]!.properties
         for propNum in 0..<props.count {
-            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for validValue in validValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 var values = baselineValues
                 values[propNum] = validValue
                 realm.beginWrite()
@@ -334,7 +334,7 @@ class ObjectCreationTests: TestCase {
 
         // test with invalid array literals
         for propNum in 0..<props.count {
-            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isMap) {
+            for invalidValue in invalidValuesForSwiftObjectType(props[propNum].type, (props[propNum].isArray || props[propNum].isSet), props[propNum].isDictionary) {
                 // update dict with invalid value and init
                 var values = baselineValues
                 values[propNum] = invalidValue

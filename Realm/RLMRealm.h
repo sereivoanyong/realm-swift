@@ -21,7 +21,7 @@
 @class RLMRealmConfiguration, RLMRealm, RLMObject, RLMSchema, RLMMigration, RLMNotificationToken, RLMThreadSafeReference;
 
 /// The Id of the asynchronous transaction.
-typedef unsigned RLMAsyncTransactionId;
+typedef unsigned RLMAsyncTransactionId NS_SWIFT_NAME(AsyncTransactionId);
 
 RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -840,6 +840,7 @@ NS_REFINED_FOR_SWIFT;
  @param oldSchemaVersion    The schema version of the Realm being migrated.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(MigrationBlock)
 typedef void (^RLMMigrationBlock)(RLMMigration *migration, uint64_t oldSchemaVersion);
 
 /**
@@ -906,6 +907,7 @@ NS_REFINED_FOR_SWIFT;
  the token is deallocated.
  */
 NS_SWIFT_SENDABLE // is internally thread-safe
+NS_SWIFT_NAME(NotificationToken)
 @interface RLMNotificationToken : NSObject
 /// Stops notifications for the change subscription that returned this token.
 ///

@@ -38,12 +38,6 @@ class SortDescriptorTests: TestCase {
         XCTAssertEqual(sortDescriptor.description, "SortDescriptor(keyPath: property, direction: ascending)")
     }
 
-    func testStringLiteralConvertible() {
-        let literalSortDescriptor: RealmSwift.SortDescriptor = "property"
-        XCTAssertEqual(sortDescriptor, literalSortDescriptor,
-            "SortDescriptor should conform to StringLiteralConvertible")
-    }
-
     func testComparison() {
         let sortDescriptor1 = SortDescriptor(keyPath: "property1", ascending: true)
         let sortDescriptor2 = SortDescriptor(keyPath: "property1", ascending: false)

@@ -36,7 +36,7 @@ internal protocol MutableRealmCollection {
     // Unmanaged collection properties need a reference to their parent object for
     // KVO to work because the mutation is done via the collection object but the
     // observation is on the parent.
-    func setParent(_ object: RLMObjectBase, _ property: RLMProperty)
+    func setParent(_ object: ObjectBase, _ property: Property)
 }
 
 extension List: MutableRealmCollection {
@@ -44,7 +44,7 @@ extension List: MutableRealmCollection {
         guard !isSameCollection(collection, value) else { return }
         RLMAssignToCollection(collection, value)
     }
-    func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
+    func setParent(_ object: ObjectBase, _ property: Property) {
         collection.setParent(object, property: property)
     }
 }
@@ -54,7 +54,7 @@ extension MutableSet: MutableRealmCollection {
         guard !isSameCollection(collection, value) else { return }
         RLMAssignToCollection(collection, value)
     }
-    func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
+    func setParent(_ object: ObjectBase, _ property: Property) {
         collection.setParent(object, property: property)
     }
 }
@@ -64,7 +64,7 @@ extension Map: MutableRealmCollection {
         guard !isSameCollection(collection, value) else { return }
         collection.setDictionary(value)
     }
-    func setParent(_ object: RLMObjectBase, _ property: RLMProperty) {
+    func setParent(_ object: ObjectBase, _ property: Property) {
         collection.setParent(object, property: property)
     }
 }

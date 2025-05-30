@@ -20,16 +20,6 @@ import Foundation
 import Realm
 import Realm.Private
 
-/**
- The type of a migration block used to migrate a Realm.
-
- - parameter migration:  A `Migration` object used to perform the migration. The migration object allows you to
-                         enumerate and alter any existing objects which require migration.
-
- - parameter oldSchemaVersion: The schema version of the Realm being migrated.
- */
-public typealias MigrationBlock = @Sendable (_ migration: Migration, _ oldSchemaVersion: UInt64) -> Void
-
 /// An object class used during migrations.
 public typealias MigrationObject = DynamicObject
 
@@ -68,8 +58,8 @@ extension Realm {
 
      - parameter configuration: The Realm configuration used to open and migrate the Realm.
      */
-    public static func performMigration(for configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration) throws {
-        try RLMRealm.performMigration(for: configuration.rlmConfiguration)
+    public static func performMigration(for configuration: Realm.Configuration = .default) throws {
+        try RLMRealm.performMigration(for: configuration)
     }
 }
 
@@ -80,16 +70,7 @@ extension Realm {
  instance provides access to the old and new database schemas, the objects in the Realm, and provides functionality for
  modifying the Realm during the migration.
  */
-public typealias Migration = RLMMigration
 extension Migration {
-    // MARK: Properties
-
-    /// The old schema, describing the Realm before applying a migration.
-    public var oldSchema: Schema { return Schema(__oldSchema) }
-
-    /// The new schema, describing the Realm after applying a migration.
-    public var newSchema: Schema { return Schema(__newSchema) }
-
     // MARK: Altering Objects During a Migration
 
     /**

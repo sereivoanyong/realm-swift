@@ -68,7 +68,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @return    An initialized instance of RLMObjectSchema.
  */
-- (instancetype)initWithClassName:(NSString *)objectClassName objectClass:(Class)objectClass properties:(NSArray *)properties;
+- (instancetype)initWithClassName:(NSString *)objectClassName objectClass:(Class)objectClass properties:(NSArray<RLMProperty *> *)properties;
 @end
 
 RLM_HEADER_AUDIT_END(nullability)

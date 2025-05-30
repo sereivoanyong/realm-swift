@@ -116,7 +116,7 @@ using namespace realm;
         // disable all primary keys for migration and use DynamicObject for all types
         for (RLMObjectSchema *objectSchema in _realm.schema.objectSchema) {
             objectSchema.accessorClass = dynamicObjectClass;
-            objectSchema.primaryKeyProperty.isPrimary = NO;
+            objectSchema.primaryKeyProperty.isPrimaryKey = NO;
         }
         for (RLMObjectSchema *objectSchema in _oldRealm.schema.objectSchema) {
             objectSchema.accessorClass = dynamicObjectClass;

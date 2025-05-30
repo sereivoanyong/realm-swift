@@ -42,11 +42,11 @@ class SwiftRLMDynamicTests: RLMTestCase {
         XCTAssertNotNil(dyrealm, "realm should not be nil")
 
         // verify schema
-        let dynSchema = dyrealm.schema[SwiftRLMDynamicObject.className()]
+        let dynSchema = dyrealm.schema[SwiftRLMDynamicObject.className()]!
         XCTAssertNotNil(dynSchema, "Should be able to get object schema dynamically")
         XCTAssertEqual(dynSchema.properties.count, Int(2))
         XCTAssertEqual(dynSchema.properties[0].name, "stringCol")
-        XCTAssertEqual(dynSchema.properties[1].type, RLMPropertyType.int)
+        XCTAssertEqual(dynSchema.properties[1].type, PropertyType.int)
 
         // verify object type
         let array = SwiftRLMDynamicObject.allObjects(in: dyrealm)
@@ -87,11 +87,11 @@ class SwiftRLMDynamicTests: RLMTestCase {
         XCTAssertNotNil(dyrealm, "realm should not be nil")
 
         // verify schema
-        let dynSchema = dyrealm.schema[DynamicTestObject.className()]
+        let dynSchema = dyrealm.schema[DynamicTestObject.className()]!
         XCTAssertNotNil(dynSchema, "Should be able to get object schema dynamically")
         XCTAssertTrue(dynSchema.properties.count == 2)
         XCTAssertTrue(dynSchema.properties[0].name == "stringCol")
-        XCTAssertTrue(dynSchema.properties[1].type == RLMPropertyType.int)
+        XCTAssertTrue(dynSchema.properties[1].type == PropertyType.int)
 
         // verify object type
         let array = DynamicTestObject.allObjects(in: dyrealm)
@@ -139,7 +139,7 @@ class SwiftRLMDynamicTests: RLMTestCase {
         let robj1 = results[0]
         let robj2 = results[1]
 
-        let schema = dyrealm.schema[AllTypesObject.className()]
+        let schema = dyrealm.schema[AllTypesObject.className()]!
         let props = schema.properties.filter { $0.type != .object }
         for prop in props {
             XCTAssertTrue((obj1[prop.name] as AnyObject).isEqual(robj1[prop.name]))

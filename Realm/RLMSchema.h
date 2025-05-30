@@ -31,6 +31,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  Schemas map to collections of tables in the core database.
  */
 NS_SWIFT_SENDABLE // not actually immutable, but the public API kinda is
+NS_SWIFT_NAME(Schema)
 @interface RLMSchema : NSObject<NSCopying>
 
 #pragma mark - Properties
@@ -59,14 +60,12 @@ NS_SWIFT_SENDABLE // not actually immutable, but the public API kinda is
 /**
  Looks up and returns an `RLMObjectSchema` for the given class name in the Realm.
 
- If there is no object of type `className` in the schema, an exception will be thrown.
-
  @param className   The object class name.
  @return            An `RLMObjectSchema` for the given class in this Realm.
 
  @see               `RLMObjectSchema`
  */
-- (RLMObjectSchema *)objectForKeyedSubscript:(NSString *)className;
+- (nullable RLMObjectSchema *)objectForKeyedSubscript:(NSString *)className;
 
 /**
  Returns whether two `RLMSchema` instances are equivalent.

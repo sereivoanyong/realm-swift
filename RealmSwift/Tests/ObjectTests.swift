@@ -128,7 +128,7 @@ class ObjectTests: TestCase {
     }
 
     func testInvalidatedWithCustomObjectClasses() {
-        var config = Realm.Configuration.defaultConfiguration
+        var config = Realm.Configuration.default
         config.objectTypes = [SwiftObject.self, SwiftBoolObject.self]
         let realm = try! Realm(configuration: config)
 

@@ -156,7 +156,7 @@ public protocol ProjectionObservable: AnyObject, ThreadConfined {
 /// let personObject = realm.create(Person.self)
 /// let singleProjection = PersonProjection(projecting: personObject)
 /// ```
-open class Projection<Root: ObjectBase & RealmCollectionValue & ThreadConfined>: RealmCollectionValue, ProjectionObservable {
+open class Projection<Root: ObjectBase & RealmCollectionValue>: RealmCollectionValue, ProjectionObservable {
     /// :nodoc:
     public typealias PersistedType = Root
 
@@ -871,7 +871,7 @@ public extension Projection {
 }
 
 // MARK: ThreadConfined
-extension Projection: ThreadConfined where Root: ThreadConfined {
+extension Projection {
     /**
      The Realm which manages the object, or `nil` if the object is unmanaged.
      Note: Projection can be instantiated for the managed objects only therefore realm will never be nil.
@@ -945,7 +945,7 @@ extension ProjectionObservable {
 }
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-extension Projection: ObservableObject, RealmSubscribable where Root: ThreadConfined {
+extension Projection: ObservableObject, RealmSubscribable {
     /// A publisher that emits Void each time the projection changes.
     ///
     /// Despite the name, this actually emits *after* the projection has changed.

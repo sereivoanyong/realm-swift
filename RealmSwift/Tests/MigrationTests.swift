@@ -27,9 +27,9 @@ import RealmSwiftTestSupport
 #endif
 
 @discardableResult
-private func realmWithSingleClassProperties(_ fileURL: URL, className: String, properties: [AnyObject]) -> RLMRealm {
-    let schema = RLMSchema()
-    let objectSchema = RLMObjectSchema(className: className, objectClass: MigrationObject.self, properties: properties)
+private func realmWithSingleClassProperties(_ fileURL: URL, className: String, properties: [Property]) -> RLMRealm {
+    let schema = Schema()
+    let objectSchema = ObjectSchema(className: className, objectClass: MigrationObject.self, properties: properties)
     schema.objectSchema = [objectSchema]
     let config = RLMRealmConfiguration()
     config.fileURL = fileURL
@@ -55,7 +55,7 @@ class MigrationTests: TestCase {
 
     private func testMigration(shouldRun: Bool = true, schemaVersion: UInt64 = 1,
                                block: MigrationBlock? = nil,
-                               validation: ((Realm, RLMSchema) -> Void)? = nil) throws {
+                               validation: ((Realm, Schema) -> Void)? = nil) throws {
         let didRun = Locked(false)
         let config = Realm.Configuration(fileURL: testRealmURL(), schemaVersion: schemaVersion,
             migrationBlock: { migration, oldSchemaVersion in
@@ -91,11 +91,11 @@ class MigrationTests: TestCase {
             try Realm.performMigration(for: config)
         }
         try withTestFile {
-            let old = Realm.Configuration.defaultConfiguration
+            let old = Realm.Configuration.default
             defer {
-                Realm.Configuration.defaultConfiguration = old
+                Realm.Configuration.default = old
             }
-            Realm.Configuration.defaultConfiguration = config
+            Realm.Configuration.default = config
             _ = try Realm()
         }
     }
@@ -131,8 +131,8 @@ class MigrationTests: TestCase {
     }
 
     func testMigrationProperties() throws {
-        let prop = RLMProperty(name: "stringCol", type: RLMPropertyType.int, objectClassName: nil,
-                               linkOriginPropertyName: nil, indexed: false, optional: false)
+        let prop = Property(name: "stringCol", type: .int, objectClassName: nil,
+                            linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
         _ = autoreleasepool {
             realmWithSingleClassProperties(defaultRealmURL(), className: "SwiftStringObject", properties: [prop])
         }
@@ -751,8 +751,8 @@ class MigrationTests: TestCase {
 
     func testDeleteData() throws {
         try autoreleasepool {
-            let prop = RLMProperty(name: "id", type: .int, objectClassName: nil,
-                                   linkOriginPropertyName: nil, indexed: false, optional: false)
+            let prop = Property(name: "id", type: .int, objectClassName: nil,
+                                linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
             let realm = realmWithSingleClassProperties(defaultRealmURL(),
                 className: "DeletedClass", properties: [prop])
             try realm.transaction {
@@ -776,8 +776,8 @@ class MigrationTests: TestCase {
 
     func testRenameProperty() throws {
         try autoreleasepool {
-            let prop = RLMProperty(name: "before_stringCol", type: .string, objectClassName: nil,
-                linkOriginPropertyName: nil, indexed: false, optional: false)
+            let prop = Property(name: "before_stringCol", type: .string, objectClassName: nil,
+                linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
             try autoreleasepool {
                 let realm = realmWithSingleClassProperties(defaultRealmURL(), className: "SwiftStringObject",
                     properties: [prop])
@@ -1229,8 +1229,8 @@ class MigrationTests: TestCase {
     }
 
     func testFailOnSchemaMismatch() {
-        let prop = RLMProperty(name: "name", type: RLMPropertyType.string, objectClassName: nil,
-                               linkOriginPropertyName: nil, indexed: false, optional: false)
+        let prop = Property(name: "name", type: .string, objectClassName: nil,
+                            linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
         _ = autoreleasepool {
             realmWithSingleClassProperties(defaultRealmURL(), className: "SwiftEmployeeObject", properties: [prop])
         }
@@ -1243,8 +1243,8 @@ class MigrationTests: TestCase {
     }
 
     func testDeleteRealmIfMigrationNeededWithSetCustomSchema() {
-        let prop = RLMProperty(name: "name", type: RLMPropertyType.string, objectClassName: nil,
-                               linkOriginPropertyName: nil, indexed: false, optional: false)
+        let prop = Property(name: "name", type: .string, objectClassName: nil,
+                            linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
         _ = autoreleasepool {
             realmWithSingleClassProperties(defaultRealmURL(), className: "SwiftEmployeeObject", properties: [prop])
         }
@@ -1263,18 +1263,18 @@ class MigrationTests: TestCase {
     func testDeleteRealmIfMigrationNeeded() throws {
         try autoreleasepool { _ = try Realm(fileURL: defaultRealmURL()) }
 
-        let objectSchema = RLMObjectSchema(forObjectClass: SwiftEmployeeObject.self)
+        let objectSchema = ObjectSchema(forObjectClass: SwiftEmployeeObject.self)
         objectSchema.properties = Array(objectSchema.properties[0..<1])
 
         let metaClass: AnyClass = objc_getMetaClass("RLMSchema") as! AnyClass
-        let imp = imp_implementationWithBlock(unsafeBitCast({ () -> RLMSchema in
-            let schema = RLMSchema()
+        let imp = imp_implementationWithBlock(unsafeBitCast({ () -> Schema in
+            let schema = Schema()
             schema.objectSchema = [objectSchema]
             return schema
-        } as @convention(block)() -> (RLMSchema), to: AnyObject.self))
+        } as @convention(block)() -> (Schema), to: AnyObject.self))
 
-        let originalImp = class_getMethodImplementation(metaClass, #selector(RLMObjectBase.sharedSchema))
-        class_replaceMethod(metaClass, #selector(RLMObjectBase.sharedSchema), imp, "@@:")
+        let originalImp = class_getMethodImplementation(metaClass, #selector(ObjectBase.sharedSchema))
+        class_replaceMethod(metaClass, #selector(ObjectBase.sharedSchema), imp, "@@:")
 
         assertFails(.schemaMismatch) {
             try Realm()
@@ -1291,7 +1291,7 @@ class MigrationTests: TestCase {
             _ = try Realm(configuration: config)
         }
 
-        class_replaceMethod(metaClass, #selector(RLMObjectBase.sharedSchema), originalImp!, "@@:")
+        class_replaceMethod(metaClass, #selector(ObjectBase.sharedSchema), originalImp!, "@@:")
     }
 
     func testObjectWithCustomColumnNames() throws {
@@ -1400,8 +1400,8 @@ class MigrationTests: TestCase {
     }
 
     func testCustomColumnRenamePropertyToCustom() throws {
-        let prop = RLMProperty(name: "before_intCol", type: .int, objectClassName: nil,
-                               linkOriginPropertyName: nil, indexed: false, optional: false)
+        let prop = Property(name: "before_intCol", type: .int, objectClassName: nil,
+                            linkOriginPropertyName: nil, isIndexed: false, isOptional: false)
         prop.columnName = "custom_before_intCol"
         try autoreleasepool {
             let realm = realmWithSingleClassProperties(defaultRealmURL(), className: "ModernCustomObject",

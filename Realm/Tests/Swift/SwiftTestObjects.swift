@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 import Realm
+import RealmSwift
 
 #if canImport(RealmTestSupport)
 import RealmTestSupport
@@ -182,8 +183,8 @@ class SwiftRLMLinkTargetObject: RLMObject {
     @objc dynamic var id = 0
     @objc dynamic var backlinks: RLMLinkingObjects<SwiftRLMLinkSourceObject>?
 
-    override class func linkingObjectsProperties() -> [String : RLMPropertyDescriptor] {
-        return ["backlinks": RLMPropertyDescriptor(with: SwiftRLMLinkSourceObject.self, propertyName: "link")]
+    override class func linkingObjectsProperties() -> [String: PropertyDescriptor] {
+        return ["backlinks": PropertyDescriptor(objectClass: SwiftRLMLinkSourceObject.self, propertyName: "link")]
     }
 }
 

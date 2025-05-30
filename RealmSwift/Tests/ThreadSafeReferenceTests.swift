@@ -471,7 +471,7 @@ class ThreadSafeWrapperTests: ThreadSafeReferenceTests {
         XCTAssertEqual(testStruct.intObject, nil)
 
         let config = {
-            var config = Realm.Configuration.defaultConfiguration
+            var config = Realm.Configuration.default
             config.objectTypes = [SwiftStringObject.self, SwiftIntObject.self]
             return config
         }()
@@ -503,7 +503,7 @@ class ThreadSafeWrapperTests: ThreadSafeReferenceTests {
         XCTAssertEqual(testStruct.intObject!.intCol, 1)
 
         dispatchSyncNewThread {
-            var config = Realm.Configuration.defaultConfiguration
+            var config = Realm.Configuration.default
             config.fileURL = config.fileURL!.deletingLastPathComponent().appendingPathComponent("newpath.realm")
             config.objectTypes = [SwiftEmployeeObject.self,
                                   SwiftStringObject.self,

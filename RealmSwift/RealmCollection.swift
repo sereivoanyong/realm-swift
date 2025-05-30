@@ -18,6 +18,7 @@
 
 import Foundation
 import Realm
+import class Realm.SortDescriptor
 
 public protocol RealmCollectionIterator<Element>: IteratorProtocol where Element: RealmCollectionValue {
 }

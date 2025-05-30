@@ -27,16 +27,16 @@ final class ObjectCustomPropertiesTests: TestCase {
     }
 
     func testCustomProperties() throws {
-        CustomPropertiesObject.injected_customRealmProperties = [CustomPropertiesObject.preMadeRLMProperty]
+        CustomPropertiesObject.injected_customRealmProperties = [CustomPropertiesObject.preMadeProperty]
 
         let customProperties = try XCTUnwrap(CustomPropertiesObject._customRealmProperties())
         XCTAssertEqual(customProperties.count, 1)
-        XCTAssert(customProperties.first === CustomPropertiesObject.preMadeRLMProperty)
+        XCTAssert(customProperties.first === CustomPropertiesObject.preMadeProperty)
 
         // Assert properties are custom properties
         let properties = CustomPropertiesObject._getProperties() ?? []
         XCTAssertEqual(properties.count, 1)
-        XCTAssert(properties.first === CustomPropertiesObject.preMadeRLMProperty)
+        XCTAssert(properties.first === CustomPropertiesObject.preMadeProperty)
     }
 
     func testNoCustomProperties() {
@@ -48,7 +48,7 @@ final class ObjectCustomPropertiesTests: TestCase {
         // Assert properties are generated despite `nil` custom properties
         let properties = CustomPropertiesObject._getProperties() ?? []
         XCTAssertEqual(properties.count, 1)
-        XCTAssert(properties.first !== CustomPropertiesObject.preMadeRLMProperty)
+        XCTAssert(properties.first !== CustomPropertiesObject.preMadeProperty)
     }
 
     func testEmptyCustomProperties() throws {
@@ -67,10 +67,10 @@ final class ObjectCustomPropertiesTests: TestCase {
 private final class CustomPropertiesObject: Object {
     @Persisted var value: String
 
-    static override func _customRealmProperties() -> [RLMProperty]? {
+    static override func _customRealmProperties() -> [Property]? {
         return injected_customRealmProperties
     }
 
-    static nonisolated(unsafe) var injected_customRealmProperties: [RLMProperty]?
-    static let preMadeRLMProperty = RLMProperty(name: "value", objectType: CustomPropertiesObject.self, valueType: String.self)
+    static nonisolated(unsafe) var injected_customRealmProperties: [Property]?
+    static let preMadeProperty = Property(name: "value", objectType: CustomPropertiesObject.self, valueType: String.self)
 }

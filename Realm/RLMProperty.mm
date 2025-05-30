@@ -92,8 +92,8 @@ static bool rawTypeShouldBeTreatedAsComputedProperty(NSString *rawType) {
                                             type:static_cast<RLMPropertyType>(prop.type & ~realm::PropertyType::Flags)
                                  objectClassName:prop.object_type.length() ? @(prop.object_type.c_str()) : nil
                           linkOriginPropertyName:prop.link_origin_property_name.length() ? @(prop.link_origin_property_name.c_str()) : nil
-                                         indexed:prop.is_indexed
-                                        optional:isNullable(prop.type)];
+                                       isIndexed:prop.is_indexed
+                                      isOptional:isNullable(prop.type)];
     if (is_array(prop.type)) {
         ret->_array = true;
     }
@@ -118,8 +118,8 @@ static bool rawTypeShouldBeTreatedAsComputedProperty(NSString *rawType) {
                         type:(RLMPropertyType)type
              objectClassName:(NSString *)objectClassName
       linkOriginPropertyName:(NSString *)linkOriginPropertyName
-                     indexed:(BOOL)indexed
-                    optional:(BOOL)optional {
+                   isIndexed:(BOOL)indexed
+                  isOptional:(BOOL)optional {
     self = [super init];
     if (self) {
         _name = name;
@@ -441,7 +441,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
 }
 
 - (instancetype)initSwiftPropertyWithName:(NSString *)name
-                                  indexed:(BOOL)indexed
+                                isIndexed:(BOOL)indexed
                    linkPropertyDescriptor:(RLMPropertyDescriptor *)linkPropertyDescriptor
                                  property:(objc_property_t)property
                                  instance:(RLMObject *)obj {
@@ -592,7 +592,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
 }
 
 - (instancetype)initWithName:(NSString *)name
-                     indexed:(BOOL)indexed
+                   isIndexed:(BOOL)indexed
       linkPropertyDescriptor:(RLMPropertyDescriptor *)linkPropertyDescriptor
                     property:(objc_property_t)property
 {
@@ -649,7 +649,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
     prop->_setterName = _setterName;
     prop->_getterSel = _getterSel;
     prop->_setterSel = _setterSel;
-    prop->_isPrimary = _isPrimary;
+    prop->_isPrimaryKey = _isPrimaryKey;
     prop->_swiftAccessor = _swiftAccessor;
     prop->_swiftIvar = _swiftIvar;
     prop->_optional = _optional;
@@ -674,16 +674,16 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
 - (BOOL)isEqualToProperty:(RLMProperty *)property {
     return _type == property->_type
         && _indexed == property->_indexed
-        && _isPrimary == property->_isPrimary
+        && _isPrimaryKey == property->_isPrimaryKey
         && _optional == property->_optional
-        && [_name isEqualToString:property->_name]
-        && (_objectClassName == property->_objectClassName  || [_objectClassName isEqualToString:property->_objectClassName])
+        && (_name == property->_name || [_name isEqualToString:property->_name])
+        && (_objectClassName == property->_objectClassName || [_objectClassName isEqualToString:property->_objectClassName])
         && (_linkOriginPropertyName == property->_linkOriginPropertyName ||
             [_linkOriginPropertyName isEqualToString:property->_linkOriginPropertyName]);
 }
 
-- (BOOL)collection {
-    return self.set || self.array || self.dictionary;
+- (BOOL)isCollection {
+    return self.isArray || self.isSet || self.isDictionary;
 }
 
 - (NSString *)description {
@@ -700,7 +700,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
              "%@"
              "\tcolumnName = %@;\n"
              "\tindexed = %@;\n"
-             "\tisPrimary = %@;\n"
+             "\tprimaryKey = %@;\n"
              "\tarray = %@;\n"
              "\tset = %@;\n"
              "\tdictionary = %@;\n"
@@ -710,7 +710,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
             objectClassName,
             self.columnName,
             self.indexed ? @"YES" : @"NO",
-            self.isPrimary ? @"YES" : @"NO",
+            self.isPrimaryKey ? @"YES" : @"NO",
             self.array ? @"YES" : @"NO",
             self.set ? @"YES" : @"NO",
             self.dictionary ? @"YES" : @"NO",
@@ -773,12 +773,13 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
 
 @implementation RLMPropertyDescriptor
 
-+ (instancetype)descriptorWithClass:(Class)objectClass propertyName:(NSString *)propertyName
-{
-    RLMPropertyDescriptor *descriptor = [[RLMPropertyDescriptor alloc] init];
-    descriptor->_objectClass = objectClass;
-    descriptor->_propertyName = propertyName;
-    return descriptor;
+- (instancetype)initWithObjectClass:(Class)objectClass propertyName:(NSString *)propertyName {
+    self = [super init];
+    if (self) {
+        _objectClass = objectClass;
+        _propertyName = propertyName;
+    }
+    return self;
 }
 
 @end

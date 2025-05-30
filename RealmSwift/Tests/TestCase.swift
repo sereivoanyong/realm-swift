@@ -77,7 +77,7 @@ class TestCase: RLMTestCaseBase {
                                                      withIntermediateDirectories: true, attributes: nil)
 
         let config = Realm.Configuration(fileURL: defaultRealmURL())
-        Realm.Configuration.defaultConfiguration = config
+        Realm.Configuration.default = config
 
         exceptionThrown = false
         autoreleasepool { super.invokeTest() }

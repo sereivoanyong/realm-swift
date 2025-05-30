@@ -53,7 +53,7 @@ typedef NS_CLOSED_ENUM(NSUInteger, RLMLogLevel) {
 /// The log function may be called from multiple threads simultaneously, and is
 /// responsible for performing its own synchronization if any is required.
 NS_SWIFT_SENDABLE // invoked on a background thread
-typedef void (^RLMLogFunction)(RLMLogLevel level, NSString *message);
+typedef void (^RLMLogFunction)(RLMLogLevel level, NSString *message) NS_SWIFT_NAME(LogFunction);
 
 /**
  `RLMLogger` is used for creating your own custom logging logic.
@@ -69,6 +69,7 @@ typedef void (^RLMLogFunction)(RLMLogLevel level, NSString *message);
 
  @note By default default log threshold level is `RLMLogLevelInfo`, and logging strings are output to Apple System Logger.
 */
+NS_SWIFT_NAME(Logger)
 @interface RLMLogger : NSObject
 
 /**

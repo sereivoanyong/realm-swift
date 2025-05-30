@@ -67,12 +67,12 @@ static inline NSString *RLMTypeToString(RLMPropertyType type) {
 }
 
 - (instancetype)initWithName:(NSString *)name
-                     indexed:(BOOL)indexed
+                   isIndexed:(BOOL)indexed
       linkPropertyDescriptor:(nullable RLMPropertyDescriptor *)linkPropertyDescriptor
                     property:(objc_property_t)property;
 
 - (instancetype)initSwiftPropertyWithName:(NSString *)name
-                                  indexed:(BOOL)indexed
+                                isIndexed:(BOOL)indexed
                    linkPropertyDescriptor:(nullable RLMPropertyDescriptor *)linkPropertyDescriptor
                                  property:(objc_property_t)property
                                  instance:(RLMObjectBase *)objectInstance;
@@ -82,18 +82,18 @@ static inline NSString *RLMTypeToString(RLMPropertyType type) {
 // private setters
 @property (nonatomic, readwrite) NSString *name;
 @property (nonatomic, readwrite, assign) RLMPropertyType type;
-@property (nonatomic, readwrite) BOOL indexed;
-@property (nonatomic, readwrite) BOOL optional;
-@property (nonatomic, readwrite) BOOL array;
-@property (nonatomic, readwrite) BOOL set;
-@property (nonatomic, readwrite) BOOL dictionary;
+@property (nonatomic, readwrite, getter = isIndexed) BOOL indexed;
+@property (nonatomic, readwrite, getter = isOptional) BOOL optional;
+@property (nonatomic, readwrite, getter = isArray) BOOL array;
+@property (nonatomic, readwrite, getter = isSet) BOOL set;
+@property (nonatomic, readwrite, getter = isDictionary) BOOL dictionary;
 @property (nonatomic, copy, nullable) NSString *objectClassName;
 @property (nonatomic, copy, nullable) NSString *linkOriginPropertyName;
 
 // private properties
 @property (nonatomic, readwrite, nullable) NSString *columnName;
 @property (nonatomic, assign) NSUInteger index;
-@property (nonatomic, assign) BOOL isPrimary;
+@property (nonatomic, assign) BOOL isPrimaryKey;
 @property (nonatomic, assign) BOOL isLegacy;
 @property (nonatomic, assign) ptrdiff_t swiftIvar;
 @property (nonatomic, assign, nullable) Class swiftAccessor;
@@ -132,8 +132,8 @@ static inline NSString *RLMTypeToString(RLMPropertyType type) {
                         type:(RLMPropertyType)type
              objectClassName:(nullable NSString *)objectClassName
       linkOriginPropertyName:(nullable NSString *)linkOriginPropertyName
-                     indexed:(BOOL)indexed
-                    optional:(BOOL)optional;
+                   isIndexed:(BOOL)indexed
+                  isOptional:(BOOL)optional;
 @end
 
 RLM_HEADER_AUDIT_END(nullability)

@@ -46,7 +46,7 @@ using namespace realm;
     std::string _objectStoreName;
 }
 
-- (instancetype)initWithClassName:(NSString *)objectClassName objectClass:(Class)objectClass properties:(NSArray *)properties {
+- (instancetype)initWithClassName:(NSString *)objectClassName objectClass:(Class)objectClass properties:(NSArray<RLMProperty *> *)properties {
     self = [super init];
     self.className = objectClassName;
     self.properties = properties;
@@ -79,7 +79,7 @@ using namespace realm;
     for (RLMProperty *prop in _properties) {
         prop.index = index++;
         map[prop.name] = prop;
-        if (prop.isPrimary) {
+        if (prop.isPrimaryKey) {
             if (_primaryKeyProperty) {
                 @throw RLMException(@"Properties '%@' and '%@' are both marked as the primary key of '%@'",
                                     prop.name, _primaryKeyProperty.name, _className);
@@ -115,8 +115,8 @@ using namespace realm;
 
 
 - (void)setPrimaryKeyProperty:(RLMProperty *)primaryKeyProperty {
-    _primaryKeyProperty.isPrimary = NO;
-    primaryKeyProperty.isPrimary = YES;
+    _primaryKeyProperty.isPrimaryKey = NO;
+    primaryKeyProperty.isPrimaryKey = YES;
     _primaryKeyProperty = primaryKeyProperty;
     _primaryKeyProperty.indexed = YES;
 }
@@ -228,7 +228,7 @@ using namespace realm;
     unsigned int count;
     std::unique_ptr<objc_property_t[], decltype(&free)> props(class_copyPropertyList(objectClass, &count), &free);
     NSMutableArray<RLMProperty *> *propArray = [NSMutableArray arrayWithCapacity:count];
-    NSSet *indexed = [[NSSet alloc] initWithArray:[objectClass indexedProperties]];
+    NSSet<NSString *> *indexed = [[NSSet alloc] initWithArray:[objectClass indexedProperties]];
     for (unsigned int i = 0; i < count; i++) {
         NSString *propertyName = @(property_getName(props[i]));
         if ([ignoredProperties containsObject:propertyName]) {
@@ -238,14 +238,14 @@ using namespace realm;
         RLMProperty *prop = nil;
         if (isSwiftClass) {
             prop = [[RLMProperty alloc] initSwiftPropertyWithName:propertyName
-                                                          indexed:[indexed containsObject:propertyName]
+                                                        isIndexed:[indexed containsObject:propertyName]
                                            linkPropertyDescriptor:linkingObjectsProperties[propertyName]
                                                          property:props[i]
                                                          instance:swiftObjectInstance];
         }
         else {
             prop = [[RLMProperty alloc] initWithName:propertyName
-                                             indexed:[indexed containsObject:propertyName]
+                                           isIndexed:[indexed containsObject:propertyName]
                               linkPropertyDescriptor:linkingObjectsProperties[propertyName]
                                             property:props[i]];
         }
@@ -295,6 +295,14 @@ using namespace realm;
     schema->_computedProperties = [[NSArray allocWithZone:zone] initWithArray:_computedProperties copyItems:YES];
     [schema _propertiesDidChange];
     return schema;
+}
+
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:[RLMObjectSchema class]]) {
+        return NO;
+    }
+
+    return [self isEqualToObjectSchema:object];
 }
 
 - (BOOL)isEqualToObjectSchema:(RLMObjectSchema *)objectSchema {
@@ -361,7 +369,7 @@ using namespace realm;
     NSMutableArray *properties = [NSMutableArray arrayWithCapacity:objectSchema.persisted_properties.size()];
     for (const Property &prop : objectSchema.persisted_properties) {
         RLMProperty *property = [RLMProperty propertyForObjectStoreProperty:prop];
-        property.isPrimary = (prop.name == objectSchema.primary_key);
+        property.isPrimaryKey = (prop.name == objectSchema.primary_key);
         [properties addObject:property];
     }
     schema.properties = properties;

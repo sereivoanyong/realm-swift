@@ -121,7 +121,7 @@ class RealmTests: TestCase {
 
 #if !SWIFT_PACKAGE && DEBUG
     func testUnsupportedFileFormatVersion() {
-        let config = Realm.Configuration.defaultConfiguration
+        let config = Realm.Configuration.default
         let bundledRealmPath = Bundle(for: RealmTests.self).path(forResource: "fileformat-pre-null.realm",
                                                                  ofType: nil)!
         try! FileManager.default.copyItem(atPath: bundledRealmPath, toPath: config.fileURL!.path)
@@ -131,7 +131,7 @@ class RealmTests: TestCase {
     }
 
     func testFileFormatUpgradeRequiredButDisabled() {
-        var config = Realm.Configuration.defaultConfiguration
+        var config = Realm.Configuration.default
         let bundledRealmPath = Bundle(for: RealmTests.self).path(forResource: "file-format-version-21.realm",
                                                                  ofType: nil)!
         try! FileManager.default.copyItem(atPath: bundledRealmPath, toPath: config.fileURL!.path)
@@ -206,7 +206,7 @@ class RealmTests: TestCase {
     }
 
     func testInitCustomClassList() {
-        let configuration = Realm.Configuration(fileURL: Realm.Configuration.defaultConfiguration.fileURL,
+        let configuration = Realm.Configuration(fileURL: Realm.Configuration.default.fileURL,
                                                 objectTypes: [
                                                     EmbeddedTreeObject1.self,
                                                     EmbeddedTreeObject2.self,
@@ -1519,7 +1519,7 @@ extension RealmTests {
     // MARK: - Async Refresh
 
     func manuallyAdvancedRealm() throws -> (Realm, String) {
-        let config = RLMRealmConfiguration.default()
+        let config = RLMRealmConfiguration.default
         config.disableAutomaticChangeNotifications = true
         config.cache = false
         return (ObjectiveCSupport.convert(object: try RLMRealm(configuration: config)), config.pathOnDisk)

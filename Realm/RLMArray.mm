@@ -615,18 +615,3 @@ static void validateArrayBounds(__unsafe_unretained RLMArray *const ar,
 }
 
 @end
-
-@implementation RLMSortDescriptor
-
-+ (instancetype)sortDescriptorWithKeyPath:(NSString *)keyPath ascending:(BOOL)ascending {
-    RLMSortDescriptor *desc = [[RLMSortDescriptor alloc] init];
-    desc->_keyPath = keyPath;
-    desc->_ascending = ascending;
-    return desc;
-}
-
-- (instancetype)reversedSortDescriptor {
-    return [self.class sortDescriptorWithKeyPath:_keyPath ascending:!_ascending];
-}
-
-@end

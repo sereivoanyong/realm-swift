@@ -24,11 +24,35 @@ extern "C" {
 
 @class RLMRealm, RLMSchema, RLMObjectBase, RLMResults, RLMProperty;
 
-typedef NS_ENUM(NSUInteger, RLMUpdatePolicy) {
+/**
+ What to do when an object being added to or created in a Realm has a primary key that already exists.
+ */
+typedef NS_CLOSED_ENUM(NSUInteger, RLMUpdatePolicy) {
+    /**
+     Throw an exception. This is the default when no policy is specified for `add()` or `create()`.
+
+     This behavior is the same as passing `update: false` to `add()` or `create()`.
+     */
     RLMUpdatePolicyError = 1,
-    RLMUpdatePolicyUpdateChanged = 3,
-    RLMUpdatePolicyUpdateAll = 2,
-};
+
+    /**
+     Overwrite only properties in the existing object which are different from the new values. This results
+     in change notifications reporting only the properties which changed, and influences the sync merge logic.
+
+     If few or no of the properties are changing this will be faster than .all and reduce how much data has
+     to be written to the Realm file. If all of the properties are changing, it may be slower than .all (but
+     will never result in *more* data being written).
+     */
+    RLMUpdatePolicyModified = 3,
+
+    /**
+     Overwrite all properties in the existing object with the new values, even if they have not changed. This
+     results in change notifications reporting all properties as changed, and influences the sync merge logic.
+
+     This behavior is the same as passing `update: true` to `add()` or `create()`.
+     */
+    RLMUpdatePolicyAll = 2,
+} NS_SWIFT_NAME(UpdatePolicy);
 
 RLM_HEADER_AUDIT_BEGIN(nullability)
 

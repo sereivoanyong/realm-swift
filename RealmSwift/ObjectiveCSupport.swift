@@ -90,56 +90,6 @@ import Realm
         return Realm(object)
     }
 
-    /// Convert a `ObjectSchema` to a `RLMObjectSchema`.
-    public static func convert(object: ObjectSchema) -> RLMObjectSchema {
-        return object.rlmObjectSchema
-    }
-
-    /// Convert a `RLMObjectSchema` to a `ObjectSchema`.
-    public static func convert(object: RLMObjectSchema) -> ObjectSchema {
-        return ObjectSchema(object)
-    }
-
-    /// Convert a `Property` to a `RLMProperty`.
-    public static func convert(object: Property) -> RLMProperty {
-        return object.rlmProperty
-    }
-
-    /// Convert a `RLMProperty` to a `Property`.
-    public static func convert(object: RLMProperty) -> Property {
-        return Property(object)
-    }
-
-    /// Convert a `Realm.Configuration` to a `RLMRealmConfiguration`.
-    public static func convert(object: Realm.Configuration) -> RLMRealmConfiguration {
-        return object.rlmConfiguration
-    }
-
-    /// Convert a `RLMRealmConfiguration` to a `Realm.Configuration`.
-    public static func convert(object: RLMRealmConfiguration) -> Realm.Configuration {
-        return .fromRLMRealmConfiguration(object)
-    }
-
-    /// Convert a `Schema` to a `RLMSchema`.
-    public static func convert(object: Schema) -> RLMSchema {
-        return object.rlmSchema
-    }
-
-    /// Convert a `RLMSchema` to a `Schema`.
-    public static func convert(object: RLMSchema) -> Schema {
-        return Schema(object)
-    }
-
-    /// Convert a `SortDescriptor` to a `RLMSortDescriptor`.
-    public static func convert(object: SortDescriptor) -> RLMSortDescriptor {
-        return object.rlmSortDescriptorValue
-    }
-
-    /// Convert a `RLMSortDescriptor` to a `SortDescriptor`.
-    public static func convert(object: RLMSortDescriptor) -> SortDescriptor {
-        return SortDescriptor(keyPath: object.keyPath, ascending: object.ascending)
-    }
-
     /// Convert a `RLMShouldCompactOnLaunchBlock` to a Realm Swift compact block.
     @preconcurrency
     public static func convert(object: @escaping RLMShouldCompactOnLaunchBlock) -> @Sendable (Int, Int) -> Bool {

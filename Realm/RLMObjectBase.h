@@ -20,8 +20,16 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+@class RLMObjectSchema;
+
 /// :nodoc:
+NS_SWIFT_NAME(ObjectBase)
 @interface RLMObjectBase : NSObject
+
+/**
+ The object schema which lists the managed properties for the object.
+ */
+@property (nonatomic, readonly) RLMObjectSchema *objectSchema;
 
 @property (nonatomic, readonly, getter = isInvalidated) BOOL invalidated;
 

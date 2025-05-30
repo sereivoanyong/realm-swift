@@ -39,7 +39,7 @@ RLM_COLLECTION_TYPE(Dog)
 + (NSDictionary *)linkingObjectsProperties
 {
     // Define "owners" as the inverse relationship to Person.dogs
-    return @{ @"owners": [RLMPropertyDescriptor descriptorWithClass:Person.class propertyName:@"dogs"] };
+    return @{ @"owners": [[RLMPropertyDescriptor alloc] initWithObjectClass:Person.class propertyName:@"dogs"] };
 }
 @end
 

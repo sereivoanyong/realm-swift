@@ -843,7 +843,7 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
         @throw RLMException(@"'%@' does not have a primary key and can not be updated", object.objectSchema.className);
     }
 
-    RLMAddObjectToRealm(object, self, RLMUpdatePolicyUpdateAll);
+    RLMAddObjectToRealm(object, self, RLMUpdatePolicyAll);
 }
 
 - (void)addOrUpdateObjects:(id<NSFastEnumeration>)objects {

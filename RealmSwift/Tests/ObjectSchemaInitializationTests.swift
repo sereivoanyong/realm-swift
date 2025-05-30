@@ -157,29 +157,29 @@ class ObjectSchemaInitializationTests: TestCase {
         let schema = SwiftFakeObjectSubclass.sharedSchema()!
         XCTAssertEqual(schema.properties.count, 2)
 
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithAnyObject.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithAnyObject.self),
                      reason: "Property SwiftObjectWithAnyObject.anyObject is declared as NSObject")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithStringArray.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithStringArray.self),
                      reason: "Property SwiftObjectWithStringArray.stringArray is declared as Array<String>")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithOptionalStringArray.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithOptionalStringArray.self),
                      reason: "Property SwiftObjectWithOptionalStringArray.stringArray is declared as Optional<Array<String>>")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithBadPropertyName.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithBadPropertyName.self),
                      reason: "Property names beginning with 'new' are not supported.")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithManagedLazyProperty.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithManagedLazyProperty.self),
                      reason: "Lazy managed property 'foobar' is not allowed on a Realm Swift object class.")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithDynamicManagedLazyProperty.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithDynamicManagedLazyProperty.self),
                      reason: "Lazy managed property 'foobar' is not allowed on a Realm Swift object class.")
 
         // Shouldn't throw when not ignoring a property of a type we can't persist if it's not dynamic
-        _ = RLMObjectSchema(forObjectClass: SwiftObjectWithEnum.self)
+        _ = ObjectSchema(forObjectClass: SwiftObjectWithEnum.self)
         // Shouldn't throw when not ignoring a property of a type we can't persist if it's not dynamic
-        _ = RLMObjectSchema(forObjectClass: SwiftObjectWithStruct.self)
+        _ = ObjectSchema(forObjectClass: SwiftObjectWithStruct.self)
 
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithDatePrimaryKey.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithDatePrimaryKey.self),
                      reason: "Property 'date' cannot be made the primary key of 'SwiftObjectWithDatePrimaryKey'")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithNSURL.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithNSURL.self),
                      reason: "Property SwiftObjectWithNSURL.url is declared as NSURL")
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithNonOptionalLinkProperty.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithNonOptionalLinkProperty.self),
                      reason: "Object property 'objectCol' must be marked as optional.")
     }
 
@@ -212,10 +212,10 @@ class ObjectSchemaInitializationTests: TestCase {
     }
 
     func testOptionalProperties() {
-        let schema = RLMObjectSchema(forObjectClass: SwiftOptionalObject.self)
+        let schema = ObjectSchema(forObjectClass: SwiftOptionalObject.self)
 
         for prop in schema.properties {
-            XCTAssertTrue(prop.optional)
+            XCTAssertTrue(prop.isOptional)
         }
 
         let types = Set(schema.properties.map { $0.type })
@@ -236,7 +236,7 @@ class ObjectSchemaInitializationTests: TestCase {
     }
 
     func testNonRealmOptionalTypesDeclaredAsRealmOptional() {
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithNonRealmOptionalType.self))
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithNonRealmOptionalType.self))
     }
 
     func testNotExplicitlyIgnoredComputedProperties() {
@@ -247,7 +247,7 @@ class ObjectSchemaInitializationTests: TestCase {
     }
 
     func testMultiplePrimaryKeys() {
-        assertThrows(RLMObjectSchema(forObjectClass: SwiftObjectWithMultiplePrimaryKeys.self),
+        assertThrows(ObjectSchema(forObjectClass: SwiftObjectWithMultiplePrimaryKeys.self),
                      reason: "Properties 'pk2' and 'pk1' are both marked as the primary key of 'SwiftObjectWithMultiplePrimaryKeys'")
     }
 
@@ -278,11 +278,11 @@ class ObjectSchemaInitializationTests: TestCase {
                                            optional: Bool = false, list: Bool = false,
                                            set: Bool = false, objectType: String? = nil,
                                            hasSelectors: Bool = true, line: UInt = #line) {
-        let prop = RLMProperty(name: "property", value: value)
+        let prop = Property(name: "property", value: value)
         XCTAssertEqual(prop.type, propertyType, line: line)
-        XCTAssertEqual(prop.optional, optional, line: line)
-        XCTAssertEqual(prop.array, list, line: line)
-        XCTAssertEqual(prop.set, set, line: line)
+        XCTAssertEqual(prop.isOptional, optional, line: line)
+        XCTAssertEqual(prop.isArray, list, line: line)
+        XCTAssertEqual(prop.isSet, set, line: line)
         XCTAssertEqual(prop.objectClassName, objectType, line: line)
 
         if hasSelectors {
@@ -394,11 +394,11 @@ class ObjectSchemaInitializationTests: TestCase {
         assertType(MutableSet<Decimal128?>(), .decimal128, optional: true, set: true, hasSelectors: false)
         assertType(MutableSet<ObjectId?>(), .objectId, optional: true, set: true, hasSelectors: false)
 
-        assertThrows(RLMProperty(name: "name", value: Object()),
+        assertThrows(Property(name: "name", value: Object()),
                      reason: "Object property 'name' must be marked as optional.")
-        assertThrows(RLMProperty(name: "name", value: List<Object?>()),
+        assertThrows(Property(name: "name", value: List<Object?>()),
                      reason: "List<RealmSwiftObject> property 'name' must not be marked as optional.")
-        assertThrows(RLMProperty(name: "name", value: MutableSet<Object?>()),
+        assertThrows(Property(name: "name", value: MutableSet<Object?>()),
                      reason: "MutableSet<RealmSwiftObject> property 'name' must not be marked as optional.")
         assertType(Object?.none, .object, optional: true, objectType: "RealmSwiftObject")
         assertType(List<Object>(), .object, list: true, objectType: "RealmSwiftObject", hasSelectors: false)
@@ -409,13 +409,13 @@ class ObjectSchemaInitializationTests: TestCase {
                                      optional: Bool = false, list: Bool = false,
                                      set: Bool = false, map: Bool = false,
                                      objectType: String? = nil, line: UInt = #line) {
-        let prop = RLMProperty(name: "_property", value: Persisted<T>())
+        let prop = Property(name: "_property", value: Persisted<T>())
         XCTAssertEqual(prop.name, "property", line: line)
         XCTAssertEqual(prop.type, propertyType, line: line)
-        XCTAssertEqual(prop.optional, optional, line: line)
-        XCTAssertEqual(prop.array, list, line: line)
-        XCTAssertEqual(prop.set, set, line: line)
-        XCTAssertEqual(prop.dictionary, map, line: line)
+        XCTAssertEqual(prop.isOptional, optional, line: line)
+        XCTAssertEqual(prop.isArray, list, line: line)
+        XCTAssertEqual(prop.isSet, set, line: line)
+        XCTAssertEqual(prop.isDictionary, map, line: line)
         XCTAssertEqual(prop.objectClassName, objectType, line: line)
         XCTAssertNil(prop.getterSel, line: line)
         XCTAssertNil(prop.setterSel, line: line)
@@ -558,45 +558,45 @@ class ObjectSchemaInitializationTests: TestCase {
         assertType(Map<String, Object?>.self, .object, optional: true, map: true, objectType: "RealmSwiftObject")
         assertType(Map<String, EmbeddedObject?>.self, .object, optional: true, map: true, objectType: "RealmSwiftEmbeddedObject")
 
-        assertThrows(RLMProperty(name: "_name", value: Persisted<Object>()),
+        assertThrows(Property(name: "_name", value: Persisted<Object>()),
                      reason: "Object property 'name' must be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<List<Object?>>()),
+        assertThrows(Property(name: "_name", value: Persisted<List<Object?>>()),
                      reason: "List<RealmSwiftObject> property 'name' must not be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<MutableSet<Object?>>()),
+        assertThrows(Property(name: "_name", value: Persisted<MutableSet<Object?>>()),
                      reason: "MutableSet<RealmSwiftObject> property 'name' must not be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<LinkingObjects<Object>>()),
+        assertThrows(Property(name: "_name", value: Persisted<LinkingObjects<Object>>()),
                      reason: "LinkingObjects<RealmSwiftObject> property 'name' must set the origin property name with @Persisted(originProperty: \"name\").")
 
-        assertThrows(RLMProperty(name: "_name", value: Persisted<EmbeddedObject>()),
+        assertThrows(Property(name: "_name", value: Persisted<EmbeddedObject>()),
                      reason: "Object property 'name' must be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<List<EmbeddedObject?>>()),
+        assertThrows(Property(name: "_name", value: Persisted<List<EmbeddedObject?>>()),
                      reason: "List<RealmSwiftObject> property 'name' must not be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<MutableSet<EmbeddedObject?>>()),
+        assertThrows(Property(name: "_name", value: Persisted<MutableSet<EmbeddedObject?>>()),
                      reason: "MutableSet<RealmSwiftObject> property 'name' must not be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<LinkingObjects<EmbeddedObject>>()),
+        assertThrows(Property(name: "_name", value: Persisted<LinkingObjects<EmbeddedObject>>()),
                      reason: "LinkingObjects<RealmSwiftEmbeddedObject> property 'name' must set the origin property name with @Persisted(originProperty: \"name\").")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<Map<String, Object>>()),
+        assertThrows(Property(name: "_name", value: Persisted<Map<String, Object>>()),
                      reason: "Map<String, RealmSwiftObject> property 'name' must be marked as optional.")
-        assertThrows(RLMProperty(name: "_name", value: Persisted<Map<String, EmbeddedObject>>()),
+        assertThrows(Property(name: "_name", value: Persisted<Map<String, EmbeddedObject>>()),
                      reason: "Map<String, RealmSwiftObject> property 'name' must be marked as optional.")
     }
 
     func testModernIndexed() {
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>()).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1)).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(indexed: false)).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1, indexed: false)).indexed)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<Int>(indexed: true)).indexed)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1, indexed: true)).indexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>()).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1)).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(indexed: false)).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1, indexed: false)).isIndexed)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<Int>(indexed: true)).isIndexed)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1, indexed: true)).isIndexed)
     }
 
     func testModernPrimary() {
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>()).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1)).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(primaryKey: false)).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1, primaryKey: false)).isPrimary)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<Int>(primaryKey: true)).isPrimary)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<Int>(wrappedValue: 1, primaryKey: true)).isPrimary)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>()).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1)).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(primaryKey: false)).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1, primaryKey: false)).isPrimaryKey)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<Int>(primaryKey: true)).isPrimaryKey)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<Int>(wrappedValue: 1, primaryKey: true)).isPrimaryKey)
     }
 
     func testCustomPropertyPopulation() {
@@ -731,22 +731,22 @@ class ObjectSchemaInitializationTests: TestCase {
 
     func testCustomIndexed() {
         let v = IntWrapper(persistedValue: 1)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>()).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v)).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(indexed: false)).indexed)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, indexed: false)).indexed)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<IntWrapper>(indexed: true)).indexed)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, indexed: true)).indexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>()).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v)).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(indexed: false)).isIndexed)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, indexed: false)).isIndexed)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<IntWrapper>(indexed: true)).isIndexed)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, indexed: true)).isIndexed)
     }
 
     func testCustomPrimary() {
         let v = IntWrapper(persistedValue: 1)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>()).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v)).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(primaryKey: false)).isPrimary)
-        XCTAssertFalse(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, primaryKey: false)).isPrimary)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<IntWrapper>(primaryKey: true)).isPrimary)
-        XCTAssertTrue(RLMProperty(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, primaryKey: true)).isPrimary)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>()).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v)).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(primaryKey: false)).isPrimaryKey)
+        XCTAssertFalse(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, primaryKey: false)).isPrimaryKey)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<IntWrapper>(primaryKey: true)).isPrimaryKey)
+        XCTAssertTrue(Property(name: "_property", value: Persisted<IntWrapper>(wrappedValue: v, primaryKey: true)).isPrimaryKey)
     }
     #endif // DEBUG
 }

@@ -102,7 +102,7 @@
 
 @implementation AllTypesObject
 + (NSDictionary *)linkingObjectsProperties {
-    return @{@"linkingObjectsCol": [RLMPropertyDescriptor descriptorWithClass:LinkToAllTypesObject.class propertyName:@"allTypesCol"]};
+    return @{@"linkingObjectsCol": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkToAllTypesObject.class propertyName:@"allTypesCol"]};
 }
 
 + (NSArray *)requiredProperties {
@@ -250,7 +250,7 @@
 @implementation DogObject
 + (NSDictionary *)linkingObjectsProperties
 {
-    return @{ @"owners": [RLMPropertyDescriptor descriptorWithClass:OwnerObject.class propertyName:@"dog"] };
+    return @{ @"owners": [[RLMPropertyDescriptor alloc] initWithObjectClass:OwnerObject.class propertyName:@"dog"] };
 }
 @end
 
@@ -435,7 +435,7 @@
 
 + (NSDictionary *)linkingObjectsProperties
 {
-    return @{ @"parents": [RLMPropertyDescriptor descriptorWithClass:PersonObject.class propertyName:@"children"] };
+    return @{ @"parents": [[RLMPropertyDescriptor alloc] initWithObjectClass:PersonObject.class propertyName:@"children"] };
 }
 
 - (BOOL)isEqual:(id)other
@@ -466,8 +466,8 @@
              @"propB": @"prop 2"};
 }
 + (NSDictionary *)linkingObjectsProperties {
-    return @{@"linking1": [RLMPropertyDescriptor descriptorWithClass:LinkToRenamedProperties1.class propertyName:@"linkA"],
-             @"linking2": [RLMPropertyDescriptor descriptorWithClass:LinkToRenamedProperties2.class propertyName:@"linkD"]};
+    return @{@"linking1": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkToRenamedProperties1.class propertyName:@"linkA"],
+             @"linking2": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkToRenamedProperties2.class propertyName:@"linkD"]};
 }
 @end
 
@@ -480,8 +480,8 @@
              @"propD": @"prop 2"};
 }
 + (NSDictionary *)linkingObjectsProperties {
-    return @{@"linking1": [RLMPropertyDescriptor descriptorWithClass:LinkToRenamedProperties1.class propertyName:@"linkA"],
-             @"linking2": [RLMPropertyDescriptor descriptorWithClass:LinkToRenamedProperties2.class propertyName:@"linkD"]};
+    return @{@"linking1": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkToRenamedProperties1.class propertyName:@"linkA"],
+             @"linking2": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkToRenamedProperties2.class propertyName:@"linkD"]};
 }
 @end
 
