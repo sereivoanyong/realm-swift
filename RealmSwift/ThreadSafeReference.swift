@@ -136,7 +136,7 @@ public protocol ThreadConfined {
 */
 @propertyWrapper public final class ThreadSafe<T: ThreadConfined> {
     private var threadSafeReference: ThreadSafeReference<T>?
-    private var rlmConfiguration: RLMRealmConfiguration?
+    private var rlmConfiguration: RealmConfiguration?
     private let lock = NSLock()
 
     /// :nodoc:

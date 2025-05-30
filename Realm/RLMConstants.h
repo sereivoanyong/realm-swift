@@ -82,7 +82,7 @@ typedef NS_CLOSED_ENUM(int32_t, RLMPropertyType) {
     RLMPropertyTypeObject = 7,
     /** Realm linking objects. See [Realm Models](https://www.mongodb.com/docs/atlas/device-sdks/sdk/swift/model-data/relationships/#define-an-inverse-relationship-property) for more information. */
     RLMPropertyTypeLinkingObjects = 8,
-};
+} NS_SWIFT_NAME(PropertyType);
 
 /**
  `RLMAnyValueType` is an enumeration describing all property types supported by RLMValue (AnyRealmValue).
@@ -133,7 +133,7 @@ typedef NS_CLOSED_ENUM(int32_t, RLMAnyValueType) {
 /**
  A notification indicating that changes were made to a Realm.
 */
-typedef NSString * RLMNotification NS_EXTENSIBLE_STRING_ENUM;
+typedef NSString * RLMNotification NS_EXTENSIBLE_STRING_ENUM NS_SWIFT_NAME(RLMRealmNotification);
 
 /**
  This notification is posted when a write transaction has been committed to a Realm on a different thread for
@@ -146,7 +146,7 @@ typedef NSString * RLMNotification NS_EXTENSIBLE_STRING_ENUM;
  `-[RLMRealm refresh]` after doing some work. Refreshing the Realm is optional, but not refreshing the Realm may lead to
  large Realm files. This is because an extra copy of the data must be kept for the stale Realm.
  */
-extern RLMNotification const RLMRealmRefreshRequiredNotification NS_SWIFT_NAME(RefreshRequired);
+extern RLMNotification const RLMRealmRefreshRequiredNotification NS_SWIFT_NAME(RLMRealmNotification.refreshRequired);
 
 /**
  This notification is posted by a Realm when a write transaction has been
@@ -161,7 +161,7 @@ extern RLMNotification const RLMRealmRefreshRequiredNotification NS_SWIFT_NAME(R
  files. This is because Realm must keep an extra copy of the data for the stale
  Realm.
  */
-extern RLMNotification const RLMRealmDidChangeNotification NS_SWIFT_NAME(DidChange);
+extern RLMNotification const RLMRealmDidChangeNotification NS_SWIFT_NAME(RLMRealmNotification.didChange);
 
 #pragma mark - Error keys
 

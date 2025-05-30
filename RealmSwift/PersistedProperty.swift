@@ -108,11 +108,11 @@ public struct Persisted<Value: _Persistable> {
 
     /// Declares a property which is lazily initialized to the type's default value.
     public init() {
-        storage = .unmanagedNoDefault(indexed: false, primary: false)
+        storage = .unmanagedNoDefault(indexed: false, primaryKey: false)
     }
     /// Declares a property which defaults to the given value.
     public init(wrappedValue value: Value) {
-        storage = .unmanaged(value: value, indexed: false, primary: false)
+        storage = .unmanaged(value: value, indexed: false, primaryKey: false)
     }
 
     /// :nodoc:
@@ -205,12 +205,12 @@ public struct Persisted<Value: _Persistable> {
         case .managed(let key), .managedCached(_, let key):
             Value._rlmSetProperty(object, key, value)
         case .unmanaged, .unmanagedNoDefault:
-            storage = .unmanaged(value: value, indexed: false, primary: false)
+            storage = .unmanaged(value: value, indexed: false, primaryKey: false)
         }
     }
 
     // Initialize an unmanaged property for observation
-    internal mutating func observe(_ object: ObjectBase, property: RLMProperty) {
+    internal mutating func observe(_ object: ObjectBase, property: Property) {
         let value: Value
         switch storage {
         case let .unmanaged(v, _, _):
@@ -231,7 +231,7 @@ public struct Persisted<Value: _Persistable> {
 
 extension Persisted: Decodable where Value: Decodable {
     public init(from decoder: Decoder) throws {
-        storage = .unmanaged(value: try decoder.decodeOptional(Value.self), indexed: false, primary: false)
+        storage = .unmanaged(value: try decoder.decodeOptional(Value.self), indexed: false, primaryKey: false)
     }
 }
 
@@ -339,11 +339,11 @@ extension Persisted where Value.PersistedType: _Indexable {
 extension Persisted where Value.PersistedType: _PrimaryKey {
     /// Declares the primary key property which is lazily initialized to the type's default value.
     public init(primaryKey: Bool) {
-        storage = .unmanagedNoDefault(primary: primaryKey)
+        storage = .unmanagedNoDefault(primaryKey: primaryKey)
     }
     /// Declares the primary key property which defaults to the given value.
     public init(wrappedValue value: Value, primaryKey: Bool) {
-        storage = .unmanaged(value: value, primary: primaryKey)
+        storage = .unmanaged(value: value, primaryKey: primaryKey)
     }
 }
 
@@ -371,22 +371,22 @@ extension Persisted: DiscoverablePersistedProperty where Value: _Persistable {
     public static var _rlmType: PropertyType { Value._rlmType }
     public static var _rlmOptional: Bool { Value._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public static func _rlmPopulateProperty(_ prop: Property) {
         // The label reported by Mirror has an underscore prefix added to it
         // as it's the actual storage rather than the compiler-magic getter/setter
         prop.name = String(prop.name.dropFirst())
         Value._rlmPopulateProperty(prop)
         Value._rlmSetAccessor(prop)
     }
-    public func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public func _rlmPopulateProperty(_ prop: Property) {
         switch storage {
-        case let .unmanaged(value, indexed, primary):
+        case let .unmanaged(value, indexed, primaryKey):
             value._rlmPopulateProperty(prop)
-            prop.indexed = indexed || primary
-            prop.isPrimary = primary
-        case let .unmanagedNoDefault(indexed, primary):
-            prop.indexed = indexed || primary
-            prop.isPrimary = primary
+            prop.isIndexed = indexed || primaryKey
+            prop.isPrimaryKey = primaryKey
+        case let .unmanagedNoDefault(indexed, primaryKey):
+            prop.isIndexed = indexed || primaryKey
+            prop.isPrimaryKey = primaryKey
         default:
             fatalError()
         }
@@ -415,13 +415,13 @@ private enum PropertyStorage<T> {
     // An unmanaged value. This is used as the initial state if the user did
     // supply a default value, or if an unmanaged property is read or written
     // (but not observed).
-    case unmanaged(value: T, indexed: Bool = false, primary: Bool = false)
+    case unmanaged(value: T, indexed: Bool = false, primaryKey: Bool = false)
 
     // The property is unmanaged and does not yet have a value. This state is
     // used if the user does not supply a default value in their model definition
     // and will be converted to the zero/empty value for the type when this
     // property is first used.
-    case unmanagedNoDefault(indexed: Bool = false, primary: Bool = false)
+    case unmanagedNoDefault(indexed: Bool = false, primaryKey: Bool = false)
 
     // The property is unmanaged and the parent object has (or previously had)
     // KVO observers, so we performed the additional initialization to set the

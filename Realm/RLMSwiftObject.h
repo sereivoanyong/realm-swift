@@ -70,6 +70,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
  See our [Objective-C guide](https://docs.mongodb.com/realm/sdk/swift/fundamentals/relationships/) for more details.
  */
+NS_SWIFT_NAME(Object)
 @interface RealmSwiftObject : RLMObjectBase
 @end
 
@@ -108,6 +109,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  }
  ```
  */
+NS_SWIFT_NAME(EmbeddedObject)
 @interface RealmSwiftEmbeddedObject : RLMObjectBase
 @end
 

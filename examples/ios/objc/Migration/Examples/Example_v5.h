@@ -110,7 +110,7 @@ RLM_COLLECTION_TYPE(Pet)
 }
 + (NSDictionary *)linkingObjectsProperties {
     return @{
-        @"residents": [RLMPropertyDescriptor descriptorWithClass:Person.class propertyName:@"address"],
+        @"residents": [[RLMPropertyDescriptor alloc] initWithObjectClass:Person.class propertyName:@"address"],
     };
 }
 @end

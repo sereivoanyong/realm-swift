@@ -243,7 +243,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = object id;
                 columnName = custom_pk;
                 indexed = YES;
-                isPrimary = YES;
+                primaryKey = YES;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -253,7 +253,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = int;
                 columnName = custom_intCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -263,7 +263,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = mixed;
                 columnName = custom_anyCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -273,7 +273,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = int;
                 columnName = custom_intEnumCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -285,7 +285,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = custom_objectCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -297,7 +297,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = custom_arrayCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = YES;
                 set = NO;
                 dictionary = NO;
@@ -309,7 +309,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = custom_setCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = YES;
                 dictionary = NO;
@@ -321,7 +321,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = custom_mapCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = YES;
@@ -333,7 +333,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = custom_embeddedObject;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -343,7 +343,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = int;
                 columnName = custom_arrayIntCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = YES;
                 set = NO;
                 dictionary = NO;
@@ -353,7 +353,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = int;
                 columnName = custom_setIntCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = YES;
                 dictionary = NO;
@@ -363,7 +363,7 @@ class CustomColumnNamesSchemaTest: TestCase {
                 type = int;
                 columnName = custom_mapIntCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = YES;

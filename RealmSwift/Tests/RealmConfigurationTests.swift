@@ -22,7 +22,7 @@ import class Realm.Private.RLMRealmConfiguration
 
 class RealmConfigurationTests: TestCase {
     func testDefaultConfiguration() {
-        let defaultConfiguration = Realm.Configuration.defaultConfiguration
+        let defaultConfiguration = Realm.Configuration.default
 
         XCTAssertEqual(defaultConfiguration.fileURL, try! Realm().configuration.fileURL)
         XCTAssertNil(defaultConfiguration.inMemoryIdentifier)
@@ -33,11 +33,11 @@ class RealmConfigurationTests: TestCase {
     }
 
     func testSetDefaultConfiguration() {
-        let fileURL = Realm.Configuration.defaultConfiguration.fileURL
+        let fileURL = Realm.Configuration.default.fileURL
         let configuration = Realm.Configuration(fileURL: URL(fileURLWithPath: "/dev/null"))
-        Realm.Configuration.defaultConfiguration = configuration
-        XCTAssertEqual(Realm.Configuration.defaultConfiguration.fileURL, URL(fileURLWithPath: "/dev/null"))
-        Realm.Configuration.defaultConfiguration.fileURL = fileURL
+        Realm.Configuration.default = configuration
+        XCTAssertEqual(Realm.Configuration.default.fileURL, URL(fileURLWithPath: "/dev/null"))
+        Realm.Configuration.default.fileURL = fileURL
     }
 
     func testCannotSetMutuallyExclusiveProperties() {

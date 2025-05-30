@@ -18,6 +18,7 @@
 
 import Foundation
 import Realm
+import class Realm.SortDescriptor
 
 /**
  A homogenous key-value collection of `Object`s which can be retrieved, filtered, sorted, and operated upon.

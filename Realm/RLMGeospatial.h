@@ -20,6 +20,7 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability)
 /// Conforming protocol for a Geo-shape.
+NS_SWIFT_NAME(Geospatial)
 @protocol RLMGeospatial
 @end
 
@@ -46,6 +47,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
  @warning Altitude is not used in any of the query calculations.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(GeoPoint)
 @interface RLMGeospatialPoint : NSObject
 /// Latitude in degrees.
 @property (readonly) double latitude;
@@ -84,6 +86,7 @@ Returns `nil` if the values of latitude and longitude are not within the ranges 
  - warning: This class cannot be persisted and can only be use within a geospatial `geoWithin` query.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(GeoBox)
 @interface RLMGeospatialBox : NSObject <RLMGeospatial>
 /// The bottom left corner of the rectangle.
 @property (readonly, strong) RLMGeospatialPoint *bottomLeft;
@@ -121,6 +124,7 @@ NS_SWIFT_SENDABLE
  @warning This class cannot be persisted and can only be use within a geospatial `geoWithin` query.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(GeoPolygon)
 @interface RLMGeospatialPolygon : NSObject <RLMGeospatial>
 /// The polygon's external (outer) ring.
 @property (readonly, strong) NSArray<RLMGeospatialPoint *> *outerRing;
@@ -156,6 +160,7 @@ Returns `nil` if the first and the last `RLMGeospatialPoint` in a polygon are no
  - warning: This structure cannot be persisted and can only be used to build other geospatial shapes
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(Distance)
 @interface RLMDistance : NSObject
 /// The distance in radians.
 @property (readonly) double radians;
@@ -227,6 +232,7 @@ A class that represents a circle, that can be used in a geospatial `geoWithin`qu
 @warning This class cannot be persisted and can only be use within a geospatial `geoWithin` query.
 */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(GeoCircle)
 @interface RLMGeospatialCircle : NSObject <RLMGeospatial>
 /// Center of the circle.
 @property (readonly, strong) RLMGeospatialPoint *center;

@@ -55,7 +55,6 @@ import Realm.Private
  }
  ```
  */
-public typealias EmbeddedObject = RealmSwiftEmbeddedObject
 extension EmbeddedObject: _RealmCollectionValueInsideOptional {
     /// :nodoc:
     public static override func isEmbedded() -> Bool {
@@ -87,34 +86,12 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
 
     // MARK: Properties
 
-    /// The Realm which manages the object, or `nil` if the object is unmanaged.
-    public var realm: Realm? {
-        if let rlmReam = RLMObjectBaseRealm(self) {
-            return Realm(rlmReam)
-        }
-        return nil
-    }
-
-    /// The object schema which lists the managed properties for the object.
-    public var objectSchema: ObjectSchema {
-        return ObjectSchema(RLMObjectBaseObjectSchema(self)!)
-    }
-
-    /// Indicates if the object can no longer be accessed because it is now invalid.
-    ///
-    /// An object can no longer be accessed if the object has been deleted from the Realm that manages it, or if
-    /// `invalidate()` is called on that Realm.
-    public override final var isInvalidated: Bool { return super.isInvalidated }
-
-    /// A human-readable description of the object.
-    open override var description: String { return super.description }
-
     /**
      WARNING: This is an internal helper method not intended for public use.
      It is not considered part of the public API.
      :nodoc:
      */
-    public override static func _getProperties() -> [RLMProperty]? {
+    public override static func _getProperties() -> [Property]? {
         ObjectUtil.getSwiftProperties(self)
     }
 
@@ -212,8 +189,8 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
      - parameter block: The block to call with information about changes to the object.
      - returns: A token which must be held for as long as you want updates to be delivered.
      */
-    public func observe<T: RLMObjectBase>(on queue: DispatchQueue? = nil,
-                                          _ block: @escaping (ObjectChange<T>) -> Void) -> NotificationToken {
+    public func observe<T: ObjectBase>(on queue: DispatchQueue? = nil,
+                                       _ block: @escaping (ObjectChange<T>) -> Void) -> NotificationToken {
         return _observe(on: queue, block)
     }
 
@@ -427,41 +404,5 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
      */
     public func isSameObject(as object: EmbeddedObject?) -> Bool {
         return RLMObjectBaseAreEqual(self, object)
-    }
-}
-
-extension EmbeddedObject: ThreadConfined {
-    /**
-     Indicates if this object is frozen.
-
-     - see: `Object.freeze()`
-     */
-    public var isFrozen: Bool { return realm?.isFrozen ?? false }
-
-    /**
-     Returns a frozen (immutable) snapshot of this object.
-
-     The frozen copy is an immutable object which contains the same data as this
-     object currently contains, but will not update when writes are made to the
-     containing Realm. Unlike live objects, frozen objects can be accessed from any
-     thread.
-
-     - warning: Holding onto a frozen object for an extended period while performing write
-     transaction on the Realm may result in the Realm file growing to large sizes. See
-     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
-     - warning: This method can only be called on a managed object.
-     */
-    public func freeze() -> Self {
-        return realm!.freeze(self)
-    }
-
-    /**
-     Returns a live (mutable) reference of this object.
-
-     This method creates a managed accessor to a live copy of the same frozen object.
-     Will return self if called on an already live object.
-     */
-    public func thaw() -> Self? {
-        return realm?.thaw(self)
     }
 }

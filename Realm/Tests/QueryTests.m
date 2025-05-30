@@ -46,13 +46,13 @@
 
 @implementation LinkChain2
 + (NSDictionary *)linkingObjectsProperties {
-    return @{@"prev": [RLMPropertyDescriptor descriptorWithClass:LinkChain1.class propertyName:@"next"]};
+    return @{@"prev": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkChain1.class propertyName:@"next"]};
 }
 @end
 
 @implementation LinkChain3
 + (NSDictionary *)linkingObjectsProperties {
-    return @{@"prev": [RLMPropertyDescriptor descriptorWithClass:LinkChain2.class propertyName:@"next"]};
+    return @{@"prev": [[RLMPropertyDescriptor alloc] initWithObjectClass:LinkChain2.class propertyName:@"next"]};
 }
 @end
 

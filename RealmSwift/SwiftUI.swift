@@ -22,6 +22,7 @@ import SwiftUI
 import Combine
 import Realm
 import Realm.Private
+import class Realm.SortDescriptor
 
 private func write<Value>(_ value: Value, _ block: (Value) -> Void) where Value: ThreadConfined {
     let thawed = value.realm == nil ? value : value.thaw() ?? value
@@ -34,7 +35,7 @@ private func write<Value>(_ value: Value, _ block: (Value) -> Void) where Value:
     }
 }
 
-private func thawObjectIfFrozen<Value>(_ value: Value) -> Value where Value: ObjectBase & ThreadConfined {
+private func thawObjectIfFrozen<Value>(_ value: Value) -> Value where Value: ObjectBase {
     return value.realm == nil ? value : value.thaw() ?? value
 }
 
@@ -228,7 +229,7 @@ private final class ObservableStoragePublisher<ObjectType>: Publisher where Obje
             subscriber.receive(subscription: ObservationSubscription(token: token))
         } else if let value = unwrappedValue, !value.isInvalidated {
             // else if the value is unmanaged
-            let schema = ObjectSchema(RLMObjectBaseObjectSchema(value)!)
+            let schema = RLMObjectBaseObjectSchema(value)!
             let kvo = SwiftUIKVO(subscriber: subscriber)
 
             var keyPaths = [String]()
@@ -493,7 +494,7 @@ extension Projection: _ObservedResultsValue { }
     public typealias Element = ResultType
     private class Storage: ObservableResultsStorage<Results<ResultType>> {
         override func updateValue() {
-            let realm = try! Realm(configuration: configuration ?? Realm.Configuration.defaultConfiguration)
+            let realm = try! Realm(configuration: configuration ?? .default)
             var value = realm.objects(ResultType.self)
             if let sortDescriptor = sortDescriptor {
                 value = value.sorted(byKeyPath: sortDescriptor.keyPath, ascending: sortDescriptor.ascending)
@@ -570,7 +571,7 @@ extension Projection: _ObservedResultsValue { }
      - parameter type: Observed type
      - parameter configuration: The `Realm.Configuration` used when creating the Realm,
      user's sync configuration for the given partition value will be set as the `syncConfiguration`,
-     if empty the configuration is set to the `defaultConfiguration`
+     if empty the configuration is set to the `default`
      - parameter filter: Observations will be made only for passing objects.
      If no filter given - all objects will be observed
      - parameter keyPaths: Only properties contained in the key paths array will be observed.
@@ -594,7 +595,7 @@ extension Projection: _ObservedResultsValue { }
      - parameter type: Observed type
      - parameter configuration: The `Realm.Configuration` used when creating the Realm,
      user's sync configuration for the given partition value will be set as the `syncConfiguration`,
-     if empty the configuration is set to the `defaultConfiguration`
+     if empty the configuration is set to the `default`
      - parameter filter: Observations will be made only for passing objects.
      If no filter given - all objects will be observed
      - parameter keyPaths: Only properties contained in the key paths array will be observed.
@@ -617,7 +618,7 @@ extension Projection: _ObservedResultsValue { }
      - parameter type: Observed type
      - parameter configuration: The `Realm.Configuration` used when creating the Realm,
      user's sync configuration for the given partition value will be set as the `syncConfiguration`,
-     if empty the configuration is set to the `defaultConfiguration`
+     if empty the configuration is set to the `default`
      - parameter where: Observations will be made only for passing objects.
      If no type safe query is given - all objects will be observed
      - parameter keyPaths: Only properties contained in the key paths array will be observed.
@@ -674,7 +675,7 @@ extension Projection: _ObservedResultsValue { }
         var token: AnyCancellable?
 
         override func updateValue() {
-            let realm = try! Realm(configuration: configuration ?? Realm.Configuration.defaultConfiguration)
+            let realm = try! Realm(configuration: configuration ?? .default)
             var results = realm.objects(ResultType.self)
 
             let filters = [searchFilter, filter].compactMap { $0 }
@@ -796,7 +797,7 @@ extension Projection: _ObservedResultsValue { }
     ///   - offsets: Index offsets in the section.
     ///   - section: The section containing the items to remove.
     public func remove(atOffsets offsets: IndexSet,
-                       section: ResultsSection<Key, ResultType>) where ResultType: ObjectBase & ThreadConfined {
+                       section: ResultsSection<Key, ResultType>) where ResultType: ObjectBase {
         write(wrappedValue) { collection in
             collection.realm?.delete(offsets.compactMap { section[$0].thaw() ?? nil })
         }
@@ -837,7 +838,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -867,7 +868,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -897,7 +898,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -927,7 +928,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -956,7 +957,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -986,7 +987,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -1015,7 +1016,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -1041,7 +1042,7 @@ extension Projection: _ObservedResultsValue { }
      If `nil`, notifications will be delivered for any property change on the object.
      String key paths which do not correspond to a valid a property will throw an exception.
      - parameter configuration: The `Realm.Configuration` used when creating the Realm.
-     If empty the configuration is set to the `defaultConfiguration`
+     If empty the configuration is set to the `default`
 
      - note: The primary sort descriptor must be responsible for determining the section key.
      */
@@ -1165,7 +1166,7 @@ where ObjectType: RealmSubscribable & ThreadConfined & ObservableObject & Equata
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Binding where Value: ObjectBase & ThreadConfined {
+extension Binding where Value: ObjectBase {
     /// :nodoc:
     @MainActor
     public subscript<V>(dynamicMember member: ReferenceWritableKeyPath<Value, V>) -> Binding<V> where V: _Persistable {
@@ -1247,7 +1248,7 @@ public extension BoundCollection where Value == List<Element> {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public extension BoundCollection where Value == List<Element>, Element: ObjectBase & ThreadConfined {
+public extension BoundCollection where Value == List<Element>, Element: ObjectBase {
     /// :nodoc:
     func append(_ value: Value.Element) {
         write { list in
@@ -1260,7 +1261,7 @@ public extension BoundCollection where Value == List<Element>, Element: ObjectBa
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public extension BoundCollection where Value == Results<Element>, Element: ObjectBase & ThreadConfined {
+public extension BoundCollection where Value == Results<Element>, Element: ObjectBase {
     /// :nodoc:
     func remove(_ object: Value.Element) {
         guard let thawed = object.thaw() else { return }
@@ -1295,7 +1296,7 @@ public extension BoundCollection where Value == MutableSet<Element> {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public extension BoundCollection where Value == MutableSet<Element>, Element: ObjectBase & ThreadConfined {
+public extension BoundCollection where Value == MutableSet<Element>, Element: ObjectBase {
     /// :nodoc:
     func remove(_ object: Value.Element) {
         write { mutableSet in
@@ -1382,7 +1383,7 @@ public extension BoundMap {
 
 /// :nodoc:
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public extension BoundMap where Value.Value: ObjectBase & ThreadConfined {
+public extension BoundMap where Value.Value: ObjectBase {
     /// :nodoc:
     func set(object: Value.Value?, for key: Value.Key) {
         // If the value is `nil` remove it from the map.
@@ -1486,7 +1487,7 @@ extension ThreadConfined where Self: ObjectBase {
 }
 
 private struct RealmEnvironmentKey: EnvironmentKey {
-    static let defaultValue = Realm.Configuration.defaultConfiguration
+    static let defaultValue = Realm.Configuration.default
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

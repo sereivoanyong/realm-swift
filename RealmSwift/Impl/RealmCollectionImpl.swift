@@ -18,6 +18,7 @@
 
 import Foundation
 import Realm
+import class Realm.SortDescriptor
 
 // RealmCollectionImpl implements all of the RealmCollection protocol except for
 // description and single-element subscript. description actually varies between
@@ -67,7 +68,7 @@ extension RealmCollectionImpl {
 
     public func sorted<S: Sequence>(by sortDescriptors: S) -> Results<Element>
         where S.Iterator.Element == SortDescriptor {
-            return Results<Element>(collection.sortedResults(using: sortDescriptors.map { $0.rlmSortDescriptorValue }))
+            return Results<Element>(collection.sortedResults(using: [SortDescriptor](sortDescriptors)))
     }
 
     public func distinct<S: Sequence>(by keyPaths: S) -> Results<Element>
@@ -149,7 +150,7 @@ extension RealmCollectionImpl {
         if sortDescriptors.isEmpty {
             throwRealmException("There must be at least one SortDescriptor when using SectionedResults.")
         }
-        let sectionedResults = collection.sectionedResults(using: sortDescriptors.map(ObjectiveCSupport.convert)) { value in
+        let sectionedResults = collection.sectionedResults(using: sortDescriptors) { value in
             return keyBlock(Element._rlmFromObjc(value)!)._rlmObjcValue as? RLMValue
         }
 

@@ -249,7 +249,7 @@ RLM_COLLECTION_TYPE(SchemaTestsLinkSource)
 @implementation InvalidReadWriteLinkingObjectsProperty
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:SchemaTestsLinkSource.class propertyName:@"irwlop"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:SchemaTestsLinkSource.class propertyName:@"irwlop"] };
 }
 
 @end
@@ -269,7 +269,7 @@ RLM_COLLECTION_TYPE(SchemaTestsLinkSource)
 @implementation ValidLinkingObjectsPropertyWithProtocol
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:SchemaTestsLinkSource.class propertyName:@"vlopwp"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:SchemaTestsLinkSource.class propertyName:@"vlopwp"] };
 }
 
 @end
@@ -283,7 +283,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
 @implementation InvalidLinkingObjectsPropertyProtocol
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:SchemaTestsLinkSource.class propertyName:@"ilopp"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:SchemaTestsLinkSource.class propertyName:@"ilopp"] };
 }
 
 @end
@@ -297,8 +297,8 @@ RLM_COLLECTION_TYPE(NotARealClass)
 @implementation InvalidLinkingObjectsPropertyMissingSourcePropertyOfLink
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:InvalidLinkingObjectsPropertyMissingSourcePropertyOfLink.class
-                                                               propertyName:@"nosuchproperty"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:InvalidLinkingObjectsPropertyMissingSourcePropertyOfLink.class
+                                                                       propertyName:@"nosuchproperty"] };
 }
 
 @end
@@ -312,8 +312,8 @@ RLM_COLLECTION_TYPE(NotARealClass)
 @implementation InvalidLinkingObjectsPropertySourcePropertyNotALink
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:InvalidLinkingObjectsPropertySourcePropertyNotALink.class
-                                                               propertyName:@"integer"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:InvalidLinkingObjectsPropertySourcePropertyNotALink.class
+                                                                       propertyName:@"integer"] };
 }
 
 @end
@@ -327,8 +327,8 @@ RLM_COLLECTION_TYPE(NotARealClass)
 @implementation InvalidLinkingObjectsPropertySourcePropertyLinksElsewhere
 
 + (NSDictionary *)linkingObjectsProperties {
-    return @{ @"linkingObjects": [RLMPropertyDescriptor descriptorWithClass:InvalidLinkingObjectsPropertySourcePropertyLinksElsewhere.class
-                                                               propertyName:@"link"] };
+    return @{ @"linkingObjects": [[RLMPropertyDescriptor alloc] initWithObjectClass:InvalidLinkingObjectsPropertySourcePropertyLinksElsewhere.class
+                                                                       propertyName:@"link"] };
 }
 
 @end
@@ -552,7 +552,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = bool;\n"
                                               @"\t\t\tcolumnName = boolCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -562,7 +562,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = int;\n"
                                               @"\t\t\tcolumnName = intCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -572,7 +572,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = float;\n"
                                               @"\t\t\tcolumnName = floatCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -582,7 +582,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = double;\n"
                                               @"\t\t\tcolumnName = doubleCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -592,7 +592,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = string;\n"
                                               @"\t\t\tcolumnName = stringCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -602,7 +602,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = data;\n"
                                               @"\t\t\tcolumnName = binaryCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -612,7 +612,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = date;\n"
                                               @"\t\t\tcolumnName = dateCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -622,7 +622,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = bool;\n"
                                               @"\t\t\tcolumnName = cBoolCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -632,7 +632,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = int;\n"
                                               @"\t\t\tcolumnName = longCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -642,7 +642,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = decimal128;\n"
                                               @"\t\t\tcolumnName = decimalCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -652,7 +652,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = object id;\n"
                                               @"\t\t\tcolumnName = objectIdCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -662,7 +662,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = uuid;\n"
                                               @"\t\t\tcolumnName = uuidCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -674,7 +674,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\tlinkOriginPropertyName = (null);\n"
                                               @"\t\t\tcolumnName = objectCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -686,7 +686,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\tlinkOriginPropertyName = (null);\n"
                                               @"\t\t\tcolumnName = mixedObjectCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -696,7 +696,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = mixed;\n"
                                               @"\t\t\tcolumnName = anyCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -708,7 +708,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\tlinkOriginPropertyName = allTypesCol;\n"
                                               @"\t\t\tcolumnName = linkingObjectsCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = YES;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -720,7 +720,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = int;\n"
                                               @"\t\t\tcolumnName = intCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -732,7 +732,7 @@ RLM_COLLECTION_TYPE(NotARealClass)
                                               @"\t\t\ttype = string;\n"
                                               @"\t\t\tcolumnName = stringCol;\n"
                                               @"\t\t\tindexed = NO;\n"
-                                              @"\t\t\tisPrimary = NO;\n"
+                                              @"\t\t\tprimaryKey = NO;\n"
                                               @"\t\t\tarray = NO;\n"
                                               @"\t\t\tset = NO;\n"
                                               @"\t\t\tdictionary = NO;\n"
@@ -770,8 +770,8 @@ RLM_COLLECTION_TYPE(NotARealClass)
 
 - (void)testClassWithRequiredNullableProperties {
     RLMObjectSchema *objectSchema = [RLMObjectSchema schemaForObjectClass:RequiredPropertiesObject.class];
-    XCTAssertFalse([objectSchema[@"stringCol"] optional]);
-    XCTAssertFalse([objectSchema[@"binaryCol"] optional]);
+    XCTAssertFalse(objectSchema[@"stringCol"].optional);
+    XCTAssertFalse(objectSchema[@"binaryCol"].optional);
 }
 
 - (void)testClassWithRequiredPrimitiveArrayProperties {

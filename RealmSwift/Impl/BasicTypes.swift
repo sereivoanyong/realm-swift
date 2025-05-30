@@ -79,14 +79,14 @@ extension UUID: SchemaDiscoverable {
 
 extension AnyRealmValue: SchemaDiscoverable {
     public static var _rlmType: PropertyType { .any }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        if prop.optional {
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        if prop.isOptional {
             var type = "AnyRealmValue"
-            if prop.array {
+            if prop.isArray {
                 type = "List<AnyRealmValue>"
-            } else if prop.set {
+            } else if prop.isSet {
                 type = "MutableSet<AnyRealmValue>"
-            } else if prop.dictionary {
+            } else if prop.isDictionary {
                 type = "Map<String, AnyRealmValue>"
             }
             throwRealmException("\(type) property '\(prop.name)' must not be marked as optional: nil values are represented as AnyRealmValue.none")
@@ -339,7 +339,7 @@ extension AnyRealmValue: _Persistable, _DefaultConstructible {
         RLMSetSwiftPropertyAny(obj, key, value._rlmObjcValue as! RLMValue)
     }
 
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         prop.swiftAccessor = BridgedPersistedPropertyAccessor<Self>.self
     }
 }

@@ -247,7 +247,7 @@ class GeospatialTests: TestCase {
         assertFilterShape(GeoCircle(center: (45, -20), radius: .kilometers(5000)!)!, count: 3, expectedMatches: ["Diana", "Maria", "Tomas"])
         assertFilterShape(GeoCircle(center: (45, -20), radius: .kilometers(5000)!)!, count: 3, expectedMatches: ["Diana", "Maria", "Tomas"])
 
-        func assertFilterShape<U: RLMGeospatial>(_ shape: U, count: Int, expectedMatches: [String]) {
+        func assertFilterShape<U: Geospatial>(_ shape: U, count: Int, expectedMatches: [String]) {
             let realm = realmWithTestPath()
             let resultsBox = realm.objects(PersonLocation.self).where { $0.location.geoWithin(shape) }
             XCTAssertEqual(resultsBox.count, count)

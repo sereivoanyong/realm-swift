@@ -411,7 +411,7 @@ void kvoSetValue<id<RLMValue>>(__unsafe_unretained RLMObjectBase *const obj, NSU
 
 template<typename ArgType, typename StorageType=ArgType>
 id makeSetter(__unsafe_unretained RLMProperty *const prop) {
-    if (prop.isPrimary) {
+    if (prop.isPrimaryKey) {
         return ^(__unused RLMObjectBase *obj, __unused ArgType val) {
             @throw RLMException(@"Primary key can't be changed after an object is inserted.");
         };
@@ -679,7 +679,7 @@ void RLMDynamicValidatedSet(RLMObjectBase *obj, NSString *propName, id val) {
         @throw RLMException(@"Invalid property name '%@' for class '%@'.",
                             propName, obj->_objectSchema.className);
     }
-    if (prop.isPrimary) {
+    if (prop.isPrimaryKey) {
         @throw RLMException(@"Primary key can't be changed to '%@' after an object is inserted.", val);
     }
 
@@ -694,7 +694,7 @@ void RLMDynamicValidatedSet(RLMObjectBase *obj, NSString *propName, id val) {
 void RLMDynamicSet(__unsafe_unretained RLMObjectBase *const obj,
                    __unsafe_unretained RLMProperty *const prop,
                    __unsafe_unretained id const val) {
-    REALM_ASSERT_DEBUG(!prop.isPrimary);
+    REALM_ASSERT_DEBUG(!prop.isPrimaryKey);
     realm::Object o(obj->_info->realm->_realm, *obj->_info->objectSchema, obj->_row);
     RLMAccessorContext c(obj);
     RLMTranslateError([&] {

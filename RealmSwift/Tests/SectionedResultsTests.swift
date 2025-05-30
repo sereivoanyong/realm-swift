@@ -307,11 +307,11 @@ class SectionedResultsTests: SectionedResultsTestsBase {
             XCTAssertEqual(sectionedResults.map { $0.key }, sectionKeys)
 
             let sectionedResults2 = results.sectioned(by: \.firstLetter,
-                                                      sortDescriptors: [SortDescriptor.init(keyPath: "stringCol", ascending: ascending)])
+                                                      sortDescriptors: [SortDescriptor(keyPath: "stringCol", ascending: ascending)])
             XCTAssertEqual(sectionedResults2.count, sectionCount)
             XCTAssertEqual(sectionedResults2.map { $0.key }, sectionKeys)
             let sectionedResults3 = results.sectioned(by: { String($0.stringCol.first!) },
-                                                      sortDescriptors: [SortDescriptor.init(keyPath: "stringCol", ascending: ascending)])
+                                                      sortDescriptors: [SortDescriptor(keyPath: "stringCol", ascending: ascending)])
             XCTAssertEqual(sectionedResults3.count, sectionCount)
             XCTAssertEqual(sectionedResults3.map { $0.key }, sectionKeys)
         }

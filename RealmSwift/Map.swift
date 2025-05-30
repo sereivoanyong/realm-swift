@@ -19,10 +19,11 @@
 import Foundation
 import Realm
 import Realm.Private
+import class Realm.SortDescriptor
 
 /// :nodoc:
 public protocol _MapKey: Hashable, _ObjcBridgeable {
-    static var _rlmType: RLMPropertyType { get }
+    static var _rlmType: PropertyType { get }
 }
 extension String: _MapKey { }
 
@@ -306,7 +307,7 @@ public final class Map<Key: _MapKey, Value: RealmCollectionValue>: RLMSwiftColle
     */
     public func sorted<S: Sequence>(by sortDescriptors: S) -> Results<Value>
         where S.Iterator.Element == SortDescriptor {
-            return Results<Value>(collection.sortedResults(using: sortDescriptors.map { $0.rlmSortDescriptorValue }))
+            return Results<Value>(collection.sortedResults(using: [SortDescriptor](sortDescriptors)))
     }
 
     // MARK: Aggregate Operations

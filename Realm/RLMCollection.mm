@@ -556,3 +556,45 @@ NSArray *RLMToIndexPathArray(realm::IndexSet const& set, NSUInteger section) {
     }
     return ret;
 }
+
+@implementation RLMSortDescriptor
+
+- (instancetype)initWithKeyPath:(NSString *)keyPath ascending:(BOOL)ascending {
+    self = [super init];
+    if (self) {
+        _keyPath = keyPath;
+        _ascending = ascending;
+    }
+    return self;
+}
+
+- (instancetype)initWithKeyPath:(NSString *)keyPath {
+    return [self initWithKeyPath:keyPath ascending:YES];
+}
+
++ (instancetype)sortDescriptorWithKeyPath:(NSString *)keyPath ascending:(BOOL)ascending {
+    return [[self alloc] initWithKeyPath:keyPath ascending:ascending];
+}
+
+- (instancetype)reversedSortDescriptor {
+    return [[[self class] alloc] initWithKeyPath:_keyPath ascending:!_ascending];
+}
+
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:[RLMSortDescriptor class]]) {
+        return NO;
+    }
+
+    return [self isEqualToSortDescriptor:object];
+}
+
+- (BOOL)isEqualToSortDescriptor:(RLMSortDescriptor *)sortDescriptor {
+    return _keyPath == sortDescriptor->_keyPath && _ascending == sortDescriptor->_ascending;
+}
+
+- (NSString *)description {
+    NSString *direction = _ascending ? @"ascending" : @"descending";
+    return [NSString stringWithFormat:@"SortDescriptor {\n\tkeyPath: %@\n\tdirection: %@\n}", _keyPath, direction];
+}
+
+@end

@@ -62,14 +62,6 @@ class ObjectiveCSupportTests: TestCase {
         let rlmRealm = ObjectiveCSupport.convert(object: realm)
         XCTAssert(rlmRealm.isKind(of: RLMRealm.self))
         XCTAssertEqual(rlmRealm.allObjects("SwiftObject").count, 1)
-
-        let sortDescriptor: RealmSwift.SortDescriptor = "property"
-        XCTAssertEqual(sortDescriptor.keyPath,
-                       ObjectiveCSupport.convert(object: sortDescriptor).keyPath,
-                       "SortDescriptor.keyPath must be equal to RLMSortDescriptor.keyPath")
-        XCTAssertEqual(sortDescriptor.ascending,
-                       ObjectiveCSupport.convert(object: sortDescriptor).ascending,
-                       "SortDescriptor.ascending must be equal to RLMSortDescriptor.ascending")
     }
 
     func testConfigurationSupport() {

@@ -64,7 +64,7 @@ NSString *RLMRealmPathForFile(NSString *fileName) {
     return _config.path;
 }
 
-+ (instancetype)defaultConfiguration {
++ (RLMRealmConfiguration *)defaultConfiguration {
     return [[self rawDefaultConfiguration] copy];
 }
 
@@ -247,7 +247,6 @@ NSString *RLMRealmPathForFile(NSString *fileName) {
 
 - (void)setObjectClasses:(NSArray *)objectClasses {
     _customSchema = objectClasses ? [RLMSchema schemaWithObjectClasses:objectClasses] : nil;
-    [self updateSchemaMode];
 }
 
 - (NSUInteger)maximumNumberOfActiveVersions {

@@ -139,8 +139,8 @@ class OnlyComputedSource: RLMObject {
 class OnlyComputedTarget: RLMObject {
     @objc dynamic var backlinks: RLMLinkingObjects<OnlyComputedSource>?
 
-    override class func linkingObjectsProperties() -> [String : RLMPropertyDescriptor] {
-        return ["backlinks": RLMPropertyDescriptor(with: OnlyComputedSource.self, propertyName: "link")]
+    override class func linkingObjectsProperties() -> [String: PropertyDescriptor] {
+        return ["backlinks": PropertyDescriptor(objectClass: OnlyComputedSource.self, propertyName: "link")]
     }
 }
 

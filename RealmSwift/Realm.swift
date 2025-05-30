@@ -16,10 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+import Realm
+import class Realm.SortDescriptor
 import Realm.Private
-
-/// The Id of the asynchronous transaction.
-public typealias AsyncTransactionId = RLMAsyncTransactionId
+@_exported import Realm.Swift
 
 /**
  A `Realm` instance (also referred to as "a Realm") represents a Realm database.
@@ -48,10 +48,10 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
     // MARK: Properties
 
     /// The `Schema` used by the Realm.
-    public var schema: Schema { return Schema(rlmRealm.schema) }
+    public var schema: Schema { return rlmRealm.schema }
 
     /// The `Configuration` value that was used to create the `Realm` instance.
-    public var configuration: Configuration { return Configuration.fromRLMRealmConfiguration(rlmRealm.configuration) }
+    public var configuration: Configuration { return rlmRealm.configuration }
 
     /// Indicates if the Realm contains any objects.
     public var isEmpty: Bool { return rlmRealm.isEmpty }
@@ -65,7 +65,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      in your application's *Application Support* directory on OS X.
 
      The default Realm is created using the default `Configuration`, which can be changed by setting the
-     `Realm.Configuration.defaultConfiguration` property to a new value.
+     `Realm.Configuration.default` property to a new value.
 
      - parameter queue: An optional dispatch queue to confine the Realm to. If
                         given, this Realm instance can be used from within
@@ -75,7 +75,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      */
     public init(queue: DispatchQueue? = nil) throws {
         _ = Realm.initMainActor
-        let rlmRealm = try RLMRealm(configuration: RLMRealmConfiguration.rawDefault(), queue: queue)
+        let rlmRealm = try RLMRealm(configuration: .rawDefault(), queue: queue)
         self.init(rlmRealm)
     }
 
@@ -92,7 +92,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      */
     public init(configuration: Configuration, queue: DispatchQueue? = nil) throws {
         _ = Realm.initMainActor
-        let rlmRealm = try RLMRealm(configuration: configuration.rlmConfiguration, queue: queue)
+        let rlmRealm = try RLMRealm(configuration: configuration, queue: queue)
         self.init(rlmRealm)
     }
 
@@ -105,7 +105,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      */
     public init(fileURL: URL) throws {
         _ = Realm.initMainActor
-        let configuration = RLMRealmConfiguration.default()
+        let configuration = RealmConfiguration.default
         configuration.fileURL = fileURL
         self.init(try RLMRealm(configuration: configuration))
     }
@@ -392,34 +392,6 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
 
     // MARK: Adding and Creating objects
 
-    /**
-     What to do when an object being added to or created in a Realm has a primary key that already exists.
-     */
-    @frozen public enum UpdatePolicy: Int {
-        /**
-         Throw an exception. This is the default when no policy is specified for `add()` or `create()`.
-
-         This behavior is the same as passing `update: false` to `add()` or `create()`.
-         */
-        case error = 1
-        /**
-         Overwrite only properties in the existing object which are different from the new values. This results
-         in change notifications reporting only the properties which changed, and influences the sync merge logic.
-
-         If few or no of the properties are changing this will be faster than .all and reduce how much data has
-         to be written to the Realm file. If all of the properties are changing, it may be slower than .all (but
-         will never result in *more* data being written).
-         */
-        case modified = 3
-        /**
-         Overwrite all properties in the existing object with the new values, even if they have not changed. This
-         results in change notifications reporting all properties as changed, and influences the sync merge logic.
-
-         This behavior is the same as passing `update: true` to `add()` or `create()`.
-         */
-        case all = 2
-    }
-
     /// :nodoc:
     @available(*, unavailable, message: "Pass .error, .modified or .all rather than a boolean. .error is equivalent to false and .all is equivalent to true.")
     public func add(_ object: Object, update: Bool) {
@@ -453,7 +425,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
         if update != .error && object.objectSchema.primaryKeyProperty == nil {
             throwRealmException("'\(object.objectSchema.className)' does not have a primary key and can not be updated")
         }
-        RLMAddObjectToRealm(object, rlmRealm, RLMUpdatePolicy(rawValue: UInt(update.rawValue))!)
+        RLMAddObjectToRealm(object, rlmRealm, update)
     }
 
     /// :nodoc:
@@ -517,8 +489,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
             RLMVerifyHasPrimaryKey(type)
         }
         let typeName = (type as Object.Type).className()
-        return unsafeDowncast(RLMCreateObjectInRealmWithValue(rlmRealm, typeName, value,
-                                                              RLMUpdatePolicy(rawValue: UInt(update.rawValue))!), to: type)
+        return unsafeDowncast(RLMCreateObjectInRealmWithValue(rlmRealm, typeName, value, update), to: type)
     }
 
     /**
@@ -564,9 +535,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
         if update != .error && schema[typeName]?.primaryKeyProperty == nil {
             throwRealmException("'\(typeName)' does not have a primary key and can not be updated")
         }
-        return noWarnUnsafeBitCast(RLMCreateObjectInRealmWithValue(rlmRealm, typeName, value,
-                                                                   RLMUpdatePolicy(rawValue: UInt(update.rawValue))!),
-                                   to: DynamicObject.self)
+        return noWarnUnsafeBitCast(RLMCreateObjectInRealmWithValue(rlmRealm, typeName, value, update), to: DynamicObject.self)
     }
 
     // MARK: Deleting objects
@@ -694,7 +663,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      */
     public func object<Element: Object, KeyType>(ofType type: Element.Type, forPrimaryKey key: KeyType) -> Element? {
         return unsafeBitCast(RLMGetObject(rlmRealm, (type as Object.Type).className(),
-                                          dynamicBridgeCast(fromSwift: key)) as! RLMObjectBase?,
+                                          dynamicBridgeCast(fromSwift: key)) as! ObjectBase?,
                              to: Optional<Element>.self)
     }
 
@@ -721,7 +690,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      :nodoc:
      */
     public func dynamicObject(ofType typeName: String, forPrimaryKey key: Any) -> DynamicObject? {
-        return unsafeBitCast(RLMGetObject(rlmRealm, typeName, key) as! RLMObjectBase?, to: Optional<DynamicObject>.self)
+        return unsafeBitCast(RLMGetObject(rlmRealm, typeName, key) as! ObjectBase?, to: Optional<DynamicObject>.self)
     }
 
     // MARK: Notifications
@@ -748,15 +717,8 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      - returns: A token which must be held for as long as you wish to continue receiving change notifications.
      */
     public func observe(_ block: @escaping NotificationBlock) -> NotificationToken {
-        return rlmRealm.addNotificationBlock { rlmNotification, _ in
-            switch rlmNotification {
-            case RLMNotification.DidChange:
-                block(.didChange, self)
-            case RLMNotification.RefreshRequired:
-                block(.refreshRequired, self)
-            default:
-                fatalError("Unhandled notification type: \(rlmNotification)")
-            }
+        return rlmRealm.addNotificationBlock { notification, _ in
+            block(notification, self)
         }
     }
 
@@ -847,47 +809,6 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
         return isFrozen ? Realm(rlmRealm.thaw()) : self
     }
 
-    /**
-     Returns a frozen (immutable) snapshot of the given object.
-
-     The frozen copy is an immutable object which contains the same data as the given object
-     currently contains, but will not update when writes are made to the containing Realm. Unlike
-     live objects, frozen objects can be accessed from any thread.
-
-     - warning: Holding onto a frozen object for an extended period while performing write
-     transaction on the Realm may result in the Realm file growing to large sizes. See
-     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
-     */
-    public func freeze<T: ObjectBase>(_ obj: T) -> T {
-        return RLMObjectFreeze(obj) as! T
-    }
-
-    /**
-     Returns a live (mutable) reference of this object.
-
-     This method creates a managed accessor to a live copy of the same frozen object.
-     Will return self if called on an already live object.
-     */
-    public func thaw<T: ObjectBase>(_ obj: T) -> T? {
-        return RLMObjectThaw(obj) as? T
-    }
-
-    /**
-     Returns a frozen (immutable) snapshot of the given collection.
-
-     The frozen copy is an immutable collection which contains the same data as the given
-     collection currently contains, but will not update when writes are made to the containing
-     Realm. Unlike live collections, frozen collections can be accessed from any thread.
-
-     - warning: This method cannot be called during a write transaction, or when the Realm is read-only.
-     - warning: Holding onto a frozen collection for an extended period while performing write
-     transaction on the Realm may result in the Realm file growing to large sizes. See
-     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
-    */
-    public func freeze<Collection: RealmCollection>(_ collection: Collection) -> Collection {
-        return collection.freeze()
-    }
-
     // MARK: Invalidation
 
     /**
@@ -944,7 +865,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      - throws: An `NSError` if the copy could not be written.
      */
     public func writeCopy(configuration: Realm.Configuration) throws {
-        try rlmRealm.writeCopy(for: configuration.rlmConfiguration)
+        try rlmRealm.writeCopy(for: configuration)
     }
 
     /**
@@ -959,7 +880,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      @return true if the Realm file for the given configuration exists on disk, false otherwise.
      */
     public static func fileExists(for config: Configuration) -> Bool {
-        return RLMRealm.fileExists(for: config.rlmConfiguration)
+        return RLMRealm.fileExists(for: config)
     }
 
     /**
@@ -981,7 +902,7 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
      @return true if any files were deleted, false otherwise.
      */
     public static func deleteFiles(for config: Configuration) throws -> Bool {
-        return try RLMRealm.deleteFiles(for: config.rlmConfiguration)
+        return try RLMRealm.deleteFiles(for: config)
     }
 
     // MARK: Internal
@@ -1004,30 +925,7 @@ extension Realm: Equatable {
 // MARK: Notifications
 
 extension Realm {
-    /// A notification indicating that changes were made to a Realm.
-    @frozen public enum Notification: String {
-        /**
-         This notification is posted when the data in a Realm has changed.
-
-         `didChange` is posted after a Realm has been refreshed to reflect a write transaction, This can happen when an
-         autorefresh occurs, `refresh()` is called, after an implicit refresh from `write(_:)`/`beginWrite()`, or after
-         a local write transaction is committed.
-         */
-        case didChange = "RLMRealmDidChangeNotification"
-
-        /**
-         This notification is posted when a write transaction has been committed to a Realm on a different thread for
-         the same file.
-
-         It is not posted if `autorefresh` is enabled, or if the Realm is refreshed before the notification has a chance
-         to run.
-
-         Realms with autorefresh disabled should normally install a handler for this notification which calls
-         `refresh()` after doing some work. Refreshing the Realm is optional, but not refreshing the Realm may lead to
-         large Realm files. This is because an extra copy of the data must be kept for the stale Realm.
-         */
-        case refreshRequired = "RLMRealmRefreshRequiredNotification"
-    }
+    public typealias Notification = RLMRealmNotification
 }
 
 /// The type of a block to run for notification purposes when the data in a Realm is modified.
@@ -1252,6 +1150,95 @@ internal extension Actor {
     }
 }
 
+extension ObjectBase: ThreadConfined {
+    /// The Realm which manages the object, or `nil` if the object is unmanaged.
+    public var realm: Realm? {
+        if let rlmReam = RLMObjectBaseRealm(self) {
+            return Realm(rlmReam)
+        }
+        return nil
+    }
+
+    /**
+     Indicates if this object is frozen.
+
+     - see: `Object.freeze()`
+     */
+    public var isFrozen: Bool {
+        return realm?.isFrozen ?? false
+    }
+
+    /**
+     Returns a frozen (immutable) snapshot of this object.
+
+     The frozen copy is an immutable object which contains the same data as this
+     object currently contains, but will not update when writes are made to the
+     containing Realm. Unlike live objects, frozen objects can be accessed from any
+     thread.
+
+     - warning: Holding onto a frozen object for an extended period while performing write
+     transaction on the Realm may result in the Realm file growing to large sizes. See
+     `Realm.Configuration.maximumNumberOfActiveVersions` for more information.
+     - warning: This method can only be called on a managed object.
+     */
+    public func freeze() -> Self {
+        return RLMObjectFreeze(self) as! Self
+    }
+
+    /**
+     Returns a live (mutable) reference of this object.
+
+     This method creates a managed accessor to a live copy of the same frozen object.
+     Will return self if called on an already live object.
+     */
+    public func thaw() -> Self? {
+        return RLMObjectThaw(self) as! Self?
+    }
+}
+
+extension ObjectBase {
+    internal func _observe<T: ObjectBase>(keyPaths: [String]? = nil,
+                                          on queue: DispatchQueue? = nil,
+                                          _ block: @escaping (ObjectChange<T>) -> Void) -> NotificationToken {
+        return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { object, names, oldValues, newValues, error in
+            assert(error == nil)
+            block(.init(object: object as? T, names: names, oldValues: oldValues, newValues: newValues))
+        }
+    }
+
+    internal func _observe<T: ObjectBase>(keyPaths: [String]? = nil,
+                                          on queue: DispatchQueue? = nil,
+                                          _ block: @escaping (T?) -> Void) -> NotificationToken {
+        return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { object, _, _, _, _ in
+            block(object as? T)
+        }
+    }
+
+    internal func _observe(keyPaths: [String]? = nil,
+                           on queue: DispatchQueue? = nil,
+                           _ block: @escaping () -> Void) -> NotificationToken {
+        return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { _, _, _, _, _ in
+            block()
+        }
+    }
+
+    @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
+    internal func _observe<A: Actor, T: ObjectBase>(
+        keyPaths: [String]? = nil, on actor: isolated A,
+        _ block: @Sendable @escaping (isolated A, ObjectChange<T>) -> Void
+    ) async -> NotificationToken {
+        let token = RLMObjectNotificationToken()
+        token.observe(self, keyPaths: keyPaths) { object, names, oldValues, newValues, error in
+            assert(error == nil)
+            actor.invokeIsolated(block, .init(object: object as? T, names: names,
+                        oldValues: oldValues, newValues: newValues))
+        }
+        await withTaskCancellationHandler(operation: token.registrationComplete,
+                                          onCancel: { token.invalidate() })
+        return token
+    }
+}
+
 /**
  Objects which can be fetched from the Realm - Object or Projection
  */
@@ -1269,27 +1256,18 @@ extension Projection: RealmFetchable {
     }
 }
 
-/**
- `Logger` is used for creating your own custom logging logic.
+extension SortDescriptor {
+    /**
+     Creates a sort descriptor with the given key path and sort order values.
 
- You can define your own logger creating an instance of `Logger` and define the log function which will be
- invoked whenever there is a log message.
+     - parameter keyPath:   The key path which the sort descriptor orders results by.
+     - parameter ascending: Whether the descriptor sorts in ascending or descending order.
+     */
+    public convenience init<Element: ObjectBase>(keyPath: PartialKeyPath<Element>, ascending: Bool = true) {
+        self.init(keyPath: _name(for: keyPath), ascending: ascending)
+    }
+}
 
- ```swift
- let logger = Logger(level: .all) { level, message in
-    print("Realm Log - \(level): \(message)")
- }
- ```
-
- Set this custom logger as you default logger using `Logger.shared`.
-
- ```swift
-    Logger.shared = inMemoryLogger
- ```
-
- - note: By default default log threshold level is `.info`, and logging strings are output to Apple System Logger.
-*/
-public typealias Logger = RLMLogger
 extension Logger {
     /**
      Log a message to the supplied level.

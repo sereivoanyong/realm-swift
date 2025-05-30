@@ -96,10 +96,10 @@ static CreatePolicy updatePolicyToCreatePolicy(RLMUpdatePolicy policy) {
     switch (policy) {
         case RLMUpdatePolicyError:
             break;
-        case RLMUpdatePolicyUpdateChanged:
+        case RLMUpdatePolicyModified:
             createPolicy.diff = true;
             [[clang::fallthrough]];
-        case RLMUpdatePolicyUpdateAll:
+        case RLMUpdatePolicyAll:
             createPolicy.update = true;
             break;
     }

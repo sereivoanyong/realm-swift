@@ -120,7 +120,7 @@ class SwiftRLMLinkTests: RLMTestCase {
 
         XCTAssertNotNil(target.realm)
         XCTAssertEqual(1, target.backlinks!.count)
-        XCTAssertEqual(1234, (target.backlinks!.firstObject() as! SwiftRLMLinkSourceObject).id)
+        XCTAssertEqual(1234, target.backlinks!.firstObject()!.id)
     }
 
 //    FIXME - disabled until we fix commit log issue which break transacions when leaking realm objects

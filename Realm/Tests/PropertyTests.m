@@ -39,7 +39,7 @@
                                                 @"\tlinkOriginPropertyName = (null);\n"
                                                 @"\tcolumnName = objectCol;\n"
                                                 @"\tindexed = NO;\n"
-                                                @"\tisPrimary = NO;\n"
+                                                @"\tprimaryKey = NO;\n"
                                                 @"\tarray = NO;\n"
                                                 @"\tset = NO;\n"
                                                 @"\tdictionary = NO;\n"
@@ -49,7 +49,7 @@
 
 static RLMProperty *makeProperty(NSString *name, RLMPropertyType type, NSString *objectClassName, BOOL optional) {
     return [[RLMProperty alloc] initWithName:name type:type objectClassName:objectClassName
-                      linkOriginPropertyName:nil indexed:NO optional:optional];
+                      linkOriginPropertyName:nil isIndexed:NO isOptional:optional];
 }
 
 - (void)testEqualityFromObjectSchema {
@@ -99,7 +99,7 @@ static RLMProperty *makeProperty(NSString *name, RLMPropertyType type, NSString 
     { // Test indexed property
         RLMObjectSchema *objectSchema = [RLMObjectSchema schemaForObjectClass:[IndexedStringObject class]];
         RLMProperty *stringProperty = objectSchema[@"stringCol"];
-        RLMProperty *expectedProperty = [[RLMProperty alloc] initWithName:@"stringCol" type:RLMPropertyTypeString objectClassName:nil linkOriginPropertyName:nil indexed:YES optional:YES];
+        RLMProperty *expectedProperty = [[RLMProperty alloc] initWithName:@"stringCol" type:RLMPropertyTypeString objectClassName:nil linkOriginPropertyName:nil isIndexed:YES isOptional:YES];
         XCTAssertEqualObjects(stringProperty, expectedProperty);
     }
     { // Test primary key property
@@ -109,9 +109,9 @@ static RLMProperty *makeProperty(NSString *name, RLMPropertyType type, NSString 
                                                                      type:RLMPropertyTypeString
                                                           objectClassName:nil
                                                    linkOriginPropertyName:nil
-                                                                  indexed:YES
-                                                                 optional:NO];
-        expectedProperty.isPrimary = YES;
+                                                                isIndexed:YES
+                                                               isOptional:NO];
+        expectedProperty.isPrimaryKey = YES;
         XCTAssertEqualObjects(stringProperty, expectedProperty);
     }
 }
@@ -119,10 +119,10 @@ static RLMProperty *makeProperty(NSString *name, RLMPropertyType type, NSString 
 - (void)testTwoPropertiesAreEqual {
     const char *name = "intCol";
     objc_property_t objcProperty1 = class_getProperty(AllTypesObject.class, name);
-    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty1];
+    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) isIndexed:YES linkPropertyDescriptor:nil property:objcProperty1];
 
     objc_property_t objcProperty2 = class_getProperty(IntObject.class, name);
-    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty2];
+    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) isIndexed:YES linkPropertyDescriptor:nil property:objcProperty2];
 
     XCTAssertEqualObjects(property1, property2);
 }
@@ -130,11 +130,11 @@ static RLMProperty *makeProperty(NSString *name, RLMPropertyType type, NSString 
 - (void)testTwoPropertiesAreUnequal {
     const char *name = "stringCol";
     objc_property_t objcProperty1 = class_getProperty(AllTypesObject.class, name);
-    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty1];
+    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) isIndexed:YES linkPropertyDescriptor:nil property:objcProperty1];
 
     name = "intCol";
     objc_property_t objcProperty2 = class_getProperty(IntObject.class, name);
-    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty2];
+    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) isIndexed:YES linkPropertyDescriptor:nil property:objcProperty2];
 
     XCTAssertNotEqualObjects(property1, property2);
 }

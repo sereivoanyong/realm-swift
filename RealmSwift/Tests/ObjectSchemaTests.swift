@@ -61,7 +61,7 @@ class ObjectSchemaTests: TestCase {
                 type = bool;
                 columnName = boolCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -71,7 +71,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = intCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -81,7 +81,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = int8Col;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -91,7 +91,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = int16Col;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -101,7 +101,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = int32Col;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -111,7 +111,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = int64Col;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -121,7 +121,7 @@ class ObjectSchemaTests: TestCase {
                 type = int;
                 columnName = intEnumCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -131,7 +131,7 @@ class ObjectSchemaTests: TestCase {
                 type = float;
                 columnName = floatCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -141,7 +141,7 @@ class ObjectSchemaTests: TestCase {
                 type = double;
                 columnName = doubleCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -151,7 +151,7 @@ class ObjectSchemaTests: TestCase {
                 type = string;
                 columnName = stringCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -161,7 +161,7 @@ class ObjectSchemaTests: TestCase {
                 type = data;
                 columnName = binaryCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -171,7 +171,7 @@ class ObjectSchemaTests: TestCase {
                 type = date;
                 columnName = dateCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -181,7 +181,7 @@ class ObjectSchemaTests: TestCase {
                 type = decimal128;
                 columnName = decimalCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -191,7 +191,7 @@ class ObjectSchemaTests: TestCase {
                 type = object id;
                 columnName = objectIdCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -203,7 +203,7 @@ class ObjectSchemaTests: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = objectCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -213,7 +213,7 @@ class ObjectSchemaTests: TestCase {
                 type = uuid;
                 columnName = uuidCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -223,7 +223,7 @@ class ObjectSchemaTests: TestCase {
                 type = mixed;
                 columnName = anyCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = NO;
@@ -235,7 +235,7 @@ class ObjectSchemaTests: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = arrayCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = YES;
                 set = NO;
                 dictionary = NO;
@@ -247,7 +247,7 @@ class ObjectSchemaTests: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = setCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = YES;
                 dictionary = NO;
@@ -259,7 +259,7 @@ class ObjectSchemaTests: TestCase {
                 linkOriginPropertyName = (null);
                 columnName = mapCol;
                 indexed = NO;
-                isPrimary = NO;
+                primaryKey = NO;
                 array = NO;
                 set = NO;
                 dictionary = YES;

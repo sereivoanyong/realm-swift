@@ -22,140 +22,140 @@ import Realm.Private
 // Get a pointer to the given property's ivar on the object. This is similar to
 // object_getIvar() but returns a pointer to the value rather than the value.
 @_transparent
-private func ptr(_ property: RLMProperty, _ obj: RLMObjectBase) -> UnsafeMutableRawPointer {
+private func ptr(_ property: Property, _ obj: ObjectBase) -> UnsafeMutableRawPointer {
     return Unmanaged.passUnretained(obj).toOpaque().advanced(by: property.swiftIvar)
 }
 
 // MARK: - Legacy Property Accessors
 
 internal class ListAccessor<Element: RealmCollectionValue>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> List<Element> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> List<Element> {
         return ptr(property, obj).assumingMemoryBound(to: List<Element>.self).pointee
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection = RLMManagedArray(parent: parent, property: property)
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection.setParent(parent, property: property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent)
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).assign(value)
     }
 }
 
 internal class SetAccessor<Element: RealmCollectionValue>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> MutableSet<Element> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> MutableSet<Element> {
         return ptr(property, obj).assumingMemoryBound(to: MutableSet<Element>.self).pointee
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection = RLMManagedSet(parent: parent, property: property)
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection.setParent(parent, property: property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent)
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).assign(value)
     }
 }
 
 internal class MapAccessor<Key: _MapKey, Value: RealmCollectionValue>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> Map<Key, Value> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> Map<Key, Value> {
         return ptr(property, obj).assumingMemoryBound(to: Map<Key, Value>.self).pointee
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection = RLMManagedDictionary(parent: parent, property: property)
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).collection.setParent(parent, property: property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent)
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).assign(value)
     }
 }
 
 internal class LinkingObjectsAccessor<Element: ObjectBase>: RLMManagedPropertyAccessor
         where Element: RealmCollectionValue {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> UnsafeMutablePointer<LinkingObjects<Element>> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> UnsafeMutablePointer<LinkingObjects<Element>> {
         return ptr(property, obj).assumingMemoryBound(to: LinkingObjects<Element>.self)
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).pointee.handle =
             RLMLinkingObjectsHandle(object: parent, property: property)
     }
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         if parent.lastAccessedNames != nil {
             bound(property, parent).pointee.handle = RLMLinkingObjectsHandle(object: parent, property: property)
         }
     }
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent).pointee
     }
 }
 
 @available(*, deprecated)
 internal class RealmOptionalAccessor<Value: RealmOptionalType>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> RealmOptional<Value> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> RealmOptional<Value> {
         return ptr(property, obj).assumingMemoryBound(to: RealmOptional<Value>.self).pointee
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         RLMInitializeManagedSwiftValueStorage(bound(property, parent), parent, property)
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         RLMInitializeUnmanagedSwiftValueStorage(bound(property, parent), parent, property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         let value = bound(property, parent).value
         return value._rlmObjcValue
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).value = Value._rlmFromObjc(value)
     }
 }
 
 internal class RealmPropertyAccessor<Value: RealmPropertyType>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> RealmProperty<Value> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> RealmProperty<Value> {
         return ptr(property, obj).assumingMemoryBound(to: RealmProperty<Value>.self).pointee
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         RLMInitializeManagedSwiftValueStorage(bound(property, parent), parent, property)
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         RLMInitializeUnmanagedSwiftValueStorage(bound(property, parent), parent, property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent).value._rlmObjcValue
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).value = Value._rlmFromObjc(value)!
     }
 }
@@ -163,23 +163,23 @@ internal class RealmPropertyAccessor<Value: RealmPropertyType>: RLMManagedProper
 // MARK: - Modern Property Accessors
 
 internal class PersistedPropertyAccessor<T: _Persistable>: RLMManagedPropertyAccessor {
-    fileprivate static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> UnsafeMutablePointer<Persisted<T>> {
+    fileprivate static func bound(_ property: Property, _ obj: ObjectBase) -> UnsafeMutablePointer<Persisted<T>> {
         return ptr(property, obj).assumingMemoryBound(to: Persisted<T>.self)
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).pointee.initialize(parent, key: PropertyKey(property.index))
     }
 
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).pointee.observe(parent, property: property)
     }
 
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent).pointee.get(parent)
     }
 
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         guard let v = T._rlmFromObjc(value) else {
             throwRealmException("Could not convert value '\(value)' to type '\(T.self)'.")
         }
@@ -188,13 +188,13 @@ internal class PersistedPropertyAccessor<T: _Persistable>: RLMManagedPropertyAcc
 }
 
 internal class PersistedListAccessor<Element: RealmCollectionValue & _Persistable>: PersistedPropertyAccessor<List<Element>> {
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).pointee.get(parent).assign(value)
     }
 
     // When promoting an existing object to managed we want to promote the existing
     // Swift collection object if it exists
-    @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func promote(_ property: Property, on parent: ObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
             existing.collection = RLMGetSwiftPropertyArray(parent, key)
@@ -203,10 +203,10 @@ internal class PersistedListAccessor<Element: RealmCollectionValue & _Persistabl
 }
 
 internal class PersistedSetAccessor<Element: RealmCollectionValue & _Persistable>: PersistedPropertyAccessor<MutableSet<Element>> {
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).pointee.get(parent).assign(value)
     }
-    @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func promote(_ property: Property, on parent: ObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
             existing.collection = RLMGetSwiftPropertySet(parent, key)
@@ -215,10 +215,10 @@ internal class PersistedSetAccessor<Element: RealmCollectionValue & _Persistable
 }
 
 internal class PersistedMapAccessor<Key: _MapKey, Value: RealmCollectionValue & _Persistable>: PersistedPropertyAccessor<Map<Key, Value>> {
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         bound(property, parent).pointee.get(parent).assign(value)
     }
-    @objc override class func promote(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func promote(_ property: Property, on parent: ObjectBase) {
         let key = PropertyKey(property.index)
         if let existing = bound(property, parent).pointee.initializeCollection(parent, key: key) {
             existing.collection = RLMGetSwiftPropertyMap(parent, PropertyKey(property.index))
@@ -227,19 +227,19 @@ internal class PersistedMapAccessor<Key: _MapKey, Value: RealmCollectionValue & 
 }
 
 internal class PersistedLinkingObjectsAccessor<Element: ObjectBase & RealmCollectionValue & _Persistable>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: RLMProperty, _ obj: RLMObjectBase) -> UnsafeMutablePointer<Persisted<LinkingObjects<Element>>> {
+    private static func bound(_ property: Property, _ obj: ObjectBase) -> UnsafeMutablePointer<Persisted<LinkingObjects<Element>>> {
         return ptr(property, obj).assumingMemoryBound(to: Persisted<LinkingObjects<Element>>.self)
     }
 
-    @objc override class func initialize(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
         bound(property, parent).pointee.initialize(parent, key: PropertyKey(property.index))
     }
-    @objc override class func observe(_ property: RLMProperty, on parent: RLMObjectBase) {
+    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
         if parent.lastAccessedNames != nil {
             bound(property, parent).pointee.observe(parent, property: property)
         }
     }
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent).pointee.get(parent)
     }
 }
@@ -248,13 +248,13 @@ internal class PersistedLinkingObjectsAccessor<Element: ObjectBase & RealmCollec
 // for enums and AnyRealmValue. This difference is probably a mistake but it's
 // a breaking change to adjust.
 internal class BridgedPersistedPropertyAccessor<T: _Persistable>: PersistedPropertyAccessor<T> {
-    @objc override class func get(_ property: RLMProperty, on parent: RLMObjectBase) -> Any {
+    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
         return bound(property, parent).pointee.get(parent)._rlmObjcValue
     }
 }
 
 internal class CustomPersistablePropertyAccessor<T: _Persistable>: BridgedPersistedPropertyAccessor<T> {
-    @objc override class func set(_ property: RLMProperty, on parent: RLMObjectBase, to value: Any) {
+    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
         if coerceToNil(value) == nil {
             super.set(property, on: parent, to: T._rlmDefaultValue())
         } else {

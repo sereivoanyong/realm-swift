@@ -35,14 +35,14 @@ public protocol _RealmSchemaDiscoverable {
     // source property name is runtime data and not part of the type), while
     // wrappers like Optional need to be able to recur to the wrapped type
     // without creating an instance of that.
-    func _rlmPopulateProperty(_ prop: RLMProperty)
-    static func _rlmPopulateProperty(_ prop: RLMProperty)
+    func _rlmPopulateProperty(_ prop: Property)
+    static func _rlmPopulateProperty(_ prop: Property)
 }
 
-extension RLMObjectBase {
+extension ObjectBase {
     /// Allow client code to generate properties (ie. via Swift Macros)
     @_spi(RealmSwiftPrivate)
-    @objc open class func _customRealmProperties() -> [RLMProperty]? {
+    @objc open class func _customRealmProperties() -> [Property]? {
         return nil
     }
 }
@@ -51,17 +51,17 @@ internal protocol SchemaDiscoverable: _RealmSchemaDiscoverable {}
 extension SchemaDiscoverable {
     public static var _rlmOptional: Bool { false }
     public static var _rlmRequireObjc: Bool { true }
-    public func _rlmPopulateProperty(_ prop: RLMProperty) { }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) { }
+    public func _rlmPopulateProperty(_ prop: Property) { }
+    public static func _rlmPopulateProperty(_ prop: Property) { }
 }
 
-extension RLMProperty {
+extension Property {
     internal convenience init(name: String, value: _RealmSchemaDiscoverable) {
         let valueType = Swift.type(of: value)
         self.init()
         self.name = name
         self.type = valueType._rlmType
-        self.optional = valueType._rlmOptional
+        self.isOptional = valueType._rlmOptional
         value._rlmPopulateProperty(self)
         valueType._rlmPopulateProperty(self)
         if valueType._rlmRequireObjc {
@@ -72,35 +72,35 @@ extension RLMProperty {
     /// Exposed for Macros.
     /// Important: Keep args in same order & default value as `@Persisted` property wrapper
     @_spi(RealmSwiftPrivate)
-    public convenience init<O: ObjectBase, V: _Persistable>(
+    public convenience init<V: _Persistable>(
         name: String,
-        objectType _: O.Type,
+        objectType: ObjectBase.Type,
         valueType _: V.Type,
-        indexed: Bool = false,
-        primaryKey: Bool = false,
+        isIndexed: Bool = false,
+        isPrimaryKey: Bool = false,
         originProperty: String? = nil
     ) {
         self.init()
         self.name = name
         self.type = V._rlmType
-        self.optional = V._rlmOptional
-        self.indexed = primaryKey || indexed
-        self.isPrimary = primaryKey
+        self.isOptional = V._rlmOptional
+        self.isIndexed = isPrimaryKey || isIndexed
+        self.isPrimaryKey = isPrimaryKey
         self.linkOriginPropertyName = originProperty
         V._rlmPopulateProperty(self)
         V._rlmSetAccessor(self)
-        self.swiftIvar = ivar_getOffset(class_getInstanceVariable(O.self, "_" + name)!)
+        self.swiftIvar = ivar_getOffset(class_getInstanceVariable(objectType, "_" + name)!)
     }
 }
 
-private func getModernProperties(_ object: ObjectBase) -> [RLMProperty] {
+private func getModernProperties(_ object: ObjectBase) -> [Property] {
     let columnNames: [String: String] = type(of: object).propertiesMapping()
     return Mirror(reflecting: object).children.compactMap { prop in
         guard let label = prop.label else { return nil }
         guard let value = prop.value as? DiscoverablePersistedProperty else {
             return nil
         }
-        let property = RLMProperty(name: label, value: value)
+        let property = Property(name: label, value: value)
         property.swiftIvar = ivar_getOffset(class_getInstanceVariable(type(of: object), label)!)
         property.columnName = columnNames[property.name]
         return property
@@ -118,7 +118,7 @@ private func baseName(forLazySwiftProperty name: String) -> String? {
     return nil
 }
 
-private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -> [RLMProperty] {
+private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -> [Property] {
     let indexedProperties: Set<String>
     let ignoredPropNames: Set<String>
     let columnNames: [String: String] = type(of: object).propertiesMapping()
@@ -165,8 +165,8 @@ private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -
         RLMValidateSwiftPropertyName(label)
         let valueType = type(of: value)
 
-        let property = RLMProperty(name: label, value: value)
-        property.indexed = indexedProperties.contains(property.name)
+        let property = Property(name: label, value: value)
+        property.isIndexed = indexedProperties.contains(property.name)
         property.columnName = columnNames[property.name]
 
         if let objcProp = class_getProperty(cls, label) {
@@ -211,7 +211,7 @@ private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -
     }
 }
 
-private func getProperties(_ cls: RLMObjectBase.Type) -> [RLMProperty] {
+private func getProperties(_ cls: ObjectBase.Type) -> [Property] {
     if let props = cls._customRealmProperties() {
         return props
     }
@@ -237,7 +237,7 @@ internal class ObjectUtil {
         }
     }()
 
-    internal class func getSwiftProperties(_ cls: RLMObjectBase.Type) -> [RLMProperty] {
+    internal class func getSwiftProperties(_ cls: ObjectBase.Type) -> [Property] {
         _ = ObjectUtil.runOnce
         return getProperties(cls)
     }

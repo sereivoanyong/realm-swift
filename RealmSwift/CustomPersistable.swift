@@ -141,12 +141,12 @@ extension _CustomPersistable { // _RealmSchemaDiscoverable
     /// :nodoc:
     public static var _rlmRequireObjc: Bool { false }
     /// :nodoc:
-    public func _rlmPopulateProperty(_ prop: RLMProperty) { }
+    public func _rlmPopulateProperty(_ prop: Property) { }
     /// :nodoc:
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        prop.customMappingIsOptional = prop.optional
-        if prop.type == .object && (!prop.collection || prop.dictionary) {
-            prop.optional = true
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        prop.customMappingIsOptional = prop.isOptional
+        if prop.type == .object && (!prop.isCollection || prop.isDictionary) {
+            prop.isOptional = true
         }
         PersistedType._rlmPopulateProperty(prop)
     }
@@ -166,10 +166,10 @@ extension CustomPersistable { // _Persistable
         PersistedType._rlmSetProperty(obj, key, value.persistableValue)
     }
     /// :nodoc:
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         if prop.customMappingIsOptional {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Optional<Self>>.self
-        } else if prop.optional {
+        } else if prop.isOptional {
             prop.swiftAccessor = CustomPersistablePropertyAccessor<Self>.self
         } else {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Self>.self
@@ -203,10 +203,10 @@ extension FailableCustomPersistable { // _Persistable
         PersistedType._rlmSetProperty(obj, key, value.persistableValue)
     }
     /// :nodoc:
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         if prop.customMappingIsOptional {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Optional<Self>>.self
-        } else if prop.optional {
+        } else if prop.isOptional {
             prop.swiftAccessor = CustomPersistablePropertyAccessor<Self>.self
         } else {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Self>.self

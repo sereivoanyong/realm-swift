@@ -216,7 +216,7 @@ class SwiftRLMRealmTests: RLMTestCase {
         let notificationFired = expectation(description: "notification fired")
         let token = realm.addNotificationBlock { note, realm in
             XCTAssertNotNil(realm, "Realm should not be nil")
-            if note == RLMNotification.DidChange {
+            if note == RLMRealmNotification.didChange {
                 notificationFired.fulfill()
             }
         }

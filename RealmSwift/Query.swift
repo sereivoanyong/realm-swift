@@ -898,7 +898,7 @@ public extension Query where T: OptionalProtocol, T.Wrapped: EmbeddedObject {
      in such a type of objects and will throw otherwise.
      - see: `GeoPoint`
     */
-    func geoWithin<U: RLMGeospatial>(_ value: U) -> Query<Bool> {
+    func geoWithin<U: Geospatial>(_ value: U) -> Query<Bool> {
         .init(.geoWithin(node, .constant(value)))
     }
 }

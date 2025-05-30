@@ -46,9 +46,9 @@ static void RLMAssertRealmSchemaMatchesTable(id self, RLMRealm *realm) {
         for (RLMProperty *property in objectSchema.properties) {
             auto column = info.tableColumn(property);
             XCTAssertEqual(column, table->get_column_key(RLMStringDataWithNSString(property.columnName)));
-            if (property.isPrimary)
-                XCTAssertTrue(property.indexed);
-            XCTAssertEqual(property.indexed, table->has_search_index(column));
+            if (property.isPrimaryKey)
+                XCTAssertTrue(property.isIndexed);
+            XCTAssertEqual(property.isIndexed, table->has_search_index(column));
         }
     }
     static_cast<void>(self);
@@ -670,8 +670,8 @@ RLM_COLLECTION_TYPE(MigrationTestObject);
                                                      type:RLMPropertyTypeInt
                                           objectClassName:nil
                                    linkOriginPropertyName:nil
-                                                  indexed:NO
-                                                 optional:NO];
+                                                isIndexed:NO
+                                               isOptional:NO];
     RLMObjectSchema *objectSchema = [[RLMObjectSchema alloc] initWithClassName:@"DeletedClass" objectClass:RLMObject.class properties:@[prop]];
     [self createTestRealmWithSchema:@[objectSchema] block:^(RLMRealm *realm) {
         [realm createObject:@"DeletedClass" withValue:@[@0]];
@@ -750,7 +750,7 @@ RLM_COLLECTION_TYPE(MigrationTestObject);
 - (void)testRemoveProperty {
     // create schema with an extra column
     RLMObjectSchema *objectSchema = [RLMObjectSchema schemaForObjectClass:MigrationTestObject.class];
-    RLMProperty *thirdProperty = [[RLMProperty alloc] initWithName:@"deletedCol" type:RLMPropertyTypeBool objectClassName:nil linkOriginPropertyName:nil indexed:NO optional:NO];
+    RLMProperty *thirdProperty = [[RLMProperty alloc] initWithName:@"deletedCol" type:RLMPropertyTypeBool objectClassName:nil linkOriginPropertyName:nil isIndexed:NO isOptional:NO];
     objectSchema.properties = [objectSchema.properties arrayByAddingObject:thirdProperty];
 
     // create realm with old schema and populate
@@ -780,7 +780,7 @@ RLM_COLLECTION_TYPE(MigrationTestObject);
 - (void)testRemoveAndAddProperty {
     // create schema to migrate from with single string column
     RLMObjectSchema *objectSchema = [RLMObjectSchema schemaForObjectClass:MigrationTestObject.class];
-    RLMProperty *oldInt = [[RLMProperty alloc] initWithName:@"oldIntCol" type:RLMPropertyTypeInt objectClassName:nil linkOriginPropertyName:nil indexed:NO optional:NO];
+    RLMProperty *oldInt = [[RLMProperty alloc] initWithName:@"oldIntCol" type:RLMPropertyTypeInt objectClassName:nil linkOriginPropertyName:nil isIndexed:NO isOptional:NO];
     objectSchema.properties = @[oldInt, objectSchema.properties[1]];
 
     // create realm with old schema and populate

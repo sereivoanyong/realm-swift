@@ -118,8 +118,8 @@
                                                      type:RLMPropertyTypeInt
                                           objectClassName:nil
                                    linkOriginPropertyName:nil
-                                                  indexed:NO
-                                                 optional:NO];
+                                                isIndexed:NO
+                                               isOptional:NO];
     RLMObjectSchema *objectSchema = [[RLMObjectSchema alloc] initWithClassName:@"TrulyDynamicObject"
                                                                    objectClass:RLMObject.class
                                                                     properties:@[prop]];

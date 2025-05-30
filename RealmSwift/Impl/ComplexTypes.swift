@@ -22,17 +22,17 @@ import Realm.Private
 extension Object: SchemaDiscoverable, _PersistableInsideOptional, _DefaultConstructible {
     public typealias PersistedType = Object
     public static var _rlmType: PropertyType { .object }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        if !prop.optional && !prop.collection {
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        if !prop.isOptional && !prop.isCollection {
             throwRealmException("Object property '\(prop.name)' must be marked as optional.")
         }
-        if prop.optional && prop.array {
+        if prop.isOptional && prop.isArray {
             throwRealmException("List<\(className())> property '\(prop.name)' must not be marked as optional.")
         }
-        if prop.optional && prop.set {
+        if prop.isOptional && prop.isSet {
             throwRealmException("MutableSet<\(className())> property '\(prop.name)' must not be marked as optional.")
         }
-        if !prop.optional && prop.dictionary {
+        if !prop.isOptional && prop.isDictionary {
             throwRealmException("Map<String, \(className())> property '\(prop.name)' must be marked as optional.")
         }
         prop.objectClassName = className()
@@ -59,7 +59,7 @@ extension Object: SchemaDiscoverable, _PersistableInsideOptional, _DefaultConstr
 extension EmbeddedObject: SchemaDiscoverable, _PersistableInsideOptional, _DefaultConstructible {
     public typealias PersistedType = EmbeddedObject
     public static var _rlmType: PropertyType { .object }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public static func _rlmPopulateProperty(_ prop: Property) {
         Object._rlmPopulateProperty(prop)
         prop.objectClassName = className()
     }
@@ -87,8 +87,8 @@ extension List: _RealmSchemaDiscoverable, SchemaDiscoverable where Element: _Rea
     public static var _rlmType: PropertyType { Element._rlmType }
     public static var _rlmOptional: Bool { Element._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        prop.array = true
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        prop.isArray = true
         prop.swiftAccessor = ListAccessor<Element>.self
         Element._rlmPopulateProperty(prop)
     }
@@ -109,7 +109,7 @@ extension List: _HasPersistedType, _Persistable, _DefaultConstructible where Ele
         array.addObjects(value.collection)
     }
 
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         prop.swiftAccessor = PersistedListAccessor<Element>.self
     }
 }
@@ -118,8 +118,8 @@ extension MutableSet: _RealmSchemaDiscoverable, SchemaDiscoverable where Element
     public static var _rlmType: PropertyType { Element._rlmType }
     public static var _rlmOptional: Bool { Element._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        prop.set = true
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        prop.isSet = true
         prop.swiftAccessor = SetAccessor<Element>.self
         Element._rlmPopulateProperty(prop)
     }
@@ -140,7 +140,7 @@ extension MutableSet: _HasPersistedType, _Persistable, _DefaultConstructible whe
         set.addObjects(value.collection)
     }
 
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         prop.swiftAccessor = PersistedSetAccessor<Element>.self
     }
 }
@@ -149,8 +149,8 @@ extension Map: _RealmSchemaDiscoverable, SchemaDiscoverable where Value: _RealmS
     public static var _rlmType: PropertyType { Value._rlmType }
     public static var _rlmOptional: Bool { Value._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        prop.dictionary = true
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        prop.isDictionary = true
         prop.swiftAccessor = MapAccessor<Key, Value>.self
         prop.dictionaryKeyType = Key._rlmType
         Value._rlmPopulateProperty(prop)
@@ -172,7 +172,7 @@ extension Map: _HasPersistedType, _Persistable, _DefaultConstructible where Valu
         map.addEntries(fromDictionary: value.collection)
     }
 
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         prop.swiftAccessor = PersistedMapAccessor<Key, Value>.self
     }
 }
@@ -180,15 +180,15 @@ extension Map: _HasPersistedType, _Persistable, _DefaultConstructible where Valu
 extension LinkingObjects: SchemaDiscoverable {
     public static var _rlmType: PropertyType { .linkingObjects }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
-        prop.array = true
+    public static func _rlmPopulateProperty(_ prop: Property) {
+        prop.isArray = true
         prop.objectClassName = Element.className()
         prop.swiftAccessor = LinkingObjectsAccessor<Element>.self
         if prop.linkOriginPropertyName == nil {
             throwRealmException("LinkingObjects<\(prop.objectClassName!)> property '\(prop.name)' must set the origin property name with @Persisted(originProperty: \"name\").")
         }
     }
-    public func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public func _rlmPopulateProperty(_ prop: Property) {
         prop.linkOriginPropertyName = self.propertyName
     }
 }
@@ -198,7 +198,7 @@ extension RealmOptional: SchemaDiscoverable, _RealmSchemaDiscoverable where Valu
     public static var _rlmType: PropertyType { Value._rlmType }
     public static var _rlmOptional: Bool { true }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public static func _rlmPopulateProperty(_ prop: Property) {
         Value._rlmPopulateProperty(prop)
         prop.swiftAccessor = RealmOptionalAccessor<Value>.self
     }
@@ -219,7 +219,7 @@ extension LinkingObjects: _HasPersistedType, _Persistable where Element: _Persis
         fatalError("LinkingObjects properties are read-only")
     }
 
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         prop.swiftAccessor = PersistedLinkingObjectsAccessor<Element>.self
     }
 }
@@ -227,7 +227,7 @@ extension LinkingObjects: _HasPersistedType, _Persistable where Element: _Persis
 extension Optional: SchemaDiscoverable, _RealmSchemaDiscoverable where Wrapped: _RealmSchemaDiscoverable {
     public static var _rlmType: PropertyType { Wrapped._rlmType }
     public static var _rlmOptional: Bool { true }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public static func _rlmPopulateProperty(_ prop: Property) {
         Wrapped._rlmPopulateProperty(prop)
     }
 }
@@ -250,7 +250,7 @@ extension Optional: _Persistable where Wrapped: _PersistableInsideOptional {
             RLMSetSwiftPropertyNil(obj, key)
         }
     }
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
+    public static func _rlmSetAccessor(_ prop: Property) {
         Wrapped._rlmSetAccessor(prop)
     }
 }
@@ -262,7 +262,7 @@ extension RealmProperty: _RealmSchemaDiscoverable, SchemaDiscoverable {
     public static var _rlmType: PropertyType { Value._rlmType }
     public static var _rlmOptional: Bool { Value._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public static func _rlmPopulateProperty(_ prop: Property) {
         Value._rlmPopulateProperty(prop)
         prop.swiftAccessor = RealmPropertyAccessor<Value>.self
     }
@@ -272,8 +272,8 @@ extension RawRepresentable where RawValue: _RealmSchemaDiscoverable {
     public static var _rlmType: PropertyType { RawValue._rlmType }
     public static var _rlmOptional: Bool { RawValue._rlmOptional }
     public static var _rlmRequireObjc: Bool { false }
-    public func _rlmPopulateProperty(_ prop: RLMProperty) { }
-    public static func _rlmPopulateProperty(_ prop: RLMProperty) {
+    public func _rlmPopulateProperty(_ prop: Property) { }
+    public static func _rlmPopulateProperty(_ prop: Property) {
         RawValue._rlmPopulateProperty(prop)
     }
 }
@@ -289,8 +289,8 @@ extension RawRepresentable where Self: _PersistableInsideOptional, RawValue: _Pe
     public static func _rlmSetProperty(_ obj: ObjectBase, _ key: PropertyKey, _ value: Self) {
         RawValue._rlmSetProperty(obj, key, value.rawValue)
     }
-    public static func _rlmSetAccessor(_ prop: RLMProperty) {
-        if prop.optional {
+    public static func _rlmSetAccessor(_ prop: Property) {
+        if prop.isOptional {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Optional<Self>>.self
         } else {
             prop.swiftAccessor = BridgedPersistedPropertyAccessor<Self>.self

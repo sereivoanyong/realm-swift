@@ -42,6 +42,7 @@ typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject, RLMObj
  the version of a Realm. This instance provides access to the old and new database schemas, the
  objects in the Realm, and provides functionality for modifying the Realm during the migration.
  */
+NS_SWIFT_NAME(Migration)
 @interface RLMMigration : NSObject
 
 #pragma mark - Properties
@@ -50,13 +51,13 @@ typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject, RLMObj
  Returns the old `RLMSchema`. This is the schema which describes the Realm before the
  migration is applied.
  */
-@property (nonatomic, readonly) RLMSchema *oldSchema NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) RLMSchema *oldSchema;
 
 /**
  Returns the new `RLMSchema`. This is the schema which describes the Realm after the
  migration is applied.
  */
-@property (nonatomic, readonly) RLMSchema *newSchema NS_REFINED_FOR_SWIFT;
+@property (nonatomic, readonly) RLMSchema *newSchema;
 
 
 #pragma mark - Altering Objects during a Migration

@@ -204,11 +204,7 @@ static void RLMRegisterClassLocalNames(Class *classes, NSUInteger count) {
 }
 
 - (RLMObjectSchema *)objectForKeyedSubscript:(__unsafe_unretained NSString *const)className {
-    RLMObjectSchema *schema = [self schemaForClassName:className];
-    if (!schema) {
-        @throw RLMException(@"Object type '%@' not managed by the Realm", className);
-    }
-    return schema;
+    return [self schemaForClassName:className];
 }
 
 + (instancetype)schemaWithObjectClasses:(NSArray *)classes {
@@ -361,6 +357,14 @@ static void RLMRegisterClassLocalNames(Class *classes, NSUInteger count) {
     schema->_objectSchemaByName = [[NSMutableDictionary allocWithZone:zone]
                                    initWithDictionary:_objectSchemaByName copyItems:YES];
     return schema;
+}
+
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:[RLMSchema class]]) {
+        return NO;
+    }
+
+    return [self isEqualToSchema:object];
 }
 
 - (BOOL)isEqualToSchema:(RLMSchema *)schema {

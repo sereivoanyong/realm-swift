@@ -265,7 +265,7 @@ extension Publisher {
     /// - returns: A publisher that publishes frozen copies of the changesets
     ///            which the upstream publisher publishes.
     public func freeze<T: ProjectionObservable>()
-    -> Publishers.Map<Self, ObjectChange<T>> where Output == ObjectChange<T>, T: ThreadConfined {
+    -> Publishers.Map<Self, ObjectChange<T>> where Output == ObjectChange<T> {
         return map {
             if case .change(let projection, let properties) = $0 {
                 return .change(projection.freeze(), properties)
@@ -359,7 +359,7 @@ extension Publisher {
     ///
     /// - returns: A publisher that supports `receive(on:)` for thread-confined objects.
     public func threadSafeReference<T: ProjectionObservable>()
-    -> RealmPublishers.MakeThreadSafeObjectChangeset<Self, T> where Output == ObjectChange<T>, T: ThreadConfined {
+    -> RealmPublishers.MakeThreadSafeObjectChangeset<Self, T> where Output == ObjectChange<T> {
         RealmPublishers.MakeThreadSafeObjectChangeset(self)
     }
 
@@ -892,7 +892,7 @@ extension RealmKeyedCollection {
 /// instead use the extension methods which create them.
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public enum RealmPublishers {
-    static private func realm<S: Scheduler>(_ config: RLMRealmConfiguration, _ scheduler: S) -> Realm? {
+    static private func realm<S: Scheduler>(_ config: RealmConfiguration, _ scheduler: S) -> Realm? {
         try? Realm(RLMRealm(configuration: config, queue: scheduler as? DispatchQueue))
     }
     static private func realm<S: Scheduler>(_ sourceRealm: Realm, _ scheduler: S) -> Realm? {
@@ -1188,7 +1188,7 @@ public enum RealmPublishers {
         /// :nodoc:
         public typealias Output = Upstream.Output
 
-        private let config: RLMRealmConfiguration
+        private let config: RealmConfiguration
         private let upstream: Upstream
         private let scheduler: S
 
@@ -1261,7 +1261,7 @@ public enum RealmPublishers {
 
         private enum Handover {
             case object(_ object: Output)
-            case tsr(_ tsr: ThreadSafeReference<Output>, config: RLMRealmConfiguration)
+            case tsr(_ tsr: ThreadSafeReference<Output>, config: RealmConfiguration)
         }
 
         /// :nodoc:

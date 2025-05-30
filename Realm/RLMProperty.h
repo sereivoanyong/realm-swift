@@ -56,6 +56,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  These property instances map to columns in the core database.
  */
 NS_SWIFT_SENDABLE RLM_FINAL // not actually immutable, but the public API kinda is
+NS_SWIFT_NAME(Property)
 @interface RLMProperty : NSObject
 
 #pragma mark - Properties
@@ -77,7 +78,7 @@ NS_SWIFT_SENDABLE RLM_FINAL // not actually immutable, but the public API kinda 
 
  @see `RLMObject`
  */
-@property (nonatomic, readonly) BOOL indexed;
+@property (nonatomic, readonly, getter = isIndexed) BOOL indexed;
 
 /**
  For `RLMObject` and `RLMCollection` properties, the name of the class of object stored in the property.
@@ -92,27 +93,27 @@ NS_SWIFT_SENDABLE RLM_FINAL // not actually immutable, but the public API kinda 
 /**
  Indicates whether this property is optional.
  */
-@property (nonatomic, readonly) BOOL optional;
+@property (nonatomic, readonly, getter = isOptional) BOOL optional;
 
 /**
  Indicates whether this property is an array.
  */
-@property (nonatomic, readonly) BOOL array;
+@property (nonatomic, readonly, getter = isArray) BOOL array;
 
 /**
  Indicates whether this property is a set.
  */
-@property (nonatomic, readonly) BOOL set;
+@property (nonatomic, readonly, getter = isSet) BOOL set;
 
 /**
  Indicates whether this property is a dictionary.
  */
-@property (nonatomic, readonly) BOOL dictionary;
+@property (nonatomic, readonly, getter = isDictionary) BOOL dictionary;
 
 /**
  Indicates whether this property is an array or set.
  */
-@property (nonatomic, readonly) BOOL collection;
+@property (nonatomic, readonly, getter = isCollection) BOOL collection;
 
 #pragma mark - Methods
 
@@ -123,12 +124,14 @@ NS_SWIFT_SENDABLE RLM_FINAL // not actually immutable, but the public API kinda 
 
 @end
 
-
 /**
  An `RLMPropertyDescriptor` instance represents a specific property on a given class.
  */
 NS_SWIFT_SENDABLE RLM_FINAL
+NS_SWIFT_NAME(PropertyDescriptor)
 @interface RLMPropertyDescriptor : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  Creates and returns a property descriptor.
@@ -136,7 +139,7 @@ NS_SWIFT_SENDABLE RLM_FINAL
  @param objectClass  The class of this property descriptor.
  @param propertyName The name of this property descriptor.
  */
-+ (instancetype)descriptorWithClass:(Class)objectClass propertyName:(NSString *)propertyName;
+- (instancetype)initWithObjectClass:(Class)objectClass propertyName:(NSString *)propertyName NS_DESIGNATED_INITIALIZER;
 
 /// The class of the property.
 @property (nonatomic, readonly) Class objectClass;

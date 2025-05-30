@@ -78,12 +78,12 @@
 
 + (instancetype)createOrUpdateInRealm:(RLMRealm *)realm withValue:(id)value {
     RLMVerifyHasPrimaryKey(self);
-    return (RLMObject *)RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMUpdatePolicyUpdateAll);
+    return (RLMObject *)RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMUpdatePolicyAll);
 }
 
 + (instancetype)createOrUpdateModifiedInRealm:(RLMRealm *)realm withValue:(id)value {
     RLMVerifyHasPrimaryKey(self);
-    return (RLMObject *)RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMUpdatePolicyUpdateChanged);
+    return (RLMObject *)RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMUpdatePolicyModified);
 }
 
 #pragma mark - Subscripting
