@@ -718,8 +718,6 @@ class MapTests: TestCase {
                     didInsert.toggle()
                 }
                 exp.fulfill()
-            case .error:
-                XCTFail("should not get here for this test")
             }
         }
         wait(for: [exp], timeout: 2.0)
@@ -765,8 +763,6 @@ class MapTests: TestCase {
                 XCTAssertEqual(deletions, [])
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, ["first"])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -800,8 +796,6 @@ class MapTests: TestCase {
                 XCTAssertEqual(map.count, 2)
             case .update:
                 XCTFail("update not expected")
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -839,8 +833,6 @@ class MapTests: TestCase {
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, [])
                 XCTAssertEqual(map.count, 1)
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -876,8 +868,6 @@ class MapTests: TestCase {
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, ["first"])
                 XCTAssertEqual(map.count, 2)
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -915,8 +905,6 @@ class MapTests: TestCase {
                 XCTAssertEqual(deletions, [])
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, ["first"])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -948,8 +936,6 @@ class MapTests: TestCase {
                 initialEx.fulfill()
             case .update:
                 changeEx.fulfill()
-            case .error(let error):
-                XCTFail("Unexpected error \(error)")
             }
         }
         await fulfillment(of: [initialEx])
@@ -979,8 +965,6 @@ class MapTests: TestCase {
                 initialEx.fulfill()
             case .update:
                 changeEx.fulfill()
-            case .error(let error):
-                XCTFail("Unexpected error \(error)")
             }
         }
         await fulfillment(of: [initialEx])

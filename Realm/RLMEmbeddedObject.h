@@ -23,8 +23,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @class RLMObjectSchema, RLMPropertyDescriptor, RLMRealm, RLMNotificationToken, RLMPropertyChange;
 typedef void (^RLMObjectChangeBlock)(BOOL deleted,
-                                     NSArray<RLMPropertyChange *> *_Nullable changes,
-                                     NSError *_Nullable error);
+                                     NSArray<RLMPropertyChange *> *_Nullable changes);
 /**
  `RLMEmbeddedObject` is a base class used to define Realm model objects.
 

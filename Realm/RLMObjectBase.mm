@@ -628,10 +628,10 @@ struct ObjectChangeCallbackWrapper {
             }
             auto newValues = readValues(c);
             if (deleted) {
-                block(nil, nil, nil, nil, nil);
+                block(nil, nil, nil, nil);
             }
             else if (newValues) {
-                block(object, propertyNames, oldValues, newValues, nil);
+                block(object, propertyNames, oldValues, newValues);
             }
             propertyNames = nil;
             oldValues = nil;
@@ -712,11 +712,10 @@ RLM_DIRECT_MEMBERS
         return;
     }
 
-    NSError *error;
-    auto realm = [RLMRealm realmWithConfiguration:config queue:queue error:&error];
+    auto realm = [RLMRealm realmWithConfiguration:config queue:queue error:NULL];
     _realm = realm;
     if (!realm) {
-        block(nil, nil, nil, nil, error);
+        block(nil, nil, nil, nil);
         return;
     }
     RLMObjectBase *obj = [realm resolveThreadSafeReference:tsr];
@@ -799,12 +798,9 @@ RLMNotificationToken *RLMObjectBaseAddNotificationBlock(RLMObjectBase *obj,
 
 RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, RLMObjectChangeBlock block, NSArray<NSString *> *keyPaths, dispatch_queue_t queue) {
     return RLMObjectBaseAddNotificationBlock(obj, keyPaths, queue, ^(RLMObjectBase *, NSArray<NSString *> *propertyNames,
-                                                           NSArray *oldValues, NSArray *newValues, NSError *error) {
-        if (error) {
-            block(false, nil, error);
-        }
-        else if (!propertyNames) {
-            block(true, nil, nil);
+                                                           NSArray *oldValues, NSArray *newValues) {
+        if (!propertyNames) {
+            block(true, nil);
         }
         else {
             auto properties = [NSMutableArray arrayWithCapacity:propertyNames.count];
@@ -815,7 +811,7 @@ RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, RLMObjec
                 prop.value = RLMCoerceToNil(newValues[i]);
                 [properties addObject:prop];
             }
-            block(false, properties, nil);
+            block(false, properties);
         }
     });
 }

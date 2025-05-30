@@ -1457,7 +1457,7 @@ static IntObject *managedObject(void) {
 
 - (void)testObserveFrozenObject {
     IntObject *frozen = [managedObject() freeze];
-    id block = ^(__unused BOOL deleted, __unused NSArray *changes, __unused NSError *error) {};
+    id block = ^(__unused BOOL deleted, __unused NSArray *changes) {};
     RLMAssertThrowsWithReason([frozen addNotificationBlock:block],
                               @"Frozen Realms do not change and do not have change notifications.");
 }

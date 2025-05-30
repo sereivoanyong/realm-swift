@@ -628,8 +628,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 XCTAssertEqual(collection.count, 2)
             case .update:
                 XCTFail("Shouldn't happen")
-            case .error:
-                XCTFail("Shouldn't happen")
             }
 
             ex.fulfill()
@@ -678,9 +676,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 XCTAssertEqual(deletions, [0, 1])
                 XCTAssertFalse(gotChange)
                 gotChange = true
-
-            case .error(let error):
-                XCTFail("Unexpected error: \(error)")
             }
             expectation.fulfill()
         }
@@ -696,9 +691,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 XCTAssertEqual(modifications, [0])
                 XCTAssertFalse(gotChange)
                 gotChange = true
-
-            case .error(let error):
-                XCTFail("Unexpected error: \(error)")
             }
             expectation.fulfill()
         }
@@ -810,8 +802,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 XCTAssertEqual(deletions, [])
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, [0])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -884,8 +874,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 // single CTTLinkTarget object that is modified is linked to two origin objects.
                 // The 0, 1 index refers to the origin objects.
                 XCTAssertEqual(modifications, [0, 1])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -960,8 +948,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 XCTAssertEqual(deletions, [])
                 XCTAssertEqual(insertions, [])
                 XCTAssertEqual(modifications, [0])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -1017,8 +1003,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
                 // single CTTLinkTarget object that is modified is linked to two origin objects.
                 // The 0, 1 index refers to the origin objects.
                 XCTAssertEqual(modifications, [0, 1])
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -1069,8 +1053,6 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
             case .update(let collection, let deletions, _, _):
                 XCTAssertEqual(collection.count, 0)
                 XCTAssertEqual(deletions, [0, 1])
-            case .error:
-                XCTFail("Shouldn't happen")
             }
 
             sema.signal()
@@ -1425,8 +1407,6 @@ class ResultsTests: RealmCollectionTests<Results<CTTNullableStringObjectWithLink
             case .update(let results, _, _, _):
                 XCTAssertEqual(results.count, calls + 2)
                 XCTAssertEqual(results, self.collection)
-            case .error:
-                XCTFail("Shouldn't happen")
             }
             calls += 1
             theExpectation.fulfill()
@@ -1455,8 +1435,6 @@ class ResultsTests: RealmCollectionTests<Results<CTTNullableStringObjectWithLink
                 XCTAssertEqual(deletions, [])
                 XCTAssertEqual(insertions, [2])
                 XCTAssertEqual(modifications, [])
-            case .error(let error):
-                XCTFail(String(describing: error))
             }
 
             calls += 1

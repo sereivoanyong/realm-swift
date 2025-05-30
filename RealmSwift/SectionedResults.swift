@@ -102,8 +102,6 @@ public protocol RealmSectionedResult: RandomAccessCollection, Equatable, ThreadC
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -142,8 +140,6 @@ public protocol RealmSectionedResult: RandomAccessCollection, Equatable, ThreadC
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -275,8 +271,6 @@ public extension RealmSectionedResult where Element: RealmSectionedResult, Eleme
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -315,8 +309,6 @@ public extension RealmSectionedResult where Element: RealmSectionedResult, Eleme
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -410,8 +402,6 @@ public extension RealmSectionedResult where Element: ObjectBase {
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -450,8 +440,6 @@ public extension RealmSectionedResult where Element: ObjectBase {
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -545,8 +533,6 @@ public extension RealmSectionedResult where Element: RealmSectionedResult, Eleme
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -585,8 +571,6 @@ public extension RealmSectionedResult where Element: RealmSectionedResult, Eleme
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -681,8 +665,6 @@ public extension RealmSectionedResult where Element: ObjectBase {
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -721,8 +703,6 @@ public extension RealmSectionedResult where Element: ObjectBase {
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context

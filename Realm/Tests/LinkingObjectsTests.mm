@@ -83,7 +83,7 @@
     XCTAssertEqual(NSNotFound, [don.parents indexOfObject:mark]);
     XCTAssertEqual(NSNotFound, [don.parents indexOfObjectWhere:@"TRUEPREDICATE"]);
 
-    RLMAssertThrowsWithReason(([don.parents addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) { }]),
+    RLMAssertThrowsWithReason(([don.parents addNotificationBlock:^(RLMResults *, RLMCollectionChange *) { }]),
                               @"Change notifications are only supported on managed collections.");
 }
 
@@ -157,10 +157,9 @@
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *change, NSError *error) {
+    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *change) {
         XCTAssertEqualObjects([linkingObjects valueForKeyPath:@"self"], (@[ mark ]));
         XCTAssertNil(change);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
 
@@ -176,10 +175,9 @@
 
     __block bool first = true;
     __block id expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *change, NSError *error) {
+    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *change) {
         XCTAssertNotNil(linkingObjects);
         XCTAssert(first ? !change : !!change);
-        XCTAssertNil(error);
         first = false;
         [expectation fulfill];
     }];
@@ -204,7 +202,7 @@
     [realm commitWriteTransaction];
 
     id expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {
+    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {
         // will throw if it's incorrectly called a second time due to the
         // unrelated write transaction
         [expectation fulfill];
@@ -228,9 +226,8 @@
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *, NSError *error) {
+    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *) {
         XCTAssertNotNil(linkingObjects);
-        XCTAssertNil(error);
         // will throw if it's called a second time before we create the new
         // expectation object immediately before manually refreshing
         [expectation fulfill];
@@ -266,9 +263,8 @@
     [realm commitWriteTransaction];
 
     __block id expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *, NSError *error) {
+    RLMNotificationToken *token = [hannah.parents addNotificationBlock:^(RLMResults *linkingObjects, RLMCollectionChange *) {
         XCTAssertNotNil(linkingObjects);
-        XCTAssertNil(error);
         [expectation fulfill];
     }];
     [self waitForExpectationsWithTimeout:2.0 handler:nil];

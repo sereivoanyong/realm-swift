@@ -707,8 +707,6 @@ class MixedCollectionTest: TestCase {
                     XCTAssertEqual(m.count, modifications.count)
                     XCTAssertEqual(m, modifications)
                     exp.fulfill()
-                case .error(let error):
-                    XCTFail("Unexpected error \(error)")
                 }
             }
         }
@@ -778,8 +776,6 @@ class MixedCollectionTest: TestCase {
                     XCTAssertEqual(m.count, modifications.count)
                     XCTAssertEqual(m, modifications)
                     exp.fulfill()
-                case .error(let error):
-                    XCTFail("Unexpected error \(error)")
                 }
             }
         }

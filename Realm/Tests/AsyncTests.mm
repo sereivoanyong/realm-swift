@@ -53,8 +53,7 @@
     [self createObject:1];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
-        XCTAssertNil(e);
+    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqualObjects(results.objectClassName, @"IntObject");
         XCTAssertEqual(results.count, 1U);
         [expectation fulfill];
@@ -66,7 +65,7 @@
 - (void)testNewResultsAreDeliveredAfterLocalCommit {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger expected = 0;
-    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual(results.count, expected++);
         [expectation fulfill];
     }];
@@ -85,7 +84,7 @@
 - (void)testNewResultsAreDeliveredAfterBackgroundCommit {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger expected = 0;
-    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual(results.count, expected++);
         [expectation fulfill];
     }];
@@ -104,7 +103,7 @@
 - (void)testResultsPerserveQuery {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger expected = 0;
-    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual(results.count, expected);
         [expectation fulfill];
     }];
@@ -123,7 +122,7 @@
 - (void)testResultsPerserveSort {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block int expected = 0;
-    auto token = [[IntObject.allObjects sortedResultsUsingKeyPath:@"intCol" ascending:NO] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject.allObjects sortedResultsUsingKeyPath:@"intCol" ascending:NO] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual([results.firstObject intCol], expected);
         [expectation fulfill];
     }];
@@ -148,7 +147,7 @@
 - (void)testQueryingDeliveredQueryResults {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger expected = 0;
-    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual([results objectsWhere:@"intCol < 10"].count, expected++);
         [expectation fulfill];
     }];
@@ -167,7 +166,7 @@
 - (void)testQueryingDeliveredTableResults {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger expected = 0;
-    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual([results objectsWhere:@"intCol < 10"].count, expected++);
         [expectation fulfill];
     }];
@@ -186,7 +185,7 @@
 - (void)testQueryingDeliveredSortedResults {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block int expected = 0;
-    auto token = [[IntObject.allObjects sortedResultsUsingKeyPath:@"intCol" ascending:NO] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject.allObjects sortedResultsUsingKeyPath:@"intCol" ascending:NO] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual([[results objectsWhere:@"intCol < 10"].firstObject intCol], expected++);
         [expectation fulfill];
     }];
@@ -205,7 +204,7 @@
 - (void)testSortingDeliveredResults {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block int expected = 0;
-    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTAssertEqual([[results sortedResultsUsingKeyPath:@"intCol" ascending:NO].firstObject intCol], expected++);
         [expectation fulfill];
     }];
@@ -230,9 +229,8 @@
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block int expected = 0;
     auto token = [[array.intArray objectsWhere:@"intCol > 0"] addNotificationBlock:^(RLMResults<IntObject *> *results,
-                                                                                     RLMCollectionChange *change, NSError *e) {
+                                                                                     RLMCollectionChange *change) {
 //        NSLog(@"IntArray: %d", (int)array.intArray.count);
-        XCTAssertNil(e);
         XCTAssertNotNil(results);
         XCTAssertEqual((int)results.count, expected);
         for (int i = 0; i < expected; ++i) {
@@ -264,9 +262,8 @@
 
 - (RLMNotificationToken *)subscribeAndWaitForInitial:(id<RLMCollection>)query block:(void (^)(id))block {
     __block XCTestExpectation *exp = [self expectationWithDescription:@"wait for initial results"];
-    auto token = [query addNotificationBlock:^(id results, RLMCollectionChange *change, NSError *e) {
+    auto token = [query addNotificationBlock:^(id results, RLMCollectionChange *change) {
         XCTAssertNotNil(results);
-        XCTAssertNil(e);
         if (exp) {
             [exp fulfill];
             exp = nil;
@@ -305,7 +302,7 @@
 
 - (void)testModifyingUnrelatedTableDoesNotTriggerResend {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [[IntObject allObjects] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         // will throw if called a second time
         [expectation fulfill];
     }];
@@ -322,7 +319,7 @@
 
 - (void)testStaleResultsAreDiscardedWhenThreadIsBlocked {
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         // Will fail if this is called with the initial results
         XCTAssertEqual(1U, results.count);
         // Will fail if it's called twice
@@ -338,7 +335,7 @@
 
         __block RLMNotificationToken *token;
         CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, ^{
-            token = [IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {
+            token = [IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {
                 [token invalidate];
                 token = nil;
                 CFRunLoopStop(CFRunLoopGetCurrent());
@@ -397,7 +394,7 @@
     __block bool first = true;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         if (first) {
             prev = results;
             first = false;
@@ -416,9 +413,8 @@
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     RLMNotificationToken *token;
     @autoreleasepool {
-        token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *err) {
+        token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
             XCTAssertNotNil(results);
-            XCTAssertNil(err);
             [expectation fulfill];
         }];
     }
@@ -443,9 +439,8 @@
     __block XCTestExpectation *expectation = [self expectationWithDescription:@""];
     RLMNotificationToken *token;
     @autoreleasepool {
-        token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *err) {
+        token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
             XCTAssertNotNil(results);
-            XCTAssertNil(err);
             [expectation fulfill];
         }];
     }
@@ -524,9 +519,8 @@
     // asyncify them in reverse order so that the version pin has to go backwards
     for (int i = 9; i >= 0; --i) {
         XCTestExpectation *exp = [self expectationWithDescription:@(i).stringValue];
-        tokens[i] = [[IntObject allObjectsInRealm:realms[i]] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+        tokens[i] = [[IntObject allObjectsInRealm:realms[i]] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
             XCTAssertEqual(10U, results.count);
-            XCTAssertNil(error);
             [exp fulfill];
         }];
     }
@@ -557,7 +551,7 @@
     @autoreleasepool {
         for (int i = 0; i < 10; ++i) {
             tokens[i] = [[IntObject allObjectsInRealm:realms[i]]
-                         addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {
+                         addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {
                              ++calls;
                          }];
         }
@@ -661,7 +655,7 @@
     __block RLMNotificationToken *token1, *token2;
     token1 = [self subscribeAndWaitForInitial:results block:^(RLMResults *results) {
         if (++calls == 1) {
-            token2 = [results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+            token2 = [results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
                 ++calls;
             }];
         }
@@ -695,7 +689,7 @@
         ++calls;
         if (calls == 1) {
             CFRunLoopStop(CFRunLoopGetCurrent());
-            token2 = [results2 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+            token2 = [results2 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
                 CFRunLoopStop(CFRunLoopGetCurrent());
                 ++calls;
             }];
@@ -727,7 +721,7 @@
     auto realmToken = [RLMRealm.defaultRealm addNotificationBlock:^(RLMNotification notification, RLMRealm *realm) {
         CFRunLoopStop(CFRunLoopGetCurrent());
         exp = [self expectationWithDescription:@"query notification"];
-        queryToken = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *e) {
+        queryToken = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
             [exp fulfill];
         }];
     }];
@@ -753,7 +747,7 @@
     __block RLMNotificationToken *token;
     dispatch_group_enter(group1);
     dispatch_group_enter(group2);
-    token = [IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {
+    token = [IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {
         dispatch_group_leave(group1);
         dispatch_group_wait(group2, DISPATCH_TIME_FOREVER);
     } queue:self.bgQueue];
@@ -780,7 +774,7 @@
     RLMResults *results = [IntObject allObjects];
     [self dispatchAsyncAndWait:^{
         CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, ^{
-            XCTAssertThrows([results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+            XCTAssertThrows([results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
                 XCTFail(@"should not be called");
             }]);
             CFRunLoopStop(CFRunLoopGetCurrent());
@@ -796,7 +790,7 @@
         RLMRealm *realm = [RLMRealm defaultRealmForQueue:queue];
         results = [IntObject allObjectsInRealm:realm];
     });
-    XCTAssertThrows([results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+    XCTAssertThrows([results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTFail(@"should not be called");
     }]);
 }
@@ -806,7 +800,7 @@
     // tokens in blocks and users are very confused by errors from deallocation
     // on the wrong thread
     RLMResults *results = [IntObject allObjects];
-    auto token = [results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+    auto token = [results addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTFail(@"should not be called");
     }];
     [self dispatchAsyncAndWait:^{
@@ -822,7 +816,7 @@
     [self dispatchAsync:^{
         CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, ^{
             __block bool first = true;
-            token1 = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+            token1 = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
                 XCTAssertTrue(first);
                 first = false;
                 dispatch_semaphore_signal(sema1);
@@ -836,7 +830,7 @@
 
     CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, ^{
         __block bool first = true;
-        token2 = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+        token2 = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
             XCTAssertTrue(first);
             first = false;
             dispatch_semaphore_signal(sema2);
@@ -855,7 +849,7 @@
     config.readOnly = true;
     RLMRealm *realm = [RLMRealm realmWithConfiguration:config error:nil];
 
-    XCTAssertThrows([[IntObject allObjectsInRealm:realm] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change, NSError *error) {
+    XCTAssertThrows([[IntObject allObjectsInRealm:realm] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *change) {
         XCTFail(@"should not be called");
     }]);
 }
@@ -863,11 +857,11 @@
 - (void)testAsyncNotSupportedAfterMakingChangesInWriteTransactions {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
-        XCTAssertNoThrow([IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {}]);
+        XCTAssertNoThrow([IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {}]);
         [IntObject createInRealm:realm withValue:@[@0]];
-        RLMAssertThrowsWithReason([IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *, NSError *) {}],
+        RLMAssertThrowsWithReason([IntObject.allObjects addNotificationBlock:^(RLMResults *, RLMCollectionChange *) {}],
                                   @"Cannot create asynchronous query after making changes in a write transaction.");
-        RLMAssertThrowsWithReason([IntObject.allObjects[0] addNotificationBlock:^(BOOL, NSArray *, NSError *) {}],
+        RLMAssertThrowsWithReason([IntObject.allObjects[0] addNotificationBlock:^(BOOL, NSArray *) {}],
                                   @"Cannot create asynchronous query after making changes in a write transaction.");
     }];
 }
@@ -947,7 +941,7 @@
 }
 
 - (void)testInitialResultDiscardsChanges {
-    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *changes, NSError *) {
+    auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *changes) {
         XCTAssertEqual(results.count, 1U);
         XCTAssertNil(changes);
         CFRunLoopStop(CFRunLoopGetCurrent());
@@ -959,7 +953,7 @@
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     [self dispatchAsync:^{
         CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, ^{
-            auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *changes, NSError *) {
+            auto token = [IntObject.allObjects addNotificationBlock:^(RLMResults *results, RLMCollectionChange *changes) {
                 if (changes) {
                     dispatch_semaphore_signal(sema);
                     CFRunLoopStop(CFRunLoopGetCurrent());
@@ -989,7 +983,7 @@
 
     [self dispatchAsync:^{
         RLMRealm *bgRealm = [RLMRealm defaultRealmForQueue:self.bgQueue];
-        token = [[IntObject allObjectsInRealm:bgRealm] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *, NSError *) {
+        token = [[IntObject allObjectsInRealm:bgRealm] addNotificationBlock:^(RLMResults *results, RLMCollectionChange *) {
             XCTAssertNotNil(results);
             XCTAssertNoThrow(results.count);
             dispatch_semaphore_signal(sema);

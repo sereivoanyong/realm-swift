@@ -111,10 +111,6 @@ public protocol RealmKeyedCollectionIterator<Key, Value>: IteratorProtocol where
             with: .automatic)
          self.tableView.endUpdates()
          break
-     case .error(let err):
-         // An error occurred while opening the Realm file on the background worker thread
-         fatalError("\(err)")
-         break
      }
  }
  ```
@@ -140,16 +136,8 @@ public protocol RealmKeyedCollectionIterator<Key, Value>: IteratorProtocol where
      */
     case update(CollectionType, deletions: [Int], insertions: [Int], modifications: [Int])
 
-    /**
-     Errors can no longer occur. This case is unused and will be removed in the
-     next major version.
-     */
-    case error(Error)
-
-    init(value: CollectionType?, change: RLMCollectionChange?, error: Error?) {
-        if let error = error {
-            self = .error(error)
-        } else if let change = change {
+    init(value: CollectionType?, change: RLMCollectionChange?) {
+        if let change {
             self = .update(value!,
                 deletions: forceCast(change.deletions, to: [Int].self),
                 insertions: forceCast(change.insertions, to: [Int].self),
@@ -462,8 +450,6 @@ public protocol RealmCollection<Element>: RealmCollectionBase, RandomAccessColle
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -502,8 +488,6 @@ public protocol RealmCollection<Element>: RealmCollectionBase, RandomAccessColle
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -607,8 +591,6 @@ public protocol RealmCollection<Element>: RealmCollectionBase, RandomAccessColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -705,8 +687,6 @@ public protocol RealmCollection<Element>: RealmCollectionBase, RandomAccessColle
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -1137,8 +1117,6 @@ public extension RealmCollection {
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -1177,8 +1155,6 @@ public extension RealmCollection {
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -1282,8 +1258,6 @@ public extension RealmCollection {
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -1382,8 +1356,6 @@ public extension RealmCollection {
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -1463,8 +1435,6 @@ public extension RealmCollection where Element: ObjectBase {
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -1503,8 +1473,6 @@ public extension RealmCollection where Element: ObjectBase {
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -1606,8 +1574,6 @@ public extension RealmCollection where Element: ObjectBase {
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -1705,8 +1671,6 @@ public extension RealmCollection where Element: ObjectBase {
             // - when an element is inserted or removed from the collection.
             // This block is not triggered:
             // - when a value other than name is modified on one of the elements.
-        case .error:
-            // Can no longer happen but is left for backwards compatiblity
         }
     }
     ```
@@ -1936,8 +1900,6 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -1972,8 +1934,6 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
                               deletions: deletions,
                               insertions: insertions,
                               modifications: modifications))
-            case .error(let error):
-                block(.error(error))
             }
         })
     }
@@ -2020,8 +1980,6 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
          case .update:
              // Will not be hit in this example
              break
-         case .error:
-             break
          }
      }
      try! realm.write {
@@ -2060,8 +2018,6 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
             // This block is not triggered:
             // - when a value other than name is modified on
             //   one of the elements.
-         case .error:
-             // ...
          }
      }
      // end of run loop execution context
@@ -2107,8 +2063,6 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
                                   deletions: deletions,
                                   insertions: insertions,
                                   modifications: modifications))
-                case .error(let error):
-                    block(.error(error))
                 }
             }
         }

@@ -35,9 +35,8 @@
         }];
     }
 
-    _token = [self.query addNotificationBlock:^(RLMResults *results, __unused RLMCollectionChange *change, NSError *error) {
+    _token = [self.query addNotificationBlock:^(RLMResults *results, __unused RLMCollectionChange *change) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         self.called = true;
         CFRunLoopStop(CFRunLoopGetCurrent());
     }];
@@ -144,8 +143,7 @@
     // Add a new callback that we can wait for, as we can't wait for a
     // notification to not be delivered
     RLMNotificationToken *token = [self.query addNotificationBlock:^(__unused RLMResults *results,
-                                                                     __unused RLMCollectionChange *change,
-                                                                     __unused NSError *error) {
+                                                                     __unused RLMCollectionChange *change) {
         CFRunLoopStop(CFRunLoopGetCurrent());
     }];
     CFRunLoopRun();
@@ -268,9 +266,8 @@ static RLMCollectionChange *getChange(RLMTestCase<ChangesetTestCase> *self, void
     __block bool first = true;
     RLMResults *query = [self query];
     __block RLMCollectionChange *changes;
-    id token = [query addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c, NSError *error) {
+    id token = [query addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         changes = c;
         XCTAssertTrue(first == !changes);
         first = false;
@@ -487,9 +484,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     __block bool first = true;
     RLMResults *query = [self query];
     __block RLMCollectionChange *changes;
-    RLMNotificationToken *token = [query addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c, NSError *error) {
+    RLMNotificationToken *token = [query addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         changes = c;
         XCTAssertTrue(first || changes);
         first = false;
@@ -521,9 +517,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
     RLMResults *query1 = [self query];
     __block int calls1 = 0;
-    RLMNotificationToken *token1 = [query1 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c, NSError *error) {
+    RLMNotificationToken *token1 = [query1 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         if (calls1++ == 0) {
             XCTAssertNil(c);
             return;
@@ -533,9 +528,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
     RLMResults *query2 = [self query];
     __block int calls2 = 0;
-    RLMNotificationToken *token2 = [query2 addNotificationBlock:^(RLMResults *results, __unused RLMCollectionChange *c, NSError *error) {
+    RLMNotificationToken *token2 = [query2 addNotificationBlock:^(RLMResults *results, __unused RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         ++calls2;
         RLMRealm *realm = results.realm;
         if (realm.inWriteTransaction) {
@@ -551,9 +545,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     id ex = [self expectationWithDescription:@"last query gets final notification"];
     RLMResults *query3 = [self query];
     __block int calls3 = 0;
-    RLMNotificationToken *token3 = [query3 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c, NSError *error) {
+    RLMNotificationToken *token3 = [query3 addNotificationBlock:^(RLMResults *results, RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         if (++calls3 == 1) {
             XCTAssertNil(c);
         }
@@ -805,9 +798,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     RLMArray *array = [[ArrayPropertyObject allObjectsInRealm:realm].firstObject intArray];
     __block RLMCollectionChange *changes;
     __block int calls = 0;
-    id token = [array addNotificationBlock:^(RLMArray *results, RLMCollectionChange *c, NSError *error) {
+    id token = [array addNotificationBlock:^(RLMArray *results, RLMCollectionChange *c) {
         XCTAssertNotNil(results);
-        XCTAssertNil(error);
         changes = c;
         ++calls;
         CFRunLoopStop(CFRunLoopGetCurrent());
@@ -1317,26 +1309,22 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 - (void)testObserveUnmanagedObject {
     AllTypesObject *unmanagedObj = [[AllTypesObject alloc] init];
     XCTAssertThrows([unmanagedObj addNotificationBlock:^(__unused BOOL deletd,
-                                                         __unused NSArray<RLMPropertyChange *> *changes,
-                                                         __unused NSError *error) {}]);
+                                                         __unused NSArray<RLMPropertyChange *> *changes) {}]);
     XCTAssertThrows([unmanagedObj addNotificationBlock:^(__unused BOOL deletd,
-                                                         __unused NSArray<RLMPropertyChange *> *changes,
-                                                         __unused NSError *error) {} keyPaths:@[@"boolCol"]]);
+                                                         __unused NSArray<RLMPropertyChange *> *changes) {} keyPaths:@[@"boolCol"]]);
 }
 
 - (void)testDeleteObservedObject {
     XCTestExpectation *expectation0 = [self expectationWithDescription:@"delete observed object"];
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"delete observed object"];
 
-    RLMNotificationToken *token0 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token0 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertTrue(deleted);
-        XCTAssertNil(error);
         XCTAssertNil(changes);
         [expectation0 fulfill];
     }];
-    RLMNotificationToken *token1 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token1 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertTrue(deleted);
-        XCTAssertNil(error);
         XCTAssertNil(changes);
         [expectation1 fulfill];
     } keyPaths:@[@"boolCol"]];
@@ -1354,9 +1342,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 - (void)testChangeAllPropertyTypes {
     __block NSString *property;
     __block XCTestExpectation *expectation = nil;
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         RLMPropertyChange *prop = changes[0];
         XCTAssertEqualObjects(prop.name, property);
@@ -1391,9 +1378,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 - (void)testChangeAllPropertyTypesFromBackground {
     __block NSString *propertyName;
     __block RLMThreadSafeReference *mixedObject;
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         RLMPropertyChange *prop = changes[0];
         XCTAssertEqualObjects(prop.name, propertyName);
@@ -1432,9 +1418,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
 - (void)testChangeAllPropertyTypesInSingleTransaction {
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, _values.count);
 
         NSUInteger i = 0;
@@ -1472,9 +1457,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
     __block NSUInteger calls = 0;
-    id block = ^(BOOL deleted, NSArray<RLMPropertyChange *> *changes, NSError *error) {
+    id block = ^(BOOL deleted, NSArray<RLMPropertyChange *> *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         XCTAssertEqualObjects(changes[0].name, @"intCol");
         XCTAssertEqualObjects(changes[0].previousValue, @1);
@@ -1486,8 +1470,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     RLMNotificationToken *token1 = [_obj addNotificationBlock:block];
     RLMNotificationToken *token2 = [_obj addNotificationBlock:block];
     RLMNotificationToken *token3 = [obj2 addNotificationBlock:^(__unused BOOL deletd,
-                                                                __unused NSArray<RLMPropertyChange *> *changes,
-                                                                __unused NSError *error) {
+                                                                __unused NSArray<RLMPropertyChange *> *changes) {
         XCTFail(@"notification block for wrong object called");
     }];
 
@@ -1514,9 +1497,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     [_obj.realm commitWriteTransaction];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [array addNotificationBlock:^(BOOL deleted, NSArray<RLMPropertyChange *> *changes, NSError *error) {
+    RLMNotificationToken *token = [array addNotificationBlock:^(BOOL deleted, NSArray<RLMPropertyChange *> *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
 
         XCTAssertEqualObjects(changes[0].name, @"array");
@@ -1549,9 +1531,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
     __block NSString *propertyName;
     __block XCTestExpectation *expectation = nil;
-    RLMNotificationToken *token = [obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         RLMPropertyChange *prop = changes[0];
         XCTAssertEqualObjects(prop.name, propertyName);
@@ -1589,9 +1570,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
 - (void)testModifyObservedKeyPathLocally {
     XCTestExpectation *ex = [self expectationWithDescription:@"change notification"];
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         RLMPropertyChange *prop = changes[0];
         XCTAssertEqualObjects(prop.name, @"boolCol");
@@ -1611,8 +1591,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     XCTestExpectation *ex = [self expectationWithDescription:@"no change notification"];
     ex.inverted = true;
     RLMNotificationToken *token = [_obj addNotificationBlock:^(__unused BOOL deletd,
-                                                               __unused NSArray<RLMPropertyChange *> *changes,
-                                                               __unused NSError *error) {
+                                                               __unused NSArray<RLMPropertyChange *> *changes) {
         [ex fulfill];
     } keyPaths:@[@"boolCol"]];
 
@@ -1626,9 +1605,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
 
 - (void)testModifyObservedKeyPathRemotely {
     XCTestExpectation *ex = [self expectationWithDescription:@"change notification"];
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
         RLMPropertyChange *prop = changes[0];
         XCTAssertEqualObjects(prop.name, @"boolCol");
@@ -1653,8 +1631,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     ex.inverted = true;
 
     RLMNotificationToken *token = [_obj addNotificationBlock:^(__unused BOOL deletd,
-                                                               __unused NSArray<RLMPropertyChange *> *changes,
-                                                               __unused NSError *error) {
+                                                               __unused NSArray<RLMPropertyChange *> *changes) {
         [ex fulfill];
     } keyPaths:@[@"boolCol"]];
 
@@ -1680,9 +1657,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     [company.employees addObject:employee];
     [realm commitWriteTransaction];
 
-    RLMNotificationToken *token = [company addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [company addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1U);
 
         for (RLMPropertyChange *prop in changes) {
@@ -1713,8 +1689,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     [realm commitWriteTransaction];
 
     RLMNotificationToken *token = [company addNotificationBlock:^(__unused BOOL deletd,
-                                                                  __unused NSArray<RLMPropertyChange *> *changes,
-                                                                  __unused NSError *error) {
+                                                                  __unused NSArray<RLMPropertyChange *> *changes) {
         [ex fulfill];
     } keyPaths:@[@"employees.hired"]];
 
@@ -1732,9 +1707,8 @@ static void ExpectObjectChange(RLMTestCase<ChangesetTestCase> *self, void (^bloc
     [self prepare];
     RLMResults *query = [self query];
     __block XCTestExpectation *expectation = nil;
-    RLMNotificationToken *token = [[query firstObject] addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [[query firstObject] addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1);
         [expectation fulfill];
     }];
@@ -1755,8 +1729,7 @@ static void ExpectMixedDictionaryChange(RLMTestCase<ChangesetTestCase> *self, NS
     MixedObject *mixedObject = [[self query] firstObject];
     RLMDictionary *dictionary = (RLMDictionary *)mixedObject.anyCol;
     __block XCTestExpectation *expectation = nil;
-    RLMNotificationToken *token = [dictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *changes, NSError *error) {
-        XCTAssertNil(error);
+    RLMNotificationToken *token = [dictionary addNotificationBlock:^(RLMDictionary *dictionary, RLMDictionaryChange *changes) {
         XCTAssertNotNil(dictionary);
         if (!changes) {
             return;
@@ -1812,9 +1785,8 @@ static void ExpectMixedDictionaryChange(RLMTestCase<ChangesetTestCase> *self, NS
     __block XCTestExpectation *expectation = nil;
     RLMRealm *realm = [RLMRealm defaultRealm];
     MixedObject *mixedObject = [[MixedObject allObjectsInRealm:realm] firstObject];
-    RLMNotificationToken *token = [mixedObject addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [mixedObject addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1);
         [expectation fulfill];
     } keyPaths:@[ @"anyCol" ]];
@@ -1935,8 +1907,7 @@ static void ExpectMixedArrayChange(RLMTestCase<ChangesetTestCase> *self, NSArray
      MixedObject *mixedObject = [[self query] firstObject];
      RLMArray *array = (RLMArray *)mixedObject.anyCol;
     __block XCTestExpectation *expectation = nil;
-     RLMNotificationToken *token = [array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *changes, NSError *error) {
-         XCTAssertNil(error);
+     RLMNotificationToken *token = [array addNotificationBlock:^(RLMArray *array, RLMCollectionChange *changes) {
          XCTAssertNotNil(array);
          if (!changes) {
              return;
@@ -1988,9 +1959,8 @@ static void ExpectMixedArrayChange(RLMTestCase<ChangesetTestCase> *self, NSArray
     __block XCTestExpectation *expectation = nil;
     RLMRealm *realm = [RLMRealm defaultRealm];
     MixedObject *mixedObject = [[MixedObject allObjectsInRealm:realm] firstObject];
-    RLMNotificationToken *token = [mixedObject addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    RLMNotificationToken *token = [mixedObject addNotificationBlock:^(BOOL deleted, NSArray *changes) {
         XCTAssertFalse(deleted);
-        XCTAssertNil(error);
         XCTAssertEqual(changes.count, 1);
         [expectation fulfill];
     } keyPaths:@[ @"anyCol" ]];

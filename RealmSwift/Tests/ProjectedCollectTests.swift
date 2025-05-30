@@ -150,8 +150,6 @@ class ProjectedCollectionsTestsTemplate: TestCase {
                 XCTAssertEqual(collection.count, 3)
             case .update:
                 XCTFail("Shouldn't happen")
-            case .error:
-                XCTFail("Shouldn't happen")
             }
 
             ex.fulfill()
@@ -187,8 +185,6 @@ class ProjectedCollectionsTestsTemplate: TestCase {
                 XCTAssertEqual(collection.count, 3)
             case .update:
                 XCTFail("update not expected")
-            case .error:
-                XCTFail("error not expected")
             }
             ex.fulfill()
         }
@@ -214,8 +210,6 @@ class ProjectedCollectionsTestsTemplate: TestCase {
             case .update(let collection, let deletions, _, _):
                 XCTAssertEqual(collection.count, 0)
                 XCTAssertEqual(deletions, [0, 1])
-            case .error:
-                XCTFail("Shouldn't happen")
             }
 
             sema.signal()

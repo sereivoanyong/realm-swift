@@ -317,8 +317,7 @@ extension ProjectionObservable {
             projection = self
         }
         let schema = self.schema
-        return RLMObjectBaseAddNotificationBlock(rootObject, kps, queue) { object, names, oldValues, newValues, error in
-            assert(error == nil) // error is no longer used
+        return RLMObjectBaseAddNotificationBlock(rootObject, kps, queue) { object, names, oldValues, newValues in
             guard let names = names, let newValues = newValues else {
                 block(.deleted)
                 return
@@ -932,8 +931,6 @@ extension ProjectionObservable {
                 _ = subscriber.receive(projection)
             case .deleted:
                 subscriber.receive(completion: .finished)
-            case .error(let error):
-                fatalError("Unexpected error \(error)")
             }
         }
     }
