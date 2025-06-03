@@ -343,3 +343,27 @@ extension AnyRealmValue: _Persistable, _DefaultConstructible {
         prop.swiftAccessor = BridgedPersistedPropertyAccessor<Self>.self
     }
 }
+
+extension Decimal: FailableCustomPersistable {
+    public typealias PersistedType = String
+
+    public init?(persistedValue: String) {
+        self.init(string: persistedValue)
+    }
+
+    public var persistableValue: String {
+        return NSDecimalNumber(decimal: self).stringValue
+    }
+}
+
+extension URL: FailableCustomPersistable {
+    public typealias PersistedType = String
+
+    public init?(persistedValue: String) {
+        self.init(string: persistedValue)
+    }
+
+    public var persistableValue: String {
+        return absoluteString
+    }
+}
