@@ -18,6 +18,36 @@
 
 import Realm
 
+open class GeoPointObject: EmbeddedObject {
+    @Persisted open private(set) var coordinates: List<Double>
+
+    @Persisted open private(set) var type: String = "Point"
+
+    public var latitude: Double {
+        get { return coordinates[1] }
+        set { coordinates[1] = newValue }
+    }
+
+    public var longitude: Double {
+        get { return coordinates[0] }
+        set { coordinates[0] = newValue }
+    }
+
+    public convenience init(latitude: Double, longitude: Double) {
+        self.init()
+        // Longitude comes first in the coordinates array of a GeoJson document
+        coordinates.append(longitude)
+        coordinates.append(latitude)
+    }
+}
+
+extension GeoPointObject {
+
+    public static func == (lhs: GeoPointObject, rhs: GeoPointObject) -> Bool {
+        return lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
+    }
+}
+
 public extension GeoBox {
     /// Initialize a `GeoBox`, with values for bottom left corner and top right corner.
     ///
