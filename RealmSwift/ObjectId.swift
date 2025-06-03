@@ -31,13 +31,8 @@ import Realm
  ObjectIds are intended to be fast to generate. Sorting by an ObjectId field will typically result in the objects being sorted in creation order.
  */
 @objc(RealmSwiftObjectId)
-public final class ObjectId: RLMObjectId, Decodable, @unchecked Sendable {
+public final class ObjectId: RLMObjectId, @unchecked Sendable {
     // MARK: Initializers
-
-    /// Creates a new zero-initialized ObjectId.
-    public override required init() {
-        super.init()
-    }
 
     // swiftlint:disable unneeded_override
     /// Creates a new randomly-initialized ObjectId.
@@ -46,11 +41,16 @@ public final class ObjectId: RLMObjectId, Decodable, @unchecked Sendable {
     }
     // swiftlint:enable unneeded_override
 
+    /// Creates a new zero-initialized ObjectId.
+    public override init() {
+        super.init()
+    }
+
     /// Creates a new ObjectId from the given 24-byte hexadecimal string.
     ///
     /// Throws if the string is not 24 characters or contains any characters other than 0-9a-fA-F.
     /// - Parameter string: The string to parse.
-    public override required init(string: String) throws {
+    public override init(string: String) throws {
         try super.init(string: string)
     }
 
@@ -60,7 +60,7 @@ public final class ObjectId: RLMObjectId, Decodable, @unchecked Sendable {
     ///   - timestamp: A timestamp as NSDate.
     ///   - machineId: The machine identifier.
     ///   - processId: The process identifier.
-    public required init(timestamp: Date, machineId: Int, processId: Int) {
+    public init(timestamp: Date, machineId: Int, processId: Int) {
         super.init(timestamp: timestamp,
                    machineIdentifier: Int32(machineId),
                    processIdentifier: Int32(processId))
@@ -69,20 +69,22 @@ public final class ObjectId: RLMObjectId, Decodable, @unchecked Sendable {
     /// Creates a new ObjectId from the given 24-byte hexadecimal static string.
     ///
     /// Aborts if the string is not 24 characters or contains any characters other than 0-9a-fA-F. Use the initializer which takes a String to handle invalid strings at runtime.
-    public required init(_ str: StaticString) {
+    public init(_ str: StaticString) {
         // swiftlint:disable:next optional_data_string_conversion
         try! super.init(string: str.withUTF8Buffer { String(decoding: $0, as: UTF8.self) })
     }
+}
 
+extension ObjectId: Decodable {
     /// Creates a new ObjectId by decoding from the given decoder.
     ///
     /// This initializer throws an error if reading from the decoder fails, or
     /// if the data read is corrupted or otherwise invalid.
     ///
     /// - Parameter decoder: The decoder to read data from.
-    public required init(from decoder: Decoder) throws {
+    public convenience init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        try super.init(string: container.decode(String.self))
+        try self.init(string: container.decode(String.self))
     }
 }
 
