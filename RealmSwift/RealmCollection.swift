@@ -194,7 +194,7 @@ extension Optional: RealmCollectionValue where Wrapped: _RealmCollectionValueIns
 
 /// :nodoc:
 public protocol RealmCollectionBase<Element>: Sequence, CustomStringConvertible, Equatable, ThreadConfined, _ObjcBridgeable {
-    associatedtype Collection: RLMCollection
+    associatedtype Collection: RLMCollectionBase
 
     var collection: Collection { get }
     init(_ collection: Collection)

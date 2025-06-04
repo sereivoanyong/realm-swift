@@ -546,14 +546,18 @@ returnNilForEmpty:(BOOL)returnNilForEmpty {
 // http://www.openradar.me/radar?id=6135653276319744
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
+
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMCollectionChange *))block {
     return RLMAddNotificationBlock(self, block, nil, nil);
 }
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMCollectionChange *))block queue:(dispatch_queue_t)queue {
+
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMCollectionChange *))block
+                                         queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, nil, queue);
 }
 
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMCollectionChange *))block keyPaths:(NSArray<NSString *> *)keyPaths {
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMCollectionChange *))block
+                                      keyPaths:(NSArray<NSString *> *)keyPaths {
     return RLMAddNotificationBlock(self, block, keyPaths, nil);
 }
 
@@ -562,6 +566,7 @@ returnNilForEmpty:(BOOL)returnNilForEmpty {
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, keyPaths, queue);
 }
+
 #pragma clang diagnostic pop
 
 - (realm::NotificationToken)addNotificationCallback:(id)block

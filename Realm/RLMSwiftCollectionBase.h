@@ -22,7 +22,7 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@interface RLMSwiftCollectionBase<CollectionType : id<RLMCollection>> : NSProxy <NSFastEnumeration>
+@interface RLMSwiftCollectionBase<CollectionType : id<RLMCollectionBase>> : NSProxy <NSFastEnumeration>
 @property (nonatomic, strong) CollectionType collection;
 
 - (instancetype)init;

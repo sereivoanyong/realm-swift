@@ -342,10 +342,13 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
 // http://www.openradar.me/radar?id=6135653276319744
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
+
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block {
     return RLMAddNotificationBlock(self, block, nil, nil);
 }
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block queue:(dispatch_queue_t)queue {
+
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block
+                                         queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, nil, queue);
 }
 
@@ -359,6 +362,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, keyPaths, queue);
 }
+
 #pragma clang diagnostic pop
 
 - (realm::NotificationToken)addNotificationCallback:(id)block
@@ -594,14 +598,18 @@ keyPaths:(std::optional<std::vector<std::vector<std::pair<realm::TableKey, realm
 // http://www.openradar.me/radar?id=6135653276319744
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
+
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block {
     return RLMAddNotificationBlock(self, block, nil, nil);
 }
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block queue:(dispatch_queue_t)queue {
+
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block
+                                         queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, nil, queue);
 }
 
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block keyPaths:(NSArray<NSString *> *)keyPaths {
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *, RLMSectionedResultsChange *))block
+                                      keyPaths:(NSArray<NSString *> *)keyPaths {
     return RLMAddNotificationBlock(self, block, keyPaths, nil);
 }
 
@@ -610,6 +618,7 @@ keyPaths:(std::optional<std::vector<std::vector<std::pair<realm::TableKey, realm
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, keyPaths, queue);
 }
+
 #pragma clang diagnostic pop
 
 - (realm::NotificationToken)addNotificationCallback:(id)block

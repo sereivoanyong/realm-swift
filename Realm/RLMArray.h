@@ -412,8 +412,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @param block The block to be called each time the array changes.
  @return A token which must be held for as long as you want updates to be delivered.
  */
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *_Nullable array,
-                                                         RLMCollectionChange *_Nullable changes))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *array, RLMCollectionChange *changes))block
 __attribute__((warn_unused_result));
 
 /**
@@ -448,8 +447,7 @@ __attribute__((warn_unused_result));
  @param queue The serial queue to deliver notifications to.
  @return A token which must be held for as long as you want updates to be delivered.
  */
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *_Nullable array,
-                                                         RLMCollectionChange *_Nullable changes))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *array, RLMCollectionChange *changes))block
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
 
@@ -487,8 +485,7 @@ __attribute__((warn_unused_result));
  @param queue The serial queue to deliver notifications to.
  @return A token which must be held for as long as you want updates to be delivered.
  */
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *_Nullable array,
-                                                         RLMCollectionChange *_Nullable changes))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *array, RLMCollectionChange *changes))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
@@ -532,8 +529,7 @@ __attribute__((warn_unused_result));
  key paths are given, notifications are delivered for every property key path.
  @return A token which must be held for as long as you want updates to be delivered.
  */
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *_Nullable array,
-                                                         RLMCollectionChange *_Nullable changes))block
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray<RLMObjectType> *array, RLMCollectionChange *changes))block
                                       keyPaths:(nullable NSArray<NSString *> *)keyPaths
 __attribute__((warn_unused_result));
 
