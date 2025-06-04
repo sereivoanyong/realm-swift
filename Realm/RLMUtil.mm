@@ -59,7 +59,7 @@ static inline RLMDictionary *asRLMDictionary(__unsafe_unretained id const value)
     return RLMDynamicCast<RLMDictionary>(value) ?: (RLMDictionary *)RLMDynamicCast<RLMSwiftCollectionBase>(value).collection;
 }
 
-static inline bool checkCollectionType(__unsafe_unretained id<RLMCollection> const collection,
+static inline bool checkCollectionType(__unsafe_unretained id<RLMCollectionBase> const collection,
                                   RLMPropertyType type,
                                   bool optional,
                                   __unsafe_unretained NSString *const objectClassName) {

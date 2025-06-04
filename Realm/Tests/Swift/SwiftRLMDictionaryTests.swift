@@ -55,7 +55,7 @@ class SwiftRLMDictionaryTests: RLMTestCase {
         var totalSum = 0
 
         for (key, value) in dict {
-            let obj = dict[key] as! SwiftRLMAggregateObject
+            let obj = dict[key as NSString]!
             if let ao = value as? SwiftRLMAggregateObject {
                 XCTAssertEqual(obj.doubleCol, ao.doubleCol)
                 totalSum += ao.intCol

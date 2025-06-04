@@ -88,7 +88,7 @@ public protocol _RLMDictionaryIterator {
     func makeIterator() -> RLMDictionaryIterator
 }
 
-extension _RLMDictionaryIterator where Self: RLMCollection {
+extension _RLMDictionaryIterator where Self: RLMCollectionBase {
     /// :nodoc:
     public func makeIterator() -> RLMDictionaryIterator {
         return RLMDictionaryIterator(self)
@@ -131,7 +131,7 @@ public struct RLMDictionaryIterator: IteratorProtocol {
     private var iteratorBase: NSFastEnumerationIterator
     private let dictionary: RLMDictionary<AnyObject, AnyObject>
 
-    internal init(_ collection: RLMCollection) {
+    internal init(_ collection: RLMCollectionBase) {
         dictionary = collection as! RLMDictionary<AnyObject, AnyObject>
         iteratorBase = NSFastEnumerationIterator(collection)
     }
@@ -159,16 +159,17 @@ extension RLMCollection {
         }
         return index
     }
+}
+
+extension RLMCollectionBase {
 
     /**
      Returns all objects matching the given predicate in the collection.
      */
-    public func objects(where predicateFormat: String, _ args: CVarArg...) -> RLMResults<NSObject> {
-        return objects(with: NSPredicate(format: predicateFormat, arguments: getVaList(args))) as! RLMResults<NSObject>
+    public func objects(where predicateFormat: String, _ args: CVarArg...) -> RLMResults<AnyObject> {
+        return objects(with: NSPredicate(format: predicateFormat, arguments: getVaList(args)))
     }
-}
 
-extension RLMCollection {
     /// Allows for subscript support with RLMDictionary.
     public subscript(_ key: String) -> AnyObject? {
         get {

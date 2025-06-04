@@ -262,7 +262,7 @@
 
 - (RLMNotificationToken *)subscribeAndWaitForInitial:(id<RLMCollection>)query block:(void (^)(id))block {
     __block XCTestExpectation *exp = [self expectationWithDescription:@"wait for initial results"];
-    auto token = [query addNotificationBlock:^(id results, RLMCollectionChange *change) {
+    auto token = [query addNotificationBlock:^(id<RLMObservable> results, RLMCollectionChange *change) {
         XCTAssertNotNil(results);
         if (exp) {
             [exp fulfill];

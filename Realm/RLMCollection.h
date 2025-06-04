@@ -27,11 +27,203 @@ typedef NS_CLOSED_ENUM(int32_t, RLMPropertyType);
 /// A callback which is invoked on each element in the Results collection which returns the section key.
 typedef id<RLMValue> _Nullable(^RLMSectionedResultsKeyBlock)(id);
 
+@protocol RLMObservable <NSObject>
+
+#pragma mark - Notifications
+
+/**
+Registers a block to be called each time the collection changes.
+
+The block will be asynchronously called with the initial collection,
+and then called again after each write transaction which changes either any
+of the objects in the collection, or which objects are in the collection.
+
+The `change` parameter will be `nil` the first time the block is called.
+For each call after that, it will contain information about
+which rows in the collection were added, removed or modified. If a
+write transaction did not modify any objects in the results collection,
+the block is not called at all. See the `RLMCollectionChange` documentation for
+information on how the changes are reported and an example of updating a
+`UITableView`.
+
+ The error parameter is present only for backwards compatibility and will always
+ be `nil`.
+
+At the time when the block is called, the collection object will be fully
+evaluated and up-to-date, and as long as you do not perform a write transaction
+on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
+never perform blocking work.
+
+Notifications are delivered via the standard run loop, and so can't be
+delivered while the run loop is blocked by other activity. When
+notifications can't be delivered instantly, multiple notifications may be
+coalesced into a single notification. This can include the notification
+with the initial results. For example, the following code performs a write
+transaction immediately after adding the notification block, so there is no
+opportunity for the initial notification to be delivered first. As a
+result, the initial notification will reflect the state of the Realm after
+the write transaction.
+
+ RLMResults<Dog *> *results = [Dog allObjects];
+ NSLog(@"dogs.count: %zu", dogs.count); // => 0
+ self.token = [results addNotificationBlock:^(RLMResults *dogs,
+                                              RLMCollectionChange *changes,
+                                              NSError *error) {
+     // Only fired once for the example
+     NSLog(@"dogs.count: %zu", dogs.count); // => 1
+ }];
+ [realm transactionWithBlock:^{
+     Dog *dog = [[Dog alloc] init];
+     dog.name = @"Rex";
+     [realm addObject:dog];
+ }];
+ // end of run loop execution context
+
+You must retain the returned token for as long as you want updates to continue
+to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
+
+@warning This method cannot be called during a write transaction, or when the
+         containing Realm is read-only or frozen.
+
+@param block The block to be called whenever a change occurs.
+@return A token which must be held for as long as you want updates to be delivered.
+*/
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMObservable> results, id _Nullable change))block
+__attribute__((warn_unused_result));
+
+/**
+Registers a block to be called each time the collection changes.
+
+The block will be asynchronously called with the initial collection,
+and then called again after each write transaction which changes either any
+of the objects in the collection, or which objects are in the collection.
+
+The `change` parameter will be `nil` the first time the block is called.
+For each call after that, it will contain information about
+which rows in the collection were added, removed or modified. If a
+write transaction did not modify any objects in the results collection,
+the block is not called at all. See the `RLMCollectionChange` documentation for
+information on how the changes are reported and an example of updating a
+`UITableView`.
+
+ The error parameter is present only for backwards compatibility and will always
+ be `nil`.
+
+At the time when the block is called, the collection object will be fully
+evaluated and up-to-date, and as long as you do not perform a write transaction
+on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
+never perform blocking work.
+
+Notifications are delivered on the given queue. If the queue is blocked and
+notifications can't be delivered instantly, multiple notifications may be
+coalesced into a single notification.
+
+You must retain the returned token for as long as you want updates to continue
+to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
+
+@warning This method cannot be called when the containing Realm is read-only or frozen.
+@warning The queue must be a serial queue.
+
+@param block The block to be called whenever a change occurs.
+@param queue The serial queue to deliver notifications to.
+@return A token which must be held for as long as you want updates to be delivered.
+*/
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMObservable> results, id _Nullable change))block
+                                         queue:(nullable dispatch_queue_t)queue
+__attribute__((warn_unused_result));
+
+/**
+Registers a block to be called each time the collection changes.
+
+The block will be asynchronously called with the initial collection,
+and then called again after each write transaction which changes either any
+of the objects in the collection, or which objects are in the collection.
+
+The `change` parameter will be `nil` the first time the block is called.
+For each call after that, it will contain information about
+which rows in the collection were added, removed or modified. If a
+write transaction did not modify any objects in the results collection,
+the block is not called at all. See the `RLMCollectionChange` documentation for
+information on how the changes are reported and an example of updating a
+`UITableView`.
+
+ The error parameter is present only for backwards compatibility and will always
+ be `nil`.
+
+At the time when the block is called, the collection object will be fully
+evaluated and up-to-date, and as long as you do not perform a write transaction
+on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
+never perform blocking work.
+
+Notifications are delivered on the given queue. If the queue is blocked and
+notifications can't be delivered instantly, multiple notifications may be
+coalesced into a single notification.
+
+You must retain the returned token for as long as you want updates to continue
+to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
+
+@warning This method cannot be called when the containing Realm is read-only or frozen.
+@warning The queue must be a serial queue.
+
+@param block The block to be called whenever a change occurs.
+@param keyPaths The block will be called for changes occurring on these keypaths. If no
+key paths are given, notifications are delivered for every property key path.
+@return A token which must be held for as long as you want updates to be delivered.
+*/
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMObservable> results, id _Nullable change))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
+__attribute__((warn_unused_result));
+
+/**
+Registers a block to be called each time the collection changes.
+
+The block will be asynchronously called with the initial collection,
+and then called again after each write transaction which changes either any
+of the objects in the collection, or which objects are in the collection.
+
+The `change` parameter will be `nil` the first time the block is called.
+For each call after that, it will contain information about
+which rows in the collection were added, removed or modified. If a
+write transaction did not modify any objects in the results collection,
+the block is not called at all. See the `RLMCollectionChange` documentation for
+information on how the changes are reported and an example of updating a
+`UITableView`.
+
+ The error parameter is present only for backwards compatibility and will always
+ be `nil`.
+
+At the time when the block is called, the collection object will be fully
+evaluated and up-to-date, and as long as you do not perform a write transaction
+on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
+never perform blocking work.
+
+Notifications are delivered on the given queue. If the queue is blocked and
+notifications can't be delivered instantly, multiple notifications may be
+coalesced into a single notification.
+
+You must retain the returned token for as long as you want updates to continue
+to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
+
+@warning This method cannot be called when the containing Realm is read-only or frozen.
+@warning The queue must be a serial queue.
+
+@param block The block to be called whenever a change occurs.
+@param keyPaths The block will be called for changes occurring on these keypaths. If no
+@param queue The serial queue to deliver notifications to.
+key paths are given, notifications are delivered for every property key path.
+@return A token which must be held for as long as you want updates to be delivered.
+*/
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMObservable> results, id _Nullable change))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
+                                         queue:(nullable dispatch_queue_t)queue
+__attribute__((warn_unused_result));
+
+@end
 /**
  A homogenous collection of Realm-managed objects. Examples of conforming types
  include `RLMArray`, `RLMSet`, `RLMResults`, and `RLMLinkingObjects`.
  */
-@protocol RLMCollection <NSFastEnumeration, RLMThreadConfined>
+@protocol RLMCollectionBase <NSFastEnumeration, RLMThreadConfined, RLMObservable>
 
 #pragma mark - Properties
 
@@ -70,90 +262,40 @@ typedef id<RLMValue> _Nullable(^RLMSectionedResultsKeyBlock)(id);
  */
 @property (nonatomic, readonly, getter = isInvalidated) BOOL invalidated;
 
-#pragma mark - Accessing Objects from a Collection
+#pragma mark - Freeze
 
 /**
- Returns the object at the index specified.
+ Indicates if the collection is frozen.
 
- @param index   The index to look up.
-
- @return An object of the type contained in the collection.
+ Frozen collections are immutable and can be accessed from any thread. The
+ objects read from a frozen collection will also be frozen.
  */
-- (id)objectAtIndex:(NSUInteger)index;
-
-@optional
+@property (nonatomic, readonly, getter=isFrozen) BOOL frozen;
 
 /**
- Returns an array containing the objects in the collection at the indexes
- specified by a given index set. `nil` will be returned if the index set
- contains an index out of the collections bounds.
+ Returns a frozen (immutable) snapshot of this collection.
 
- @param indexes The indexes in the collection to retrieve objects from.
+ The frozen copy is an immutable collection which contains the same data as
+ this collection currently contains, but will not update when writes are made
+ to the containing Realm. Unlike live collections, frozen collections can be
+ accessed from any thread.
 
- @return The objects at the specified indexes.
+ @warning This method cannot be called during a write transaction, or when the containing Realm is read-only.
+ @warning Holding onto a frozen collection for an extended period while
+          performing write transaction on the Realm may result in the Realm
+          file growing to large sizes. See
+          `RLMRealmConfiguration.maximumNumberOfActiveVersions`
+          for more information.
  */
-- (nullable NSArray *)objectsAtIndexes:(NSIndexSet *)indexes;
+- (instancetype)freeze;
 
 /**
- Returns the first object in the collection.
+ Returns a live version of this frozen collection.
 
- RLMSet is not ordered, and so for sets this will return an arbitrary object in
- the set. It is not guaraneed to be a different object from what `lastObject`
- gives even if the set has multiple objects in it.
-
- Returns `nil` if called on an empty collection.
-
- @return An object of the type contained in the collection.
- */
-- (nullable id)firstObject;
-
-/**
- Returns the last object in the collection.
-
- RLMSet is not ordered, and so for sets this will return an arbitrary object in
- the set. It is not guaraneed to be a different object from what `firstObject`
- gives even if the set has multiple objects in it.
-
- Returns `nil` if called on an empty collection.
-
- @return An object of the type contained in the collection.
- */
-- (nullable id)lastObject;
-
-/// :nodoc:
-- (id)objectAtIndexedSubscript:(NSUInteger)index;
-
-/**
- Returns the index of an object in the collection.
-
- Returns `NSNotFound` if the object is not found in the collection.
-
- @param object  An object (of the same type as returned from the `objectClassName` selector).
- */
-- (NSUInteger)indexOfObject:(id)object;
-
-/**
- Returns the index of the first object in the collection matching the predicate.
-
- @param predicateFormat A predicate format string, optionally followed by a variable number of arguments.
-
- @return    The index of the object, or `NSNotFound` if the object is not found in the collection.
- */
-- (NSUInteger)indexOfObjectWhere:(NSString *)predicateFormat, ...;
-
-/// :nodoc:
-- (NSUInteger)indexOfObjectWhere:(NSString *)predicateFormat args:(va_list)args;
-
-/**
- Returns the index of the first object in the collection matching the predicate.
-
- @param predicate   The predicate with which to filter the objects.
-
- @return    The index of the object, or `NSNotFound` if the object is not found in the collection.
- */
-- (NSUInteger)indexOfObjectWithPredicate:(NSPredicate *)predicate;
-
-@required
+ This method resolves a reference to a live copy of the same frozen collection.
+ If called on a live collection, will return itself.
+*/
+- (instancetype)thaw;
 
 #pragma mark - Querying a Collection
 
@@ -240,188 +382,6 @@ typedef id<RLMValue> _Nullable(^RLMSectionedResultsKeyBlock)(id);
  */
 - (void)setValue:(nullable id)value forKey:(NSString *)key;
 
-#pragma mark - Notifications
-
-/**
-Registers a block to be called each time the collection changes.
-
-The block will be asynchronously called with the initial collection,
-and then called again after each write transaction which changes either any
-of the objects in the collection, or which objects are in the collection.
-
-The `change` parameter will be `nil` the first time the block is called.
-For each call after that, it will contain information about
-which rows in the collection were added, removed or modified. If a
-write transaction did not modify any objects in the results collection,
-the block is not called at all. See the `RLMCollectionChange` documentation for
-information on how the changes are reported and an example of updating a
-`UITableView`.
-
- The error parameter is present only for backwards compatibility and will always
- be `nil`.
-
-At the time when the block is called, the collection object will be fully
-evaluated and up-to-date, and as long as you do not perform a write transaction
-on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
-never perform blocking work.
-
-Notifications are delivered via the standard run loop, and so can't be
-delivered while the run loop is blocked by other activity. When
-notifications can't be delivered instantly, multiple notifications may be
-coalesced into a single notification. This can include the notification
-with the initial results. For example, the following code performs a write
-transaction immediately after adding the notification block, so there is no
-opportunity for the initial notification to be delivered first. As a
-result, the initial notification will reflect the state of the Realm after
-the write transaction.
-
- RLMResults<Dog *> *results = [Dog allObjects];
- NSLog(@"dogs.count: %zu", dogs.count); // => 0
- self.token = [results addNotificationBlock:^(RLMResults *dogs,
-                                              RLMCollectionChange *changes,
-                                              NSError *error) {
-     // Only fired once for the example
-     NSLog(@"dogs.count: %zu", dogs.count); // => 1
- }];
- [realm transactionWithBlock:^{
-     Dog *dog = [[Dog alloc] init];
-     dog.name = @"Rex";
-     [realm addObject:dog];
- }];
- // end of run loop execution context
-
-You must retain the returned token for as long as you want updates to continue
-to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
-
-@warning This method cannot be called during a write transaction, or when the
-         containing Realm is read-only or frozen.
-
-@param block The block to be called whenever a change occurs.
-@return A token which must be held for as long as you want updates to be delivered.
-*/
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change))block
-__attribute__((warn_unused_result));
-
-/**
-Registers a block to be called each time the collection changes.
-
-The block will be asynchronously called with the initial collection,
-and then called again after each write transaction which changes either any
-of the objects in the collection, or which objects are in the collection.
-
-The `change` parameter will be `nil` the first time the block is called.
-For each call after that, it will contain information about
-which rows in the collection were added, removed or modified. If a
-write transaction did not modify any objects in the results collection,
-the block is not called at all. See the `RLMCollectionChange` documentation for
-information on how the changes are reported and an example of updating a
-`UITableView`.
-
- The error parameter is present only for backwards compatibility and will always
- be `nil`.
-
-At the time when the block is called, the collection object will be fully
-evaluated and up-to-date, and as long as you do not perform a write transaction
-on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
-never perform blocking work.
-
-Notifications are delivered on the given queue. If the queue is blocked and
-notifications can't be delivered instantly, multiple notifications may be
-coalesced into a single notification.
-
-You must retain the returned token for as long as you want updates to continue
-to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
-
-@warning This method cannot be called when the containing Realm is read-only or frozen.
-@warning The queue must be a serial queue.
-
-@param block The block to be called whenever a change occurs.
-@param queue The serial queue to deliver notifications to.
-@return A token which must be held for as long as you want updates to be delivered.
-*/
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change))block
-                                         queue:(nullable dispatch_queue_t)queue
-__attribute__((warn_unused_result));
-
-/**
-Registers a block to be called each time the collection changes.
-
-The block will be asynchronously called with the initial collection,
-and then called again after each write transaction which changes either any
-of the objects in the collection, or which objects are in the collection.
-
-The `change` parameter will be `nil` the first time the block is called.
-For each call after that, it will contain information about
-which rows in the collection were added, removed or modified. If a
-write transaction did not modify any objects in the results collection,
-the block is not called at all. See the `RLMCollectionChange` documentation for
-information on how the changes are reported and an example of updating a
-`UITableView`.
-
- The error parameter is present only for backwards compatibility and will always
- be `nil`.
-
-At the time when the block is called, the collection object will be fully
-evaluated and up-to-date, and as long as you do not perform a write transaction
-on the same thread or explicitly call `-[RLMRealm refresh]`, accessing it will
-never perform blocking work.
-
-Notifications are delivered on the given queue. If the queue is blocked and
-notifications can't be delivered instantly, multiple notifications may be
-coalesced into a single notification.
-
-You must retain the returned token for as long as you want updates to continue
-to be sent to the block. To stop receiving updates, call `-invalidate` on the token.
-
-@warning This method cannot be called when the containing Realm is read-only or frozen.
-@warning The queue must be a serial queue.
-
-@param block The block to be called whenever a change occurs.
-@param queue The serial queue to deliver notifications to.
-@param keyPaths The block will be called for changes occurring on these keypaths. If no
-key paths are given, notifications are delivered for every property key path.
-@return A token which must be held for as long as you want updates to be delivered.
-*/
-- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMResults *_Nullable results,
-                                                         RLMCollectionChange *_Nullable change))block
-                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
-                                         queue:(nullable dispatch_queue_t)queue
-__attribute__((warn_unused_result));
-
-#pragma mark - Sectioned Results
-
-/**
- Sorts and sections this collection from a given property key path, returning the result
- as an instance of `RLMSectionedResults`.
-
- @param keyPath The property key path to sort on.
- @param ascending The direction to sort in.
- @param keyBlock  A callback which is invoked on each element in the Results collection.
-                 This callback is to return the section key for the element in the collection.
-
- @return An instance of RLMSectionedResults.
- */
-- (RLMSectionedResults *)sectionedResultsSortedUsingKeyPath:(NSString *)keyPath
-                                                  ascending:(BOOL)ascending
-                                                   keyBlock:(RLMSectionedResultsKeyBlock)keyBlock;
-
-/**
- Sorts and sections this collection from a given array of sort descriptors, returning the result
- as an instance of `RLMSectionedResults`.
-
- @param sortDescriptors  An array of `RLMSortDescriptor`s to sort by.
- @param keyBlock  A callback which is invoked on each element in the Results collection.
-                 This callback is to return the section key for the element in the collection.
-
- @note The primary sort descriptor must be responsible for determining the section key.
-
- @return An instance of RLMSectionedResults.
- */
-- (RLMSectionedResults *)sectionedResultsUsingSortDescriptors:(NSArray<RLMSortDescriptor *> *)sortDescriptors
-                                                     keyBlock:(RLMSectionedResultsKeyBlock)keyBlock;
-
 #pragma mark - Aggregating Property Values
 
 /**
@@ -482,40 +442,130 @@ __attribute__((warn_unused_result));
  */
 - (nullable NSNumber *)averageOfProperty:(NSString *)property;
 
-#pragma mark - Freeze
+@end
 
 /**
- Indicates if the collection is frozen.
-
- Frozen collections are immutable and can be accessed from any thread. The
- objects read from a frozen collection will also be frozen.
+ A homogenous collection of Realm-managed objects. Examples of conforming types
+ include `RLMArray`, `RLMSet`, `RLMResults`, and `RLMLinkingObjects`.
  */
-@property (nonatomic, readonly, getter=isFrozen) BOOL frozen;
+@protocol RLMCollection <RLMCollectionBase>
+
+#pragma mark - Accessing Objects from a Collection
 
 /**
- Returns a frozen (immutable) snapshot of this collection.
+ Returns the object at the index specified.
 
- The frozen copy is an immutable collection which contains the same data as
- this collection currently contains, but will not update when writes are made
- to the containing Realm. Unlike live collections, frozen collections can be
- accessed from any thread.
+ @param index   The index to look up.
 
- @warning This method cannot be called during a write transaction, or when the containing Realm is read-only.
- @warning Holding onto a frozen collection for an extended period while
-          performing write transaction on the Realm may result in the Realm
-          file growing to large sizes. See
-          `RLMRealmConfiguration.maximumNumberOfActiveVersions`
-          for more information.
+ @return An object of the type contained in the collection.
  */
-- (instancetype)freeze;
+- (id)objectAtIndex:(NSUInteger)index;
 
 /**
- Returns a live version of this frozen collection.
+ Returns an array containing the objects in the collection at the indexes
+ specified by a given index set. `nil` will be returned if the index set
+ contains an index out of the collections bounds.
 
- This method resolves a reference to a live copy of the same frozen collection.
- If called on a live collection, will return itself.
-*/
-- (instancetype)thaw;
+ @param indexes The indexes in the collection to retrieve objects from.
+
+ @return The objects at the specified indexes.
+ */
+- (nullable NSArray *)objectsAtIndexes:(NSIndexSet *)indexes;
+
+/**
+ Returns the first object in the collection.
+
+ RLMSet is not ordered, and so for sets this will return an arbitrary object in
+ the set. It is not guaraneed to be a different object from what `lastObject`
+ gives even if the set has multiple objects in it.
+
+ Returns `nil` if called on an empty collection.
+
+ @return An object of the type contained in the collection.
+ */
+- (nullable id)firstObject;
+
+/**
+ Returns the last object in the collection.
+
+ RLMSet is not ordered, and so for sets this will return an arbitrary object in
+ the set. It is not guaraneed to be a different object from what `firstObject`
+ gives even if the set has multiple objects in it.
+
+ Returns `nil` if called on an empty collection.
+
+ @return An object of the type contained in the collection.
+ */
+- (nullable id)lastObject;
+
+/// :nodoc:
+- (id)objectAtIndexedSubscript:(NSUInteger)index;
+
+@optional
+
+/**
+ Returns the index of an object in the collection.
+
+ Returns `NSNotFound` if the object is not found in the collection.
+
+ @param object  An object (of the same type as returned from the `objectClassName` selector).
+ */
+- (NSUInteger)indexOfObject:(id)object;
+
+/**
+ Returns the index of the first object in the collection matching the predicate.
+
+ @param predicateFormat A predicate format string, optionally followed by a variable number of arguments.
+
+ @return    The index of the object, or `NSNotFound` if the object is not found in the collection.
+ */
+- (NSUInteger)indexOfObjectWhere:(NSString *)predicateFormat, ...;
+
+/// :nodoc:
+- (NSUInteger)indexOfObjectWhere:(NSString *)predicateFormat args:(va_list)args;
+
+/**
+ Returns the index of the first object in the collection matching the predicate.
+
+ @param predicate   The predicate with which to filter the objects.
+
+ @return    The index of the object, or `NSNotFound` if the object is not found in the collection.
+ */
+- (NSUInteger)indexOfObjectWithPredicate:(NSPredicate *)predicate;
+
+@required
+
+#pragma mark - Sectioned Results
+
+/**
+ Sorts and sections this collection from a given property key path, returning the result
+ as an instance of `RLMSectionedResults`.
+
+ @param keyPath The property key path to sort on.
+ @param ascending The direction to sort in.
+ @param keyBlock  A callback which is invoked on each element in the Results collection.
+                 This callback is to return the section key for the element in the collection.
+
+ @return An instance of RLMSectionedResults.
+ */
+- (RLMSectionedResults *)sectionedResultsSortedUsingKeyPath:(NSString *)keyPath
+                                                  ascending:(BOOL)ascending
+                                                   keyBlock:(RLMSectionedResultsKeyBlock)keyBlock;
+
+/**
+ Sorts and sections this collection from a given array of sort descriptors, returning the result
+ as an instance of `RLMSectionedResults`.
+
+ @param sortDescriptors  An array of `RLMSortDescriptor`s to sort by.
+ @param keyBlock  A callback which is invoked on each element in the Results collection.
+                 This callback is to return the section key for the element in the collection.
+
+ @note The primary sort descriptor must be responsible for determining the section key.
+
+ @return An instance of RLMSectionedResults.
+ */
+- (RLMSectionedResults *)sectionedResultsUsingSortDescriptors:(NSArray<RLMSortDescriptor *> *)sortDescriptors
+                                                     keyBlock:(RLMSectionedResultsKeyBlock)keyBlock;
 
 @end
 

@@ -64,8 +64,8 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 @end
 
 
-/// The `RLMSectionedResult` protocol defines properties and methods common to both `RLMSectionedResults and RLMSection`
-@protocol RLMSectionedResult <NSFastEnumeration, RLMThreadConfined>
+/// The `RLMSectionedResult` protocol defines properties and methods common to both `RLMSectionedResults` and `RLMSection`
+@protocol RLMSectionedResult <NSFastEnumeration, RLMThreadConfined, RLMObservable>
 
 #pragma mark - Object Access
 
@@ -219,7 +219,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMSectionedResult>, RLMSectionedResultsChange *))block
-                                         queue:(dispatch_queue_t)queue __attribute__((warn_unused_result));
+                                         queue:(nullable dispatch_queue_t)queue __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the collection changes.
 
@@ -276,7 +276,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(id<RLMSectionedResult>, RLMSectionedResultsChange *))block
-                                      keyPaths:(NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the collection changes.
 
@@ -502,7 +502,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSection<RLMKeyType, RLMObjectType> *, RLMSectionedResultsChange *))block
-                                         queue:(dispatch_queue_t)queue __attribute__((warn_unused_result));
+                                         queue:(nullable dispatch_queue_t)queue __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the section changes.
 
@@ -566,7 +566,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSection<RLMKeyType, RLMObjectType> *, RLMSectionedResultsChange *))block
-                                      keyPaths:(NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the section changes.
 
@@ -789,7 +789,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSectionedResults<RLMKeyType, RLMObjectType> *, RLMSectionedResultsChange *))block
-                                         queue:(dispatch_queue_t)queue __attribute__((warn_unused_result));
+                                         queue:(nullable dispatch_queue_t)queue __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the sectioned results collection changes.
 
@@ -851,7 +851,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @return A token which must be held for as long as you want updates to be delivered.
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSectionedResults<RLMKeyType, RLMObjectType> *, RLMSectionedResultsChange *))block
-                                      keyPaths:(NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths __attribute__((warn_unused_result));
 /**
  Registers a block to be called each time the sectioned results collection changes.
 

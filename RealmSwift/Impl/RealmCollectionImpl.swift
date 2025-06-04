@@ -37,13 +37,13 @@ extension RealmCollectionImpl {
         return SubSequence(base: self, bounds: bounds)
     }
     public var first: Element? {
-        return collection.firstObject!().map(staticBridgeCast)
+        return collection.firstObject().map(staticBridgeCast)
     }
     public var last: Element? {
-        return collection.lastObject!().map(staticBridgeCast)
+        return collection.lastObject().map(staticBridgeCast)
     }
     public func objects(at indexes: IndexSet) -> [Element] {
-        guard let r = collection.objects!(at: indexes) else {
+        guard let r = collection.objects(at: indexes) else {
             throwRealmException("Indexes for collection are out of bounds.")
         }
         return r.map(staticBridgeCast)
@@ -108,8 +108,10 @@ extension RealmCollectionImpl {
         // wrapper for the obj-c type, which we'll construct the first time the
         // callback is called.
         var col: Self?
-        func wrapped(collection: RLMCollection?, change: RLMCollectionChange?) {
-            if col == nil, let collection = collection as! Collection? {
+        func wrapped(collection: RLMObservable, change: Any?) {
+            let collection = collection as! Collection
+            let change = change as! RLMCollectionChange?
+            if col == nil {
                 col = self.collection === collection ? self : Self(collection)
             }
             block(.init(value: col, change: change))

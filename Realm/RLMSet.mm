@@ -167,9 +167,11 @@
 // http://www.openradar.me/radar?id=6135653276319744
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
+
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray *, RLMCollectionChange *))block {
     return RLMAddNotificationBlock(self, block, nil, nil);
 }
+
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray *, RLMCollectionChange *))block
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, nil, queue);
@@ -185,6 +187,7 @@
                                          queue:(dispatch_queue_t)queue {
     return RLMAddNotificationBlock(self, block, keyPaths, queue);
 }
+
 #pragma clang diagnostic pop
 
 #pragma mark - Unmanaged RLMSet implementation

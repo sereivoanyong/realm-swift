@@ -18,7 +18,7 @@
 
 import Realm
 
-private func isSameCollection<C: RLMCollection>(_ lhs: C, _ rhs: Any) -> Bool {
+private func isSameCollection<C: RLMCollectionBase>(_ lhs: C, _ rhs: Any) -> Bool {
     // Managed isEqual checks if they're backed by the same core field, so it does exactly what we need
     if lhs.realm != nil {
         return lhs.isEqual(rhs)

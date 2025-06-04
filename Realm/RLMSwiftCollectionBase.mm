@@ -36,7 +36,7 @@
 
 @implementation RLMSwiftCollectionBase
 
-+ (id<RLMCollection>)_unmanagedCollection {
++ (id<RLMCollectionBase>)_unmanagedCollection {
     return nil;
 }
 
@@ -48,12 +48,12 @@
     return self;
 }
 
-- (instancetype)initWithCollection:(id<RLMCollection>)collection {
+- (instancetype)initWithCollection:(id<RLMCollectionBase>)collection {
     _collection = collection;
     return self;
 }
 
-- (id<RLMCollection>)collection {
+- (id<RLMCollectionBase>)collection {
     if (!_collection) {
         _collection = self.class._unmanagedCollection;
     }
