@@ -98,13 +98,6 @@ class MigrationTests: TestCase {
             Realm.Configuration.defaultConfiguration = config
             _ = try Realm()
         }
-        try withTestFile {
-            let ex = expectation(description: "did async open")
-            Realm.asyncOpen(configuration: config) { _ in
-                ex.fulfill()
-            }
-            wait(for: [ex], timeout: 2.0)
-        }
     }
 
     // MARK: Test cases

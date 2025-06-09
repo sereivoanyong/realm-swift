@@ -20,9 +20,6 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-/// A block type used for APIs which asynchronously return a `Results`.
-typedef void(^RLMResultsCompletionBlock)(RLMResults * _Nullable, NSError * _Nullable);
-
 @class RLMObject;
 
 /**

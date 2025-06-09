@@ -116,65 +116,6 @@ public typealias AsyncTransactionId = RLMAsyncTransactionId
         }
     }()
 
-    // MARK: Async
-
-    /**
-     Asynchronously open a Realm and deliver it to a block on the given queue.
-
-     Opening a Realm asynchronously will perform all work needed to get the Realm to
-     a usable state (such as running potentially time-consuming migrations) on a
-     background thread before dispatching to the given queue. In addition,
-     synchronized Realms wait for all remote content available at the time the
-     operation began to be downloaded and available locally.
-
-     The Realm passed to the callback function is confined to the callback
-     queue as if `Realm(configuration:queue:)` was used.
-
-     - parameter configuration: A configuration object to use when opening the Realm.
-     - parameter callbackQueue: The dispatch queue on which the callback should be run.
-     - parameter callback:      A callback block. If the Realm was successfully opened, an
-                                it will be passed in as an argument.
-                                Otherwise, a `Swift.Error` describing what went wrong will be
-                                passed to the block instead.
-     - returns: A task object which can be used to observe or cancel the async open.
-     */
-    @discardableResult
-    public static func asyncOpen(configuration: Realm.Configuration = .defaultConfiguration,
-                                 callbackQueue: DispatchQueue = .main,
-                                 callback: @escaping (Result<Realm, Swift.Error>) -> Void) -> AsyncOpenTask {
-        return AsyncOpenTask(rlmTask: RLMRealm.asyncOpen(with: configuration.rlmConfiguration, callbackQueue: callbackQueue, callback: { rlmRealm, error in
-            if let realm = rlmRealm.flatMap(Realm.init) {
-                callback(.success(realm))
-            } else {
-                callback(.failure(error ?? Realm.Error.callFailed))
-            }
-        }))
-    }
-
-    /**
-     A task object which can be used to observe or cancel an async open.
-
-     When a synchronized Realm is opened asynchronously, the latest state of the
-     Realm is downloaded from the server before the completion callback is
-     invoked. This task object can be used to observe the state of the download
-     or to cancel it. This should be used instead of trying to observe the
-     download via the sync session as the sync session itself is created
-     asynchronously, and may not exist yet when Realm.asyncOpen() returns.
-     */
-    @frozen public struct AsyncOpenTask {
-        internal let rlmTask: RLMAsyncOpenTask
-
-        /**
-         Cancel the asynchronous open.
-
-         Any download in progress will be cancelled, and the completion block for this
-         async open will never be called. If multiple async opens on the same Realm are
-         happening concurrently, all other opens will fail with the error "operation cancelled".
-         */
-        public func cancel() { rlmTask.cancel() }
-
-    }
-
     // MARK: Transactions
 
     /**
@@ -1094,92 +1035,6 @@ public typealias NotificationBlock = (_ notification: Realm.Notification, _ real
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Realm {
-    /**
-     Obtains a `Realm` instance with the given configuration, possibly asynchronously.
-     By default this simply returns the Realm instance exactly as if the
-     synchronous initializer was used. It optionally can instead open the Realm
-     asynchronously, performing all work needed to get the Realm to a usable
-     state on a background thread. For local Realms, this means that migrations
-     will be run in the background, and for synchronized Realms all data will
-     be downloaded from the server before the Realm is returned.
-     - parameter configuration: A configuration object to use when opening the Realm.
-     all data from the server.
-     - throws: An `NSError` if the Realm could not be initialized.
-     - returns: An open Realm.
-     */
-    @MainActor
-    public init(configuration: Realm.Configuration = .defaultConfiguration) async throws {
-        let scheduler = RLMScheduler.dispatchQueue(.main)
-        let rlmRealm = try await openRealm(configuration: configuration, scheduler: scheduler,
-                                           actor: MainActor.shared)
-        self = Realm(rlmRealm.wrappedValue)
-    }
-
-    /**
-     Asynchronously obtains a `Realm` instance isolated to the given Actor.
-
-     Opening a Realm with an actor isolates the Realm to that actor. Rather
-     than being confined to the specific thread which the Realm was opened on,
-     the Realm can instead only be used from within that actor or functions
-     isolated to that actor. Isolating a Realm to an actor also enables using
-     ``asyncWrite`` and ``asyncRefresh``.
-
-     All initialization work to prepare the Realm for work, such as creating,
-     migrating, or compacting the file on disk, and waiting for synchronized
-     Realms to download the latest data from the server is done on a background
-     thread and does not block the calling executor.
-
-     When using actor-isolated Realms, enabling struct concurrency checking
-     (`SWIFT_STRICT_CONCURRENCY=complete` in Xcode) and runtime data race
-     detection (by passing `-Xfrontend -enable-actor-data-race-checks` to the
-     compiler) is strongly recommended.
-
-     - parameter configuration: A configuration object to use when opening the Realm.
-     - parameter actor: The actor to confine this Realm to. The actor can be
-     either a local actor or a global actor. The calling function does not need
-     to be isolated to the actor passed in, but if it is not it will not be
-     able to use the returned Realm.
-     - throws: An `NSError` if the Realm could not be initialized.
-               `CancellationError` if the task is cancelled.
-     - returns: An open Realm.
-     */
-    public init<A: Actor>(configuration: Realm.Configuration = .defaultConfiguration,
-                          actor: A) async throws {
-        let scheduler = RLMScheduler.actor(actor, invoke: actor.invoke, verify: await actor.verifier())
-        let rlmRealm = try await openRealm(configuration: configuration, scheduler: scheduler, actor: actor)
-        self = Realm(rlmRealm.wrappedValue)
-    }
-
-#if compiler(>=6)
-    /**
-     Asynchronously obtains a `Realm` instance isolated to the current Actor.
-
-     Opening a Realm with an actor isolates the Realm to that actor. Rather
-     than being confined to the specific thread which the Realm was opened on,
-     the Realm can instead only be used from within that actor or functions
-     isolated to that actor. Isolating a Realm to an actor also enables using
-     ``asyncWrite`` and ``asyncRefresh``.
-
-     All initialization work to prepare the Realm for work, such as creating,
-     migrating, or compacting the file on disk, and waiting for synchronized
-     Realms to download the latest data from the server is done on a background
-     thread and does not block the calling executor.
-
-     - parameter configuration: A configuration object to use when opening the Realm.
-     - parameter downloadBeforeOpen: When opening the Realm should first download
-     all data from the server.
-     - throws: An `NSError` if the Realm could not be initialized.
-               `CancellationError` if the task is cancelled.
-     - returns: An open Realm.
-     */
-    public static func open(configuration: Realm.Configuration = .defaultConfiguration,
-                            _isolation actor: isolated any Actor = #isolation) async throws -> Realm {
-        let scheduler = RLMScheduler.actor(actor, invoke: actor.invoke, verify: actor.verifier())
-        let rlmRealm = try await openRealm(configuration: configuration, scheduler: scheduler, actor: actor)
-        return Realm(rlmRealm.wrappedValue)
-    }
-#endif
-
 #if compiler(<6)
     /**
      Performs actions contained within the given block inside a write transaction.
@@ -1266,35 +1121,6 @@ extension Realm {
         return Unchecked(ret)
     }
 
-    /**
-     Updates the Realm and outstanding objects managed by the Realm to point to
-     the most recent data and deliver any applicable notifications.
-
-     This function should be used instead of synchronous ``refresh`` in async
-     functions, as it suspends the calling task (if required) rather than
-     blocking.
-
-     - warning: This function is only supported for main thread and
-                actor-isolated Realms.
-     - returns: Whether there were any updates for the Realm. Note that `true`
-                may be returned even if no data actually changed.
-     */
-    @discardableResult
-    @_unsafeInheritExecutor
-    public func asyncRefresh() async -> Bool {
-        guard rlmRealm.actor is Actor else {
-            fatalError("asyncRefresh() can only be called on main thread or actor-isolated Realms")
-        }
-        guard let task = RLMRealmRefreshAsync(rlmRealm) else {
-            return false
-        }
-        return await withTaskCancellationHandler {
-            await task.wait()
-        } onCancel: {
-            task.complete(false)
-        }
-    }
-
 #else // compiler(<6)
 
     /**
@@ -1378,100 +1204,8 @@ extension Realm {
         }
         return ret
     }
-
-    /**
-     Updates the Realm and outstanding objects managed by the Realm to point to
-     the most recent data and deliver any applicable notifications.
-
-     This function should be used instead of synchronous ``refresh`` in async
-     functions, as it suspends the calling task (if required) rather than
-     blocking.
-
-     - warning: This function is only supported for main thread and
-                actor-isolated Realms.
-     - returns: Whether there were any updates for the Realm. Note that `true`
-                may be returned even if no data actually changed.
-     */
-    @discardableResult
-    public func asyncRefresh(_isolation: isolated any Actor = #isolation) async -> Bool {
-        guard rlmRealm.actor != nil else {
-            fatalError("asyncRefresh() can only be called on main thread or actor-isolated Realms")
-        }
-        guard let task = RLMRealmRefreshAsync(rlmRealm) else {
-            return false
-        }
-        return await withTaskCancellationHandler {
-            await task.wait()
-        } onCancel: {
-            task.complete(false)
-        }
-    }
 #endif // compiler(<6)
 }
-
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-private func openRealm<A: Actor>(configuration: Realm.Configuration,
-                                 scheduler: RLMScheduler,
-                                 actor: isolated A
-) async throws -> Unchecked<RLMRealm> {
-    let scheduler = RLMScheduler.actor(actor, invoke: actor.invoke, verify: actor.verifier())
-    let rlmConfiguration = configuration.rlmConfiguration
-
-    // If we already have a cached Realm for this actor, just reuse it
-    // If this Realm is open but with a different scheduler, open it synchronously.
-    // The overhead of dispatching to a different thread and back is more expensive
-    // than the fast path of obtaining a new instance for an already open Realm.
-    var realm = RLMGetCachedRealm(rlmConfiguration, scheduler)
-    if realm == nil, let cachedRealm = RLMGetAnyCachedRealm(rlmConfiguration) {
-        try withExtendedLifetime(cachedRealm) {
-            realm = try RLMRealm(configuration: rlmConfiguration, confinedTo: scheduler)
-        }
-    }
-    if let realm = realm {
-        return Unchecked(realm)
-    }
-
-    // We're doing the first open and hitting the expensive path, so do an async
-    // open on a background thread
-    let task = RLMAsyncOpenTask(configuration: rlmConfiguration, confinedTo: scheduler)
-    do {
-        try await task.waitWithCancellationHandler()
-        let realm = task.localRealm!
-        task.localRealm = nil
-        return Unchecked(realm)
-    } catch {
-        // Check if the task was cancelled and if so replace the error
-        // with reporting cancellation
-        try Task.checkCancellation()
-        throw error
-    }
-}
-
-@available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
-private protocol TaskWithCancellation: Sendable {
-    func waitWithCancellationHandler() async throws
-    func wait() async throws
-    func cancel()
-}
-
-@available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
-extension TaskWithCancellation {
-    func waitWithCancellationHandler() async throws {
-        do {
-            try await withTaskCancellationHandler {
-                try await wait()
-            } onCancel: {
-                cancel()
-            }
-        } catch {
-            // Check if the task was cancelled and if so replace the error
-            // with reporting cancellation
-            try Task.checkCancellation()
-            throw error
-        }
-    }
-}
-extension RLMAsyncOpenTask: TaskWithCancellation {}
 
 @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
 internal extension Actor {

@@ -28,7 +28,6 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
 + (void)initializeLinkedObjectSchemas;
 + (bool)isEmbedded;
-+ (bool)isAsymmetric;
 @end
 
 RLM_HEADER_AUDIT_END(nullability)

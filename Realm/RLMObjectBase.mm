@@ -354,10 +354,6 @@ id RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) {
     return false;
 }
 
-+ (bool)isAsymmetric {
-    return false;
-}
-
 // This enables to override the propertiesMapping in Swift, it is not to be used in Objective-C API.
 + (NSDictionary *)propertiesMapping {
     return @{};
@@ -847,15 +843,5 @@ uint64_t RLMObjectBaseGetCombineId(__unsafe_unretained RLMObjectBase *const obj)
 @implementation RealmSwiftEmbeddedObject
 + (BOOL)accessInstanceVariablesDirectly {
     return NO;
-}
-@end
-
-@implementation RealmSwiftAsymmetricObject
-+ (BOOL)accessInstanceVariablesDirectly {
-    return NO;
-}
-
-+ (bool)isAsymmetric {
-    return YES;
 }
 @end

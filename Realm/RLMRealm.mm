@@ -279,14 +279,6 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     return [RLMRealm realmWithConfiguration:configuration error:nil];
 }
 
-+ (RLMAsyncOpenTask *)asyncOpenWithConfiguration:(RLMRealmConfiguration *)configuration
-                                   callbackQueue:(dispatch_queue_t)callbackQueue
-                                        callback:(RLMAsyncOpenRealmCallback)callback {
-    return [[RLMAsyncOpenTask alloc] initWithConfiguration:configuration
-                                                confinedTo:[RLMScheduler dispatchQueue:callbackQueue]
-                                                completion:callback];
-}
-
 + (instancetype)realmWithSharedRealm:(SharedRealm)sharedRealm
                               schema:(RLMSchema *)schema
                              dynamic:(bool)dynamic {

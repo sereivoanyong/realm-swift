@@ -704,7 +704,7 @@ class RealmCollectionTests<Collection: RealmCollection, AggregateCollection: Rea
         }
 
         func observe(_ tsr: ThreadSafeReference<Collection>) async throws -> NotificationToken {
-            let realm = try await openRealm(configuration: Config.config, actor: self)
+            let realm = try Realm()
             return try XCTUnwrap(realm.resolve(tsr)).observe(check)
         }
     }

@@ -69,10 +69,6 @@ RLMRealm *RLMGetCachedRealm(__unsafe_unretained RLMRealmConfiguration *const con
     return realm;
 }
 
-RLMRealm *RLMGetAnyCachedRealm(__unsafe_unretained RLMRealmConfiguration *const configuration) {
-    return RLMGetAnyCachedRealmForPath(configuration.path);
-}
-
 RLMRealm *RLMGetAnyCachedRealmForPath(std::string const& path) {
     std::lock_guard lock(s_realmCacheMutex);
     return [s_realmsPerPath[path] objectEnumerator].nextObject;
@@ -133,16 +129,7 @@ public:
                 return;
             }
 
-            // If an async refresh has been requested, then do that now instead
-            // of notifying of a pending version available. Note that this will
-            // recursively call this function and then exit above due to
-            // autorefresh being true.
-            if (_refreshHandlers.empty()) {
-                [realm sendNotifications:RLMRealmRefreshRequiredNotification];
-            }
-            else {
-                advance_to_ready(*realm->_realm);
-            }
+            [realm sendNotifications:RLMRealmRefreshRequiredNotification];
         }
     }
 
@@ -183,23 +170,6 @@ public:
                 }
                 throw;
             }
-
-            if (!realm || !version_changed) {
-                return;
-            }
-            auto new_version = realm->_realm->current_transaction_version();
-            if (!new_version) {
-                return;
-            }
-
-            std::erase_if(_refreshHandlers, [&](auto& handler) {
-                auto& [target_version, completion] = handler;
-                if (new_version->version >= target_version) {
-                    completion(true);
-                    return true;
-                }
-                return false;
-            });
         }
     }
 
@@ -207,15 +177,10 @@ public:
         _beforeNotify.push_back(block);
     }
 
-    void wait_for_refresh(realm::DB::version_type version, RLMAsyncRefreshCompletion completion) {
-        _refreshHandlers.emplace_back(version, completion);
-    }
-
 private:
     // This is owned by the realm, so it needs to not retain the realm
     __weak RLMRealm *const _realm;
     std::vector<dispatch_block_t> _beforeNotify;
-    std::vector<std::pair<realm::DB::version_type, RLMAsyncRefreshCompletion>> _refreshHandlers;
 };
 } // anonymous namespace
 
@@ -243,36 +208,6 @@ void RLMAddBeforeNotifyBlock(RLMRealm *realm, dispatch_block_t block) {
     _pin.reset();
 }
 @end
-
-RLMAsyncRefreshTask *RLMRealmRefreshAsync(RLMRealm *rlmRealm) {
-    auto& realm = *rlmRealm->_realm;
-    if (realm.is_frozen() || realm.config().immutable()) {
-        return nil;
-    }
-
-    // Refresh is a no-op if the Realm isn't currently in a read transaction
-    // or is up-to-date
-    auto latest = realm.latest_snapshot_version();
-    auto current = realm.current_transaction_version();
-    if (!latest || !current || current->version == *latest)
-        return nil;
-
-    // If autorefresh is disabled, we may have already been notified of a new
-    // version and simply not advanced to it.
-    advance_to_ready(realm);
-
-    // This may have advanced to the latest version in which case there's
-    // nothing left to do
-    current = realm.current_transaction_version();
-    if (current && current->version >= *latest)
-        return [RLMAsyncRefreshTask completedRefresh];
-    auto refresh = [[RLMAsyncRefreshTask alloc] init];
-
-    // Register the continuation to be called once the new version is ready
-    auto& context = static_cast<RLMNotificationHelper&>(*realm.m_binding_context);
-    context.wait_for_refresh(*latest, ^(bool didRefresh) { [refresh complete:didRefresh]; });
-    return refresh;
-}
 
 void RLMRunAsyncNotifiers(NSString *path) {
     realm::_impl::RealmCoordinator::get_existing_coordinator(path.UTF8String)->on_change();
