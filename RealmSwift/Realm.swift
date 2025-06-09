@@ -1196,39 +1196,286 @@ extension ObjectBase: ThreadConfined {
     }
 }
 
-extension ObjectBase {
-    internal func _observe<T: ObjectBase>(keyPaths: [String]? = nil,
-                                          on queue: DispatchQueue? = nil,
-                                          _ block: @escaping (ObjectChange<T>) -> Void) -> NotificationToken {
+extension NSObjectProtocol where Self: ObjectBase {
+    /**
+     Registers a block to be called each time the object changes.
+
+     The block will be asynchronously called after each write transaction which
+     deletes the object or modifies any of the managed properties of the object,
+     including self-assignments that set a property to its existing value.
+
+     For write transactions performed on different threads or in different
+     processes, the block will be called when the managing Realm is
+     (auto)refreshed to a version including the changes, while for local write
+     transactions it will be called at some point in the future after the write
+     transaction is committed.
+
+     If no key paths are given, the block will be executed on any insertion,
+     modification, or deletion for all object first-level properties of the object.
+     `Object` notifications are shallow by default, any nested property modification
+     will not trigger a notification, unless the key path to that property is specified.
+     If a key path or key paths are provided, then the block will be called for
+     changes which occur only on the provided key paths. For example, if:
+     ```swift
+     class Dog: Object {
+         @Persisted var name: String
+         @Persisted var adopted: Bool
+         @Persisted var siblings: List<Dog>
+     }
+
+     // ... where `dog` is a managed Dog object.
+     dog.observe(keyPaths: ["adopted"], { changes in
+        // ...
+     })
+     ```
+     - The above notification block fires for changes to the
+     `adopted` property, but not for any changes made to `name`.
+     - If the observed key path were `["siblings"]`, then any insertion,
+     deletion, or modification to the `siblings` list will trigger the block. A change to
+     `someSibling.name` would not trigger the block (where `someSibling`
+     is an element contained in `siblings`)
+     - If the observed key path were `["siblings.name"]`, then any insertion or
+     deletion to the `siblings` list would trigger the block. For objects
+     contained in the `siblings` list, only modifications to their `name` property
+     will trigger the block.
+
+     - note: Multiple notification tokens on the same object which filter for
+     separate key paths *do not* filter exclusively. If one key path
+     change is satisfied for one notification token, then all notification
+     token blocks for that object will execute.
+
+     If no queue is given, notifications are delivered via the standard run
+     loop, and so can't be delivered while the run loop is blocked by other
+     activity. If a queue is given, notifications are delivered to that queue
+     instead. When notifications can't be delivered instantly, multiple
+     notifications may be coalesced into a single notification.
+
+     Unlike with `List` and `Results`, there is no "initial" callback made after
+     you add a new notification block.
+
+     Only objects which are managed by a Realm can be observed in this way. You
+     must retain the returned token for as long as you want updates to be sent
+     to the block. To stop receiving updates, call `invalidate()` on the token.
+
+     It is safe to capture a strong reference to the observed object within the
+     callback block. There is no retain cycle due to that the callback is
+     retained by the returned token and not by the object itself.
+
+     - warning: This method cannot be called during a write transaction, or when
+                the containing Realm is read-only.
+     - parameter keyPaths: Only properties contained in the key paths array will trigger
+                           the block when they are modified. If `nil`, notifications
+                           will be delivered for any property change on the object.
+                           String key paths which do not correspond to a valid a property
+                           will throw an exception.
+                           See description above for more detail on linked properties.
+     - parameter queue: The serial dispatch queue to receive notification on. If
+                        `nil`, notifications are delivered to the current thread.
+     - parameter block: The block to call with information about changes to the object.
+     - returns: A token which must be held for as long as you want updates to be delivered.
+     */
+    public func observe(keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ handler: @escaping (ObjectChange<Self>) -> Void) -> NotificationToken {
         return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { object, names, oldValues, newValues in
-            block(.init(object: object as? T, names: names, oldValues: oldValues, newValues: newValues))
+            handler(.init(object: object as! Self?, names: names, oldValues: oldValues, newValues: newValues))
         }
     }
 
-    internal func _observe<T: ObjectBase>(keyPaths: [String]? = nil,
-                                          on queue: DispatchQueue? = nil,
-                                          _ block: @escaping (T?) -> Void) -> NotificationToken {
+    /**
+     Registers a block to be called each time the object changes.
+
+     The block will be asynchronously called after each write transaction which
+     deletes the object or modifies any of the managed properties of the object,
+     including self-assignments that set a property to its existing value.
+
+     For write transactions performed on different threads or in different
+     processes, the block will be called when the managing Realm is
+     (auto)refreshed to a version including the changes, while for local write
+     transactions it will be called at some point in the future after the write
+     transaction is committed.
+
+     If no key paths are given, the block will be executed on any insertion,
+     modification, or deletion for all object first-level properties of the object.
+     `Object` notifications are shallow by default, any nested property modification
+     will not trigger a notification, unless the key path to that property is specified.
+     If a key path or key paths are provided, then the block will be called for
+     changes which occur only on the provided key paths. For example, i
+     ```swift
+     class Dog: Object {
+         @Persisted var name: String
+         @Persisted var adopted: Bool
+         @Persisted var siblings: List<Dog>
+     }
+
+     // ... where `dog` is a managed Dog object.
+     dog.observe(keyPaths: [\Dog.adopted], { changes in
+        // ...
+     })
+     ```
+     - The above notification block fires for changes to the
+     `adopted` property, but not for any changes made to `name`.
+     - If the observed key path were `[\Dog.siblings]`, then any insertion,
+     deletion, or modification to the `siblings` list will trigger the block. A change to
+     `someSibling.name` would not trigger the block (where `someSibling`
+     is an element contained in `siblings`)
+     - If the observed key path were `[\Dog.siblings.name]`, then any insertion or
+     deletion to the `siblings` list would trigger the block. For objects
+     contained in the `siblings` list, only modifications to their `name` property
+     will trigger the block.
+
+     - note: Multiple notification tokens on the same object which filter for
+     separate key paths *do not* filter exclusively. If one key path
+     change is satisfied for one notification token, then all notification
+     token blocks for that object will execute.
+
+     If no queue is given, notifications are delivered via the standard run
+     loop, and so can't be delivered while the run loop is blocked by other
+     activity. If a queue is given, notifications are delivered to that queue
+     instead. When notifications can't be delivered instantly, multiple
+     notifications may be coalesced into a single notification.
+
+     Unlike with `List` and `Results`, there is no "initial" callback made after
+     you add a new notification block.
+
+     Only objects which are managed by a Realm can be observed in this way. You
+     must retain the returned token for as long as you want updates to be sent
+     to the block. To stop receiving updates, call `invalidate()` on the token.
+
+     It is safe to capture a strong reference to the observed object within the
+     callback block. There is no retain cycle due to that the callback is
+     retained by the returned token and not by the object itself.
+
+     - warning: This method cannot be called during a write transaction, or when
+                the containing Realm is read-only.
+     - parameter keyPaths: Only properties contained in the key paths array will trigger
+                           the block when they are modified. If `nil`, notifications
+                           will be delivered for any property change on the object.
+                           See description above for more detail on linked properties.
+     - parameter queue: The serial dispatch queue to receive notification on. If
+                        `nil`, notifications are delivered to the current thread.
+     - parameter block: The block to call with information about changes to the object.
+     - returns: A token which must be held for as long as you want updates to be delivered.
+     */
+    public func observe<each Value>(_ keyPaths: repeat KeyPath<Self, each Value>, on queue: DispatchQueue? = nil, handler: @escaping (ObjectChange<Self>) -> Void) -> NotificationToken {
+        var keyPathNames: [String] = []
+        for keyPath in repeat (each keyPaths) {
+            keyPathNames.append(_name(for: keyPath))
+        }
+        return observe(keyPaths: keyPathNames, on: queue, handler)
+    }
+
+    /**
+    Registers a block to be called each time the object changes.
+
+    The block will be asynchronously called on the given actor's executor after
+    each write transaction which deletes the object or modifies any of the managed
+    properties of the object, including self-assignments that set a property to its
+    existing value. The block is passed a copy of the object isolated to the
+    requested actor which can be safely used on that actor along with information
+    about what changed.
+
+    For write transactions performed on different threads or in different
+    processes, the block will be called when the managing Realm is
+    (auto)refreshed to a version including the changes, while for local write
+    transactions it will be called at some point in the future after the write
+    transaction is committed.
+
+    Only objects which are managed by a Realm can be observed in this way. You
+    must retain the returned token for as long as you want updates to be sent
+    to the block. To stop receiving updates, call `invalidate()` on the token.
+
+    By default, only direct changes to the object's properties will produce
+    notifications, and not changes to linked objects. Note that this is different
+    from collection change notifications. If a non-nil, non-empty keypath array is
+    passed in, only changes to the properties identified by those keypaths will
+    produce change notifications. The keypaths may traverse link properties to
+    receive information about changes to linked objects.
+
+    - warning: This method cannot be called during a write transaction, or when
+    the containing Realm is read-only.
+    - parameter actor: The actor to isolate notifications to.
+    - parameter block: The block to call with information about changes to the object.
+    - returns: A token which must be held for as long as you want updates to be delivered.
+     */
+    @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
+    public func observe<A: Actor>(
+        keyPaths: [String]?,
+        on actor: A,
+        _isolation: isolated (any Actor)? = #isolation,
+        _ block: @Sendable @escaping (isolated A, ObjectChange<Self>) -> Void
+    ) async -> NotificationToken {
+        await with(self, on: actor) { actor, obj in
+            await obj.observe(keyPaths: keyPaths, on: actor, block)
+        }
+    }
+
+    /**
+    Registers a block to be called each time the object changes.
+
+    The block will be asynchronously called on the given actor's executor after
+    each write transaction which deletes the object or modifies any of the managed
+    properties of the object, including self-assignments that set a property to its
+    existing value. The block is passed a copy of the object isolated to the
+    requested actor which can be safely used on that actor along with information
+    about what changed.
+
+    For write transactions performed on different threads or in different
+    processes, the block will be called when the managing Realm is
+    (auto)refreshed to a version including the changes, while for local write
+    transactions it will be called at some point in the future after the write
+    transaction is committed.
+
+    Only objects which are managed by a Realm can be observed in this way. You
+    must retain the returned token for as long as you want updates to be sent
+    to the block. To stop receiving updates, call `invalidate()` on the token.
+
+    By default, only direct changes to the object's properties will produce
+    notifications, and not changes to linked objects. Note that this is different
+    from collection change notifications. If a non-nil, non-empty keypath array is
+    passed in, only changes to the properties identified by those keypaths will
+    produce change notifications. The keypaths may traverse link properties to
+    receive information about changes to linked objects.
+
+    - warning: This method cannot be called during a write transaction, or when
+    the containing Realm is read-only.
+    - parameter actor: The actor to isolate notifications to.
+    - parameter block: The block to call with information about changes to the object.
+    - returns: A token which must be held for as long as you want updates to be delivered.
+     */
+    @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
+    public func observe<A: Actor, each Value>(
+        _ keyPaths: repeat KeyPath<Self, each Value>,
+        on actor: A,
+        _isolation: isolated (any Actor)? = #isolation,
+        handler: @Sendable @escaping (isolated A, ObjectChange<Self>) -> Void
+    ) async -> NotificationToken {
+        var keyPathNames: [String] = []
+        for keyPath in repeat (each keyPaths) {
+            keyPathNames.append(_name(for: keyPath))
+        }
+        return await observe(keyPaths: keyPathNames, on: actor, _isolation: _isolation, handler)
+    }
+
+    internal func _observe(keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ block: @escaping (Self?) -> Void) -> NotificationToken {
         return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { object, _, _, _ in
-            block(object as? T)
+            block(object as! Self?)
         }
     }
 
-    internal func _observe(keyPaths: [String]? = nil,
-                           on queue: DispatchQueue? = nil,
-                           _ block: @escaping () -> Void) -> NotificationToken {
+    internal func _observe(keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ block: @escaping () -> Void) -> NotificationToken {
         return RLMObjectBaseAddNotificationBlock(self, keyPaths, queue) { _, _, _, _ in
             block()
         }
     }
 
     @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
-    internal func _observe<A: Actor, T: ObjectBase>(
-        keyPaths: [String]? = nil, on actor: isolated A,
-        _ block: @Sendable @escaping (isolated A, ObjectChange<T>) -> Void
+    internal func _observe<A: Actor>(
+        keyPaths: [String]? = nil,
+        on actor: isolated A,
+        _ block: @Sendable @escaping (isolated A, ObjectChange<Self>) -> Void
     ) async -> NotificationToken {
         let token = RLMObjectNotificationToken()
         token.observe(self, keyPaths: keyPaths) { object, names, oldValues, newValues in
-            actor.invokeIsolated(block, .init(object: object as? T, names: names,
+            actor.invokeIsolated(block, .init(object: object as! Self?, names: names,
                         oldValues: oldValues, newValues: newValues))
         }
         await withTaskCancellationHandler(operation: token.registrationComplete,

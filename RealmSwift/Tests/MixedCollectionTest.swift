@@ -619,7 +619,7 @@ class MixedCollectionTest: TestCase {
             "key0": subDict1,
         ]
 
-        func expectChange(_ name: String) -> ((ObjectChange<ObjectBase>) -> Void) {
+        func expectChange<Object: ObjectBase>(_ name: String) -> ((ObjectChange<Object>) -> Void) {
             let exp = expectation(description: "Object changes for mixed collections")
             return { change in
                 if case .change(_, let properties) = change {
