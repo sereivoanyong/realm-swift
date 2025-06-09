@@ -875,7 +875,7 @@ class ObjectTests: TestCase {
                      reason: "property 'alsoNotAProperty' not found in object of type 'SwiftBoolObject'")
     }
 
-    func checkChange<T: Equatable, U: Equatable>(_ name: String, _ old: T?, _ new: U?, _ change: ObjectChange<ObjectBase>) {
+    func checkChange<T: Equatable, U: Equatable, Object: ObjectBase>(_ name: String, _ old: T?, _ new: U?, _ change: ObjectChange<Object>) {
         if case .change(_, let properties) = change {
             XCTAssertEqual(properties.count, 1)
             if let prop = properties.first {
@@ -888,7 +888,7 @@ class ObjectTests: TestCase {
         }
     }
 
-    func expectChange<T: Equatable, U: Equatable>(_ name: String, _ old: T?, _ new: U?, _ inverted: Bool = false) -> ((ObjectChange<ObjectBase>) -> Void) {
+    func expectChange<T: Equatable, U: Equatable, Object: ObjectBase>(_ name: String, _ old: T?, _ new: U?, _ inverted: Bool = false) -> ((ObjectChange<Object>) -> Void) {
         let exp = expectation(description: "change from \(String(describing: old)) to \(String(describing: new))")
         exp.isInverted = inverted
         return { change in
@@ -943,7 +943,7 @@ class ObjectTests: TestCase {
 
         // Expect notification for "intCol" keyPath when "intCol" is modified
         var ex = expectation(description: "expect notification")
-        var token = object.observe(keyPaths: [\SwiftObject.intCol, \SwiftObject.stringCol]) { changes in
+        var token = object.observe(\SwiftObject.intCol, \SwiftObject.stringCol) { changes in
             if case .change(_, let properties) = changes {
                 XCTAssertEqual(properties.count, 1)
                 XCTAssertEqual(properties[0].newValue as! Int, 2)
@@ -958,7 +958,7 @@ class ObjectTests: TestCase {
 
         // Expect notification for "stringCol" keyPath when "stringCol" is modified
         ex = expectation(description: "expect notification")
-        token = object.observe(keyPaths: [\SwiftObject.intCol, \SwiftObject.stringCol]) { changes in
+        token = object.observe(\SwiftObject.intCol, \SwiftObject.stringCol) { changes in
             if case .change(_, let properties) = changes {
                 nonisolated(unsafe) let p = properties // this appears to be an autoclosure bug
                 XCTAssertEqual(p.count, 1)
@@ -980,7 +980,7 @@ class ObjectTests: TestCase {
         // Expect no notification for "boolCol" keypath when "intCol" is modified
         let ex = expectation(description: "no change")
         ex.isInverted = true
-        let token = object.observe(keyPaths: [\SwiftObject.boolCol, \SwiftObject.stringCol]) { _ in
+        let token = object.observe(\SwiftObject.boolCol, \SwiftObject.stringCol) { _ in
             ex.fulfill()
         }
         try object.realm!.write {
@@ -1583,9 +1583,9 @@ class ObjectTests: TestCase {
         let tokens = await [
             obj1.observe(keyPaths: ["intCol"], on: CustomGlobalActor.shared,
                                expectChange(obj1, ex1, newValue: 2)),
-            obj2.observe(keyPaths: [\SwiftObject.intCol],
-                               on: CustomGlobalActor.shared,
-                               expectChange(obj2, ex2, newValue: 3))
+            obj2.observe(\SwiftObject.intCol,
+                         on: CustomGlobalActor.shared,
+                         handler: expectChange(obj2, ex2, newValue: 3))
         ]
 
         let realm = obj1.realm!

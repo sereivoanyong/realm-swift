@@ -738,7 +738,7 @@ class CustomColumnObjectTest<O: CustomColumnObjectFactory, F: ObjectCustomColumn
     func testCustomColumnObjectPropertyObservation() throws {
         for (keyPath, value) in F.propertyValues {
             let ex = XCTestExpectation(description: "Notification to be called")
-            let notificationToken = object.observe(keyPaths: [keyPath]) { changes in
+            let notificationToken = object.observe(keyPath) { changes in
                 switch changes {
                 case .change(_, let propertyChanges):
                     XCTAssertGreaterThan(propertyChanges.count, 0)

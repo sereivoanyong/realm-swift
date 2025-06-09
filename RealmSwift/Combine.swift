@@ -608,11 +608,15 @@ extension EmbeddedObject {
         return RealmPublishers.WillChange(self)
     }
 }
+
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-extension ObjectBase: RealmSubscribable {
+extension ObjectBase: RealmSubscribable { }
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+extension NSObjectProtocol where Self: ObjectBase & RealmSubscribable {
     /// :nodoc:
-    public func _observe<S: Subscriber>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken where S.Input: ObjectBase {
-        return _observe(keyPaths: keyPaths, on: queue) { (object: S.Input?) in
+    public func _observe<S: Subscriber>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken where S.Input == Self {
+        return _observe(keyPaths: keyPaths, on: queue) { object in
             if let object = object {
                 _ = subscriber.receive(object)
             } else {
