@@ -901,32 +901,6 @@ extension RealmKeyedCollection {
     }
 }
 
-/// A subscription which wraps a Realm AsyncOpenTask.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-@frozen public struct AsyncOpenSubscription: Subscription {
-    private let task: Realm.AsyncOpenTask
-
-    internal init(task: Realm.AsyncOpenTask) {
-        self.task = task
-    }
-
-    /// A unique identifier for identifying publisher streams.
-    public var combineIdentifier: CombineIdentifier {
-        return CombineIdentifier(task.rlmTask)
-    }
-
-    /// This function is not implemented.
-    ///
-    /// Realm publishers do not support backpressure and so this function does nothing.
-    public func request(_ demand: Subscribers.Demand) {
-    }
-
-    /// Stop emitting values on this subscription.
-    public func cancel() {
-        task.cancel()
-    }
-}
-
 // MARK: Publishers
 
 /// Combine publishers for Realm types.

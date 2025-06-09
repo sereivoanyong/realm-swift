@@ -1525,6 +1525,7 @@ extension RealmTests {
         return (ObjectiveCSupport.convert(object: try RLMRealm(configuration: config)), config.pathOnDisk)
     }
 
+<<<<<<< HEAD
     @MainActor
     func testAsyncRefresh() async throws {
         let realm = try await openRealm(actor: MainActor.shared)
@@ -1695,11 +1696,13 @@ extension RealmTests {
         token.invalidate()
     }
 
+=======
+>>>>>>> e84b8094e (Clean up Sync)
     // MARK: - Async Writes
 
     @MainActor
     func testAsyncWriteBasics() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         let obj = try await realm.asyncWrite {
             XCTAssertTrue(realm.isInWriteTransaction)
             XCTAssertTrue(realm.isPerformingAsynchronousWriteOperations)
@@ -1713,7 +1716,7 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteCancel() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         try await realm.asyncWrite {
             realm.create(SwiftStringObject.self, value: ["foo"])
             realm.cancelWrite()
@@ -1724,7 +1727,7 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteBeginNewWriteAfterCancel() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         try await realm.asyncWrite {
             realm.create(SwiftStringObject.self, value: ["foo"])
             realm.cancelWrite()
@@ -1738,7 +1741,7 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteModifyExistingObject() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         let obj = try await realm.asyncWrite {
             realm.create(SwiftStringObject.self, value: ["foo"])
         }
@@ -1750,7 +1753,7 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteCancelsOnThrow() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
 
         await assertThrowsErrorAsync(try await realm.asyncWrite {
             realm.create(SwiftStringObject.self, value: ["foo"])
@@ -1768,7 +1771,7 @@ extension RealmTests {
 
     @CustomGlobalActor
     func testAsyncWriteCustomGlobalActor() async throws {
-        let realm = try await openRealm(actor: CustomGlobalActor.shared)
+        let realm = try Realm()
         let obj = try await realm.asyncWrite {
             realm.create(SwiftStringObject.self, value: ["foo"])
         }
@@ -1785,7 +1788,7 @@ extension RealmTests {
             var realm: Realm!
             var obj: SwiftStringObject?
             init() async throws {
-                realm = try await openRealm(actor: self)
+                realm = try Realm()
             }
 
             var count: Int {
@@ -1834,12 +1837,12 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteTaskCancellation() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         realm.beginWrite()
 
         let ex = expectation(description: "Background thread ready")
         let task = Task { @CustomGlobalActor in
-            let realm = try await openRealm(actor: CustomGlobalActor.shared)
+            let realm = try Realm()
             ex.fulfill()
             try await realm.asyncWrite {
                 XCTFail("Should not have been called")
@@ -1857,12 +1860,12 @@ extension RealmTests {
 
     @MainActor
     func testAsyncWriteTaskCancelledBeforeWriteCalled() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         realm.beginWrite()
 
         let ex = expectation(description: "Background thread ready")
         let task = Task { @CustomGlobalActor in
-            let realm = try await openRealm(actor: CustomGlobalActor.shared)
+            let realm = try Realm()
             ex.fulfill()
             // Block until cancelWrite() is called, ensuring that the Task is
             // cancelled before the call to asyncWrite
@@ -1882,7 +1885,7 @@ extension RealmTests {
     // FIXME: deadlocks without https://github.com/realm/realm-core/pull/6413
     @MainActor
     func skip_testAsyncWriteTaskCancellationTiming() async throws {
-        let realm = try await openRealm(actor: MainActor.shared)
+        let realm = try Realm()
         realm.beginWrite()
 
         // Try to hit the timing windows which can't be deterministically tested
@@ -1891,7 +1894,7 @@ extension RealmTests {
         for _ in 0..<1000 {
             let ex = expectation(description: "Background thread ready")
             let task = Task { @CustomGlobalActor in
-                let realm = try await openRealm(actor: CustomGlobalActor.shared)
+                let realm = try Realm()
                 // Tearing down a Realm which is in the middle of async writes
                 // is itself async, so we need to explicitly wait for that to
                 // happen or we'll hit a data race when we try to close all

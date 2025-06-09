@@ -57,11 +57,6 @@ NS_SWIFT_SENDABLE RLM_FINAL // not actually immutable, but the public API kinda 
  */
 @property (nonatomic, readonly) BOOL isEmbedded;
 
-/**
- Whether this object is asymmetric.
- */
-@property (nonatomic, readonly) BOOL isAsymmetric;
-
 #pragma mark - Methods
 
 /**

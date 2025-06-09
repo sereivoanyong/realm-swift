@@ -22,21 +22,6 @@
 
 RLM_HEADER_AUDIT_BEGIN(nullability)
 
-@interface RLMAsyncOpenTask ()
-@property (nonatomic, nullable) RLMRealm *localRealm;
-
-- (instancetype)initWithConfiguration:(RLMRealmConfiguration *)configuration
-                           confinedTo:(RLMScheduler *)confinement
-                           completion:(RLMAsyncOpenRealmCallback)completion
-__attribute__((objc_direct));
-
-- (instancetype)initWithConfiguration:(RLMRealmConfiguration *)configuration
-                           confinedTo:(RLMScheduler *)confinement;
-
-- (void)waitWithCompletion:(void (^)(NSError *_Nullable))completion;
-- (void)waitForOpen:(RLMAsyncOpenRealmCallback)completion __attribute__((objc_direct));
-@end
-
 // A cancellable task for beginning an async write
 NS_SWIFT_SENDABLE
 @interface RLMAsyncWriteTask : NSObject
@@ -47,15 +32,6 @@ NS_SWIFT_SENDABLE
 
 // Can be called from any thread
 - (void)wait:(void (^)(void))completion;
-@end
-
-typedef void (^RLMAsyncRefreshCompletion)(bool);
-// A cancellable task for refreshing a Realm
-NS_SWIFT_SENDABLE
-@interface RLMAsyncRefreshTask : NSObject
-- (void)complete:(bool)didRefresh;
-- (void)wait:(RLMAsyncRefreshCompletion)completion;
-+ (RLMAsyncRefreshTask *)completedRefresh;
 @end
 
 RLM_HEADER_AUDIT_END(nullability)

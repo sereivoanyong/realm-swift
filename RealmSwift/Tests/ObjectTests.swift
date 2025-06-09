@@ -1712,7 +1712,7 @@ class ObjectTests: TestCase {
                 group.addTask { @Sendable @CustomGlobalActor in
                     waitingForRealm.withLock { $0 += 1 }
                     // can throw due to cancellation
-                    guard let realm = try? await openRealm(actor: CustomGlobalActor.shared) else {
+                    guard let realm = try? Realm() else {
                         waitingForRealm.withLock { $0 -= 1 }
                         return NotificationToken()
                     }

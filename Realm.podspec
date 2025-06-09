@@ -21,7 +21,6 @@ Pod::Spec.new do |s|
 
                               # Realm module
                               'include/RLMArray.h',
-                              'include/RLMAsymmetricObject.h',
                               'include/RLMAsyncTask.h',
                               'include/RLMCollection.h',
                               'include/RLMConstants.h',
