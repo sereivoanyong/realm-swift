@@ -436,6 +436,16 @@ id RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) {
     return RLMCreateObjectAccessor(realm->_info[objectClassName], object.get_obj());
 }
 
+#pragma mark - Subscripting
+
+- (id)objectForKeyedSubscript:(NSString *)key {
+    return RLMObjectBaseObjectForKeyedSubscript(self, key);
+}
+
+- (void)setObject:(id)obj forKeyedSubscript:(NSString *)key {
+    RLMObjectBaseSetObjectForKeyedSubscript(self, key, obj);
+}
+
 @end
 
 RLMRealm *RLMObjectBaseRealm(__unsafe_unretained RLMObjectBase *object) {

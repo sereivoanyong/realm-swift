@@ -738,14 +738,6 @@ typedef void (^RLMObjectChangeBlock)(BOOL deleted,
  */
 - (instancetype)thaw;
 
-#pragma mark - Dynamic Accessors
-
-/// :nodoc:
-- (nullable id)objectForKeyedSubscript:(NSString *)key;
-
-/// :nodoc:
-- (void)setObject:(nullable id)obj forKeyedSubscript:(NSString *)key;
-
 @end
 
 /**
