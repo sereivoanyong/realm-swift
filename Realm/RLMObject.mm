@@ -86,16 +86,6 @@
     return (RLMObject *)RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMUpdatePolicyModified);
 }
 
-#pragma mark - Subscripting
-
-- (id)objectForKeyedSubscript:(NSString *)key {
-    return RLMObjectBaseObjectForKeyedSubscript(self, key);
-}
-
-- (void)setObject:(id)obj forKeyedSubscript:(NSString *)key {
-    RLMObjectBaseSetObjectForKeyedSubscript(self, key, obj);
-}
-
 #pragma mark - Getting & Querying
 
 + (RLMResults *)allObjects {

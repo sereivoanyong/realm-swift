@@ -43,6 +43,14 @@ NS_SWIFT_NAME(ObjectBase)
 + (nullable NSString *)_realmObjectName;
 + (nullable NSDictionary<NSString *, NSString *> *)_realmColumnNames;
 
+#pragma mark - Dynamic Accessors
+
+/// :nodoc:
+- (nullable id)objectForKeyedSubscript:(NSString *)key;
+
+/// :nodoc:
+- (void)setObject:(nullable id)obj forKeyedSubscript:(NSString *)key;
+
 @end
 
 RLM_HEADER_AUDIT_END(nullability, sendability)

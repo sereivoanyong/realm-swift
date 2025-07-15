@@ -208,7 +208,7 @@ extension Object: _RealmCollectionValueInsideOptional {
     // MARK: Key-Value Coding & Subscripting
 
     /// Returns or sets the value of the property with the given name.
-    @objc open subscript(key: String) -> Any? {
+    open override subscript(key: String) -> Any? {
         get {
             RLMDynamicGetByName(self, key)
         }
