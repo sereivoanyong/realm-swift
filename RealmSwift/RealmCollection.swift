@@ -1846,7 +1846,7 @@ extension AnyRealmCollection: Encodable where Element: Encodable {}
  }
  ```
 */
-public struct ProjectedCollection<Element>: RandomAccessCollection, CustomStringConvertible, ThreadConfined where Element: RealmCollectionValue {
+public struct ProjectedCollection<Root: ObjectBase & RealmCollectionValue, Element>: RandomAccessCollection, CustomStringConvertible, ThreadConfined {
     public typealias Index = Int
     /**
      Returns the index of the first object in the list matching the predicate, or `nil` if no objects match.
@@ -1921,16 +1921,16 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
      - returns: A token which must be held for as long as you want updates to be delivered.
      */
     public func observe(on queue: DispatchQueue?,
-                        _ block: @escaping (RealmCollectionChange<ProjectedCollection<Element>>) -> Void) -> NotificationToken {
+                        _ block: @escaping (RealmCollectionChange<ProjectedCollection<Root, Element>>) -> Void) -> NotificationToken {
         backingCollection.observe(on: queue, {
             switch $0 {
             case .initial(let collection):
-                block(.initial(Self(collection.collection, keyPath: keyPath, propertyName: propertyName)))
+                block(.initial(Self(collection.collection, keyPath: keyPath)))
             case .update(let collection,
                          deletions: let deletions,
                          insertions: let insertions,
                          modifications: let modifications):
-                block(.update(Self(collection.collection, keyPath: keyPath, propertyName: propertyName),
+                block(.update(Self(collection.collection, keyPath: keyPath),
                               deletions: deletions,
                               insertions: insertions,
                               modifications: modifications))
@@ -2049,17 +2049,17 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
      - returns: A token which must be held for as long as you want updates to be delivered.
      */
     public func observe(keyPaths: [String]? = nil, on queue: DispatchQueue? = nil,
-                        _ block: @escaping (RealmCollectionChange<ProjectedCollection<Element>>) -> Void)
+                        _ block: @escaping (RealmCollectionChange<ProjectedCollection<Root, Element>>) -> Void)
         -> NotificationToken {
             backingCollection.observe(keyPaths: keyPaths, on: queue) {
                 switch $0 {
                 case .initial(let collection):
-                    block(.initial(Self(collection.collection, keyPath: keyPath, propertyName: propertyName)))
+                    block(.initial(Self(collection.collection, keyPath: keyPath)))
                 case .update(let collection,
                              deletions: let deletions,
                              insertions: let insertions,
                              modifications: let modifications):
-                    block(.update(Self(collection.collection, keyPath: keyPath, propertyName: propertyName),
+                    block(.update(Self(collection.collection, keyPath: keyPath),
                                   deletions: deletions,
                                   insertions: insertions,
                                   modifications: modifications))
@@ -2076,10 +2076,10 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
      */
     public subscript(position: Int) -> Element {
         get {
-            backingCollection[position][keyPath: keyPath] as! Element
+            backingCollection[position][keyPath: keyPath]
         }
         set {
-            backingCollection[position].setValue(newValue, forKeyPath: propertyName)
+            backingCollection[position][keyPath: keyPath as! ReferenceWritableKeyPath<Root, Element>] = newValue
         }
     }
 
@@ -2115,30 +2115,28 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
 
      - parameter object: The object whose index is being queried.
      */
-    public func index(of object: Element) -> Int? {
-        return backingCollection.map { $0[keyPath: self.keyPath] as! Element }.firstIndex(of: object)
+    public func index(of object: Element) -> Int? where Element: Equatable {
+        return backingCollection.map { $0[keyPath: self.keyPath] }.firstIndex(of: object)
     }
     public var isFrozen: Bool {
         backingCollection.isFrozen
     }
     public func freeze() -> Self {
-        Self(backingCollection.freeze().collection, keyPath: keyPath, propertyName: propertyName)
+        Self(backingCollection.freeze().collection, keyPath: keyPath)
     }
     public func thaw() -> Self? {
         guard let backingCollection = backingCollection.thaw() else {
             return nil
         }
-        return Self(backingCollection.collection, keyPath: keyPath, propertyName: propertyName)
+        return Self(backingCollection.collection, keyPath: keyPath)
     }
 
-    private let backingCollection: AnyRealmCollection<Object>
-    private let keyPath: AnyKeyPath
-    private let propertyName: String
+    private let backingCollection: AnyRealmCollection<Root>
+    private let keyPath: KeyPath<Root, Element>
 
-    init(_ collection: RLMCollection, keyPath: AnyKeyPath, propertyName: String) {
+    init(_ collection: RLMCollection, keyPath: KeyPath<Root, Element>) {
         self.backingCollection = AnyRealmCollection(collection)
         self.keyPath = keyPath
-        self.propertyName = propertyName
     }
 }
 
@@ -2157,15 +2155,15 @@ public struct ProjectedCollection<Element>: RandomAccessCollection, CustomString
  In this code the `Person`'s dogs list will be prijected to the list of dogs names via `projectTo`
  */
 @dynamicMemberLookup
-public struct CollectionElementMapper<Element> where Element: ObjectBase & RealmCollectionValue {
+public struct CollectionElementMapper<Root: ObjectBase & RealmCollectionValue> {
     let collection: RLMCollection
     /// :nodoc:
-    public subscript<V>(dynamicMember member: KeyPath<Element, V>) -> ProjectedCollection<V> {
-        ProjectedCollection(collection, keyPath: member, propertyName: _name(for: member))
+    public subscript<Element>(dynamicMember member: KeyPath<Root, Element>) -> ProjectedCollection<Root, Element> {
+        ProjectedCollection(collection, keyPath: member)
     }
 }
 
-extension List where Element: ObjectBase & RealmCollectionValue {
+extension RealmCollection where Element: ObjectBase & RealmCollectionValue {
     /**
      `projectTo` will map the original `List` of `Objects` or `List` of `EmbeddedObjects` in to `ProjectedCollection`.
 
@@ -2183,25 +2181,8 @@ extension List where Element: ObjectBase & RealmCollectionValue {
     public var projectTo: CollectionElementMapper<Element> {
         CollectionElementMapper(collection: collection)
     }
-}
 
-extension MutableSet where Element: ObjectBase & RealmCollectionValue {
-    /**
-     `MutableSetElementMapper` transforms the actual `MutableSet` of `Objects` or `MutableSet` of `EmbeddedObjects` in to `ProjectedCollection`.
-
-     For example:
-     ```swift
-     class Person: Object {
-         @Persisted var dogs: MutableSet<Dog>
-     }
-     class PersonProjection: Projection<Person> {
-         @Projected(\Person.dogs.projectTo.name) var dogNames: ProjectedCollection<String>
-     }
-    ```
-     In this code the `Person`'s dogs set will be prijected to the projected set of dogs names via `projectTo`
-     Note: This is not the actual *set* data type therefore projected elements can contain duplicates.
-     */
-    public var projectTo: CollectionElementMapper<Element> {
-        CollectionElementMapper(collection: collection)
+    public func projected<T>(_ keyPath: KeyPath<Element, T>) -> ProjectedCollection<Element, T> {
+        ProjectedCollection<Element, T>(collection, keyPath: keyPath)
     }
 }
