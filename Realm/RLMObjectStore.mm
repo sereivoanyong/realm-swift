@@ -92,7 +92,7 @@ void RLMVerifyHasPrimaryKey(Class cls) {
 
 using realm::CreatePolicy;
 static CreatePolicy updatePolicyToCreatePolicy(RLMUpdatePolicy policy) {
-    CreatePolicy createPolicy = {.create = true, .copy = false, .diff = false, .update = false};
+    CreatePolicy createPolicy = {.create = true, .copy = false, .update = false, .diff = false};
     switch (policy) {
         case RLMUpdatePolicyError:
             break;

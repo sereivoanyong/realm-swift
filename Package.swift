@@ -1,4 +1,4 @@
-// swift-tools-version:5.10
+// swift-tools-version: 6.4
 
 import PackageDescription
 import Foundation
@@ -7,9 +7,9 @@ let coreVersion = Version("20.1.5")
 let cocoaVersion = Version("20.0.5")
 
 #if compiler(>=6)
-let swiftVersion = [SwiftVersion.version("6")]
+let swiftLanguageModes = [SwiftLanguageMode.v6]
 #else
-let swiftVersion = [SwiftVersion.v5]
+let swiftLanguageModes = [SwiftLanguageMode.v5]
 #endif
 
 let cxxSettings: [CXXSetting] = [
@@ -43,10 +43,10 @@ let testCxxSettings: [CXXSetting] = cxxSettings + [
 let package = Package(
     name: "Realm",
     platforms: [
-        .macOS(.v10_13),
-        .iOS(.v12),
-        .tvOS(.v12),
-        .watchOS(.v4)
+        .macOS(.v12),
+        .iOS(.v15),
+        .tvOS(.v15),
+        .watchOS(.v9)
     ],
     products: [
         .library(
@@ -207,6 +207,6 @@ let package = Package(
             ]
         ),
     ],
-    swiftLanguageVersions: swiftVersion,
+    swiftLanguageModes: swiftLanguageModes,
     cxxLanguageStandard: .cxx20
 )
