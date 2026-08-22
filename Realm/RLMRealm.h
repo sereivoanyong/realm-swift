@@ -18,7 +18,7 @@
 
 #import <Realm/RLMConstants.h>
 
-@class RLMRealmConfiguration, RLMRealm, RLMObject, RLMSchema, RLMMigration, RLMNotificationToken, RLMThreadSafeReference;
+@class RLMRealmConfiguration, RLMRealm, RLMObjectBase, RLMSchema, RLMMigration, RLMNotificationToken, RLMThreadSafeReference;
 
 /// The Id of the asynchronous transaction.
 typedef unsigned RLMAsyncTransactionId NS_SWIFT_NAME(AsyncTransactionId);
@@ -745,7 +745,7 @@ NS_REFINED_FOR_SWIFT;
 
  @param object  The object to be added to this Realm.
  */
-- (void)addObject:(RLMObject *)object;
+- (void)addObject:(RLMObjectBase *)object;
 
 /**
  Adds all the objects in a collection to the Realm.
@@ -780,7 +780,7 @@ NS_REFINED_FOR_SWIFT;
 
  @param object  The object to be added or updated.
  */
-- (void)addOrUpdateObject:(RLMObject *)object;
+- (void)addOrUpdateObject:(RLMObjectBase *)object;
 
 /**
  Adds or updates all the objects in a collection into the Realm.
@@ -803,7 +803,7 @@ NS_REFINED_FOR_SWIFT;
 
  @param object  The object to be deleted.
  */
-- (void)deleteObject:(RLMObject *)object;
+- (void)deleteObject:(RLMObjectBase *)object;
 
 /**
  Deletes one or more objects from the Realm.

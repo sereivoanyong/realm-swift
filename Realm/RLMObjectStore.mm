@@ -143,7 +143,7 @@ RLMObjectBase *RLMObjectFromObjLink(RLMRealm *realm, realm::ObjLink&& objLink, b
     } else {
         // Construct the object dynamically.
         // This code path should only be hit on first access of the object.
-        Class cls = parentIsSwiftObject ? [RealmSwiftDynamicObject class] : [RLMDynamicObject class];
+        Class cls = [RealmSwiftDynamicObject class];
         auto& group = realm->_realm->read_group();
         auto schema = std::make_unique<realm::ObjectSchema>(group,
                                                             group.get_table_name(objLink.get_table_key()),

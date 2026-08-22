@@ -105,7 +105,7 @@ extension Migration {
      */
     @discardableResult
     public func create(_ typeName: String, value: Any = [Any]()) -> MigrationObject {
-        return unsafeBitCast(__createObject(typeName, withValue: value), to: MigrationObject.self)
+        return unsafeDowncast(__createObject(typeName, withValue: value), to: MigrationObject.self)
     }
 
     /**
@@ -116,7 +116,7 @@ extension Migration {
      - parameter object: An object to be deleted from the Realm being migrated.
      */
     public func delete(_ object: MigrationObject) {
-        __delete(object.unsafeCastToRLMObject())
+        __deleteObject(object)
     }
 
     /**

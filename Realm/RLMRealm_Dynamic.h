@@ -42,7 +42,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @see       `+[RLMObject allObjects]`
  */
-- (RLMResults<RLMObject *> *)allObjects:(NSString *)className;
+- (RLMResults<RLMObjectBase *> *)allObjects:(NSString *)className;
 
 /**
  Returns all objects matching the given predicate from the Realm.
@@ -58,7 +58,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @see       `+[RLMObject objectsWhere:]`
  */
-- (RLMResults<RLMObject *> *)objects:(NSString *)className where:(NSString *)predicateFormat, ...;
+- (RLMResults<RLMObjectBase *> *)objects:(NSString *)className where:(NSString *)predicateFormat, ...;
 
 /**
  Returns all objects matching the given predicate from the Realm.
@@ -74,7 +74,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @see       `+[RLMObject objectsWhere:]`
  */
-- (RLMResults<RLMObject *> *)objects:(NSString *)className withPredicate:(NSPredicate *)predicate;
+- (RLMResults<RLMObjectBase *> *)objects:(NSString *)className withPredicate:(NSPredicate *)predicate;
 
 /**
  Returns the object of the given type with the given primary key from the Realm.
@@ -90,7 +90,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @see       `+[RLMObject objectForPrimaryKey:]`
  */
-- (nullable RLMObject *)objectWithClassName:(NSString *)className forPrimaryKey:(id)primaryKey;
+- (nullable RLMObjectBase *)objectWithClassName:(NSString *)className forPrimaryKey:(id)primaryKey;
 
 /**
  Creates an `RLMObject` instance of type `className` in the Realm, and populates it using a given object.
@@ -111,7 +111,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability)
 
  @return    An `RLMObject` instance of type `className`.
  */
--(RLMObject *)createObject:(NSString *)className withValue:(id)value;
+- (RLMObjectBase *)createObject:(NSString *)className withValue:(id)value;
 
 @end
 

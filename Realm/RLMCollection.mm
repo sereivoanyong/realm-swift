@@ -263,7 +263,7 @@ NSArray *RLMCollectionValueForKey(Collection& collection, NSString *key, RLMClas
         return array;
     }
 
-    RLMObject *accessor = RLMCreateManagedAccessor(info.rlmObjectSchema.accessorClass, &info);
+    RLMObjectBase *accessor = RLMCreateManagedAccessor(info.rlmObjectSchema.accessorClass, &info);
     auto prop = info.rlmObjectSchema[key];
 
     // Collection properties need to be handled specially since we need to create
@@ -333,7 +333,7 @@ void RLMCollectionSetValueForKey(id<RLMCollectionPrivate> collection, NSString *
     }
 
     RLMClassInfo *info = collection.objectInfo;
-    RLMObject *accessor = RLMCreateManagedAccessor(info->rlmObjectSchema.accessorClass, info);
+    RLMObjectBase *accessor = RLMCreateManagedAccessor(info->rlmObjectSchema.accessorClass, info);
     for (size_t i = 0; i < tv.size(); i++) {
         accessor->_row = tv[i];
         RLMInitializeSwiftAccessor(accessor, false);

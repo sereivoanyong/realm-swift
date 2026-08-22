@@ -35,7 +35,7 @@ class RLMObservationInfo;
 }
 @end
 
-id RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) NS_RETURNS_RETAINED;
+RLMObjectBase *RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) NS_RETURNS_RETAINED;
 
 // throw an exception if the object is invalidated or on the wrong thread
 static inline void RLMVerifyAttached(__unsafe_unretained RLMObjectBase *const obj) {

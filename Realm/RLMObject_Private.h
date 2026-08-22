@@ -49,10 +49,6 @@ typedef void (^RLMObjectNotificationCallback)(RLMObjectBase *_Nullable object,
 + (NSDictionary<NSString *, NSString *> *)propertiesMapping;
 @end
 
-@interface RLMDynamicObject : RLMObject
-
-@end
-
 // Calls valueForKey: and re-raises NSUndefinedKeyExceptions
 FOUNDATION_EXTERN id _Nullable RLMValidatedValueForProperty(id object, NSString *key, NSString *className);
 

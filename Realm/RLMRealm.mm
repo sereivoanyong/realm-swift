@@ -823,12 +823,12 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     }
 }
 
-- (void)addObject:(__unsafe_unretained RLMObject *const)object {
+- (void)addObject:(__unsafe_unretained RLMObjectBase *const)object {
     RLMAddObjectToRealm(object, self, RLMUpdatePolicyError);
 }
 
 - (void)addObjects:(id<NSFastEnumeration>)objects {
-    for (RLMObject *obj in objects) {
+    for (RLMObjectBase *obj in objects) {
         if (![obj isKindOfClass:RLMObjectBase.class]) {
             @throw RLMException(@"Cannot insert objects of type %@ with addObjects:. Only RLMObjects are supported.",
                                 NSStringFromClass(obj.class));
@@ -837,7 +837,7 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     }
 }
 
-- (void)addOrUpdateObject:(RLMObject *)object {
+- (void)addOrUpdateObject:(RLMObjectBase *)object {
     // verify primary key
     if (!object.objectSchema.primaryKeyProperty) {
         @throw RLMException(@"'%@' does not have a primary key and can not be updated", object.objectSchema.className);
@@ -847,7 +847,7 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
 }
 
 - (void)addOrUpdateObjects:(id<NSFastEnumeration>)objects {
-    for (RLMObject *obj in objects) {
+    for (RLMObjectBase *obj in objects) {
         if (![obj isKindOfClass:RLMObjectBase.class]) {
             @throw RLMException(@"Cannot add or update objects of type %@ with addOrUpdateObjects:. Only RLMObjects are"
                                 " supported.",
@@ -857,7 +857,7 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     }
 }
 
-- (void)deleteObject:(RLMObject *)object {
+- (void)deleteObject:(RLMObjectBase *)object {
     RLMDeleteObjectFromRealm(object, self);
 }
 
@@ -889,12 +889,12 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
             @throw RLMException(@"Cannot delete objects from RLMDictionary of type %@: only RLMObjects can be deleted.",
                                 RLMTypeToString(dictionary.type));
         }
-        for (RLMObject *obj in dictionary.allValues) {
+        for (RLMObjectBase *obj in dictionary.allValues) {
             RLMDeleteObjectFromRealm(obj, self);
         }
         return;
     }
-    for (RLMObject *obj in objects) {
+    for (RLMObjectBase *obj in objects) {
         if (![obj isKindOfClass:RLMObjectBase.class]) {
             @throw RLMException(@"Cannot delete objects of type %@ with deleteObjects:. Only RLMObjects can be deleted.",
                                 NSStringFromClass(obj.class));
@@ -927,7 +927,7 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     return RLMGetObjects(self, objectClassName, predicate);
 }
 
-- (RLMObject *)objectWithClassName:(NSString *)className forPrimaryKey:(id)primaryKey {
+- (RLMObjectBase *)objectWithClassName:(NSString *)className forPrimaryKey:(id)primaryKey {
     return RLMGetObject(self, className, primaryKey);
 }
 
@@ -971,8 +971,8 @@ bool copySeedFile(RLMRealmConfiguration *configuration, NSError **error) {
     return success;
 }
 
-- (RLMObject *)createObject:(NSString *)className withValue:(id)value {
-    return (RLMObject *)RLMCreateObjectInRealmWithValue(self, className, value, RLMUpdatePolicyError);
+- (RLMObjectBase *)createObject:(NSString *)className withValue:(id)value {
+    return RLMCreateObjectInRealmWithValue(self, className, value, RLMUpdatePolicyError);
 }
 
 - (BOOL)writeCopyToURL:(NSURL *)fileURL encryptionKey:(NSData *)key error:(NSError **)error {

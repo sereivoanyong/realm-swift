@@ -70,7 +70,7 @@ using namespace realm;
     // objects. It's unclear how this could be useful, but changing it would
     // also be a pointless breaking change and it's unlikely to be hurting anyone.
     if (objects && !oldObjects) {
-        for (RLMObject *object in objects) {
+        for (RLMObjectBase *object in objects) {
             @autoreleasepool {
                 block(nil, object);
             }
@@ -81,7 +81,7 @@ using namespace realm;
     // If a table will be deleted it can still be enumerated during the migration
     // so that data can be saved or transfered to other tables if necessary.
     if (!objects && oldObjects) {
-        for (RLMObject *oldObject in oldObjects) {
+        for (RLMObjectBase *oldObject in oldObjects) {
             @autoreleasepool {
                 block(oldObject, nil);
             }
@@ -94,7 +94,7 @@ using namespace realm;
     }
 
     auto& info = _realm->_info[className];
-    for (RLMObject *oldObject in oldObjects) {
+    for (RLMObjectBase *oldObject in oldObjects) {
         @autoreleasepool {
             Obj newObj;
             try {
@@ -110,7 +110,7 @@ using namespace realm;
 
 - (void)execute:(RLMMigrationBlock)block objectClass:(::Class)dynamicObjectClass {
     if (!dynamicObjectClass) {
-        dynamicObjectClass = RLMDynamicObject.class;
+//        dynamicObjectClass = RLMDynamicObject.class;
     }
     @autoreleasepool {
         // disable all primary keys for migration and use DynamicObject for all types
@@ -129,15 +129,15 @@ using namespace realm;
     }
 }
 
-- (RLMObject *)createObject:(NSString *)className withValue:(id)value {
+- (RLMObjectBase *)createObject:(NSString *)className withValue:(id)value {
     return [_realm createObject:className withValue:value];
 }
 
-- (RLMObject *)createObject:(NSString *)className withObject:(id)object {
+- (RLMObjectBase *)createObject:(NSString *)className withObject:(id)object {
     return [self createObject:className withValue:object];
 }
 
-- (void)deleteObject:(RLMObject *)object {
+- (void)deleteObject:(RLMObjectBase *)object {
     [_realm deleteObject:object];
 }
 

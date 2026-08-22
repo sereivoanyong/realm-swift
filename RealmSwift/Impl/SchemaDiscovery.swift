@@ -118,96 +118,6 @@ private func baseName(forLazySwiftProperty name: String) -> String? {
     return nil
 }
 
-private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -> [Property] {
-    let indexedProperties: Set<String>
-    let ignoredPropNames: Set<String>
-    let columnNames: [String: String] = type(of: object).propertiesMapping()
-    if let realmObject = object as? Object {
-        indexedProperties = Set(type(of: realmObject).indexedProperties())
-        ignoredPropNames = Set(type(of: realmObject).ignoredProperties())
-    } else if let realmEmbeddedObject = object as? EmbeddedObject {
-        indexedProperties = Set()
-        ignoredPropNames = Set(type(of: realmEmbeddedObject).ignoredProperties())
-    } else {
-        indexedProperties = Set()
-        ignoredPropNames = Set()
-    }
-    return Mirror(reflecting: object).children.filter { (prop: Mirror.Child) -> Bool in
-        guard let label = prop.label else { return false }
-        if ignoredPropNames.contains(label) {
-            return false
-        }
-        if let lazyBaseName = baseName(forLazySwiftProperty: label) {
-            if ignoredPropNames.contains(lazyBaseName) {
-                return false
-            }
-            throwRealmException("Lazy managed property '\(lazyBaseName)' is not allowed on a Realm Swift object"
-                + " class. Either add the property to the ignored properties list or make it non-lazy.")
-        }
-        return true
-    }.compactMap { prop in
-        guard let label = prop.label else { return nil }
-        var rawValue = prop.value
-        if let value = rawValue as? RealmEnum {
-            rawValue = value._rlmObjcValue
-        }
-
-        guard let value = rawValue as? _RealmSchemaDiscoverable else {
-            if class_getProperty(cls, label) != nil {
-                throwRealmException("Property \(cls).\(label) is declared as \(type(of: prop.value)), which is not a supported managed Object property type. If it is not supposed to be a managed property, either add it to `ignoredProperties()` or do not declare it as `@objc dynamic`. See https://www.mongodb.com/docs/realm-sdks/swift/latest/Classes/Object.html for more information.")
-            }
-            return nil
-        }
-
-        RLMValidateSwiftPropertyName(label)
-        let valueType = type(of: value)
-
-        let property = Property(name: label, value: value)
-        property.isIndexed = indexedProperties.contains(property.name)
-        property.columnName = columnNames[property.name]
-
-        if let objcProp = class_getProperty(cls, label) {
-            var count: UInt32 = 0
-            let attrs = property_copyAttributeList(objcProp, &count)!
-            defer {
-                free(attrs)
-            }
-            var computed = true
-            for i in 0..<Int(count) {
-                let attr = attrs[i]
-                switch attr.name[0] {
-                case Int8(UInt8(ascii: "R")): // Read only
-                    return nil
-                case Int8(UInt8(ascii: "V")): // Ivar name
-                    computed = false
-                case Int8(UInt8(ascii: "G")): // Getter name
-                    property.getterName = String(cString: attr.value)
-                case Int8(UInt8(ascii: "S")): // Setter name
-                    property.setterName = String(cString: attr.value)
-                default:
-                    break
-                }
-            }
-
-            // If there's no ivar name and no ivar with the same name as
-            // the property then this is a computed property and we should
-            // implicitly ignore it
-            if computed && class_getInstanceVariable(cls, label) == nil {
-                return nil
-            }
-        } else if valueType._rlmRequireObjc {
-            // Implicitly ignore non-@objc dynamic properties
-            return nil
-        } else {
-            property.swiftIvar = ivar_getOffset(class_getInstanceVariable(cls, label)!)
-        }
-
-        property.isLegacy = true
-        property.updateAccessors()
-        return property
-    }
-}
-
 private func getProperties(_ cls: ObjectBase.Type) -> [Property] {
     if let props = cls._customRealmProperties() {
         return props
@@ -216,10 +126,7 @@ private func getProperties(_ cls: ObjectBase.Type) -> [Property] {
     // none are found.
     let object = cls.init()
     let props = getModernProperties(object)
-    if props.count > 0 {
-        return props
-    }
-    return getLegacyProperties(object, cls)
+    return props
 }
 
 internal class ObjectUtil {
