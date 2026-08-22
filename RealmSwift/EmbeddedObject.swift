@@ -98,17 +98,6 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
     // MARK: Object Customization
 
     /**
-     Override this method to specify the names of properties to ignore. These properties will not be managed by
-     the Realm that manages the object.
-
-     - warning: This function is only applicable to legacy property declarations
-                using `@objc`. When using `@Persisted`, any properties not
-                marked with `@Persisted` are automatically ignored.
-     - returns: An array of property names to ignore.
-     */
-    @objc open class func ignoredProperties() -> [String] { return [] }
-
-    /**
      Override this method to specify a map of public-private property names.
      This will set a different persisted property name on the Realm, and allows using the public name
      for any operation with the property. (Ex: Queries, Sorting, ...).
@@ -134,10 +123,6 @@ extension EmbeddedObject: _RealmCollectionValueInsideOptional {
      - returns: A dictionary of public-private property names.
      */
     @objc open override class func propertiesMapping() -> [String: String] { return [:] }
-
-    /// :nodoc:
-    @available(*, unavailable, renamed: "propertiesMapping", message: "`_realmColumnNames` private API is unavailable in our Swift SDK, please use the override `.propertiesMapping()` instead.")
-    @objc open override class func _realmColumnNames() -> [String: String] { return [:] }
 
     // MARK: Key-Value Coding & Subscripting
 

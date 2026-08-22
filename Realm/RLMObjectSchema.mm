@@ -18,7 +18,6 @@
 
 #import "RLMObjectSchema_Private.hpp"
 
-#import "RLMEmbeddedObject.h"
 #import "RLMObject_Private.h"
 #import "RLMProperty_Private.hpp"
 #import "RLMRealm_Dynamic.h"
@@ -146,8 +145,7 @@ using namespace realm;
     Class superClass = class_getSuperclass(cls);
     NSArray *allProperties = @[];
     while (superClass && superClass != RLMObjectBase.class) {
-        allProperties = [[RLMObjectSchema propertiesForClass:cls isSwift:isSwift]
-                         arrayByAddingObjectsFromArray:allProperties];
+        allProperties = [[objectClass _getProperties] ?: @[] arrayByAddingObjectsFromArray:allProperties];
         cls = superClass;
         superClass = class_getSuperclass(superClass);
     }
@@ -175,27 +173,6 @@ using namespace realm;
         }
     }
 
-    if (NSString *primaryKey = [objectClass primaryKey]) {
-        for (RLMProperty *prop in schema.properties) {
-            if ([primaryKey isEqualToString:prop.name]) {
-                prop.indexed = YES;
-                schema.primaryKeyProperty = prop;
-                break;
-            }
-        }
-
-        if (!schema.primaryKeyProperty) {
-            @throw RLMException(@"Primary key property '%@' does not exist on object '%@'", primaryKey, className);
-        }
-        if (schema.primaryKeyProperty.type != RLMPropertyTypeInt &&
-            schema.primaryKeyProperty.type != RLMPropertyTypeString &&
-            schema.primaryKeyProperty.type != RLMPropertyTypeObjectId &&
-            schema.primaryKeyProperty.type != RLMPropertyTypeUUID) {
-            @throw RLMException(@"Property '%@' cannot be made the primary key of '%@' because it is not a 'string', 'int', 'objectId', or 'uuid' property.",
-                                primaryKey, className);
-        }
-    }
-
     for (RLMProperty *prop in schema.properties) {
         if (prop.optional && prop.collection && !prop.dictionary && (prop.type == RLMPropertyTypeObject || prop.type == RLMPropertyTypeLinkingObjects)) {
             // FIXME: message is awkward
@@ -211,75 +188,6 @@ using namespace realm;
         @throw RLMException(@"No properties are defined for '%@'. Did you remember to mark them with '@objc' or '@Persisted' in your model?", schema.className);
     }
     return schema;
-}
-
-+ (NSArray *)propertiesForClass:(Class)objectClass isSwift:(bool)isSwiftClass {
-    if (NSArray<RLMProperty *> *props = [objectClass _getProperties]) {
-        return props;
-    }
-
-    // For Swift subclasses of RLMObject we need an instance of the object when parsing properties
-    id swiftObjectInstance = isSwiftClass ? [[objectClass alloc] init] : nil;
-
-    NSArray *ignoredProperties = [objectClass ignoredProperties];
-    NSDictionary *linkingObjectsProperties = [objectClass linkingObjectsProperties];
-    NSDictionary *columnNameMap = [objectClass _realmColumnNames];
-
-    unsigned int count;
-    std::unique_ptr<objc_property_t[], decltype(&free)> props(class_copyPropertyList(objectClass, &count), &free);
-    NSMutableArray<RLMProperty *> *propArray = [NSMutableArray arrayWithCapacity:count];
-    NSSet<NSString *> *indexed = [[NSSet alloc] initWithArray:[objectClass indexedProperties]];
-    for (unsigned int i = 0; i < count; i++) {
-        NSString *propertyName = @(property_getName(props[i]));
-        if ([ignoredProperties containsObject:propertyName]) {
-            continue;
-        }
-
-        RLMProperty *prop = nil;
-        if (isSwiftClass) {
-            prop = [[RLMProperty alloc] initSwiftPropertyWithName:propertyName
-                                                        isIndexed:[indexed containsObject:propertyName]
-                                           linkPropertyDescriptor:linkingObjectsProperties[propertyName]
-                                                         property:props[i]
-                                                         instance:swiftObjectInstance];
-        }
-        else {
-            prop = [[RLMProperty alloc] initWithName:propertyName
-                                           isIndexed:[indexed containsObject:propertyName]
-                              linkPropertyDescriptor:linkingObjectsProperties[propertyName]
-                                            property:props[i]];
-        }
-
-        if (prop) {
-            if (columnNameMap) {
-                prop.columnName = columnNameMap[prop.name];
-            }
-            [propArray addObject:prop];
-        }
-    }
-
-    if (auto requiredProperties = [objectClass requiredProperties]) {
-        for (RLMProperty *property in propArray) {
-            bool required = [requiredProperties containsObject:property.name];
-            if (required && property.type == RLMPropertyTypeObject && (!property.collection || property.dictionary)) {
-                @throw RLMException(@"Object properties cannot be made required, "
-                                    "but '+[%@ requiredProperties]' included '%@'", objectClass, property.name);
-            }
-            property.optional &= !required;
-        }
-    }
-
-    for (RLMProperty *property in propArray) {
-        if (!property.optional && property.type == RLMPropertyTypeObject && !property.collection) {
-            @throw RLMException(@"The `%@.%@` property must be marked as being optional.",
-                                [objectClass className], property.name);
-        }
-        if (property.type == RLMPropertyTypeAny) {
-            property.optional = NO;
-        }
-    }
-
-    return propArray;
 }
 
 - (id)copyWithZone:(NSZone *)zone {
@@ -388,11 +296,6 @@ using namespace realm;
             @throw RLMException(@"No property matching primary key '%@'", primaryKeyString);
         }
     }
-
-    // for dynamic schema use vanilla RLMDynamicObject accessor classes
-    schema.objectClass = RLMObject.class;
-    schema.accessorClass = RLMDynamicObject.class;
-    schema.unmanagedClass = RLMObject.class;
 
     return schema;
 }

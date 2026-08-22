@@ -68,14 +68,6 @@ internal func gsub(pattern: String, template: String, string: String, error: NSE
                                            withTemplate: template)
 }
 
-extension ObjectBase {
-    // Must *only* be used to call Realm Objective-C APIs that are exposed on `RLMObject`
-    // but actually operate on `ObjectBase`. Do not expose cast value to user.
-    internal func unsafeCastToRLMObject() -> RLMObject {
-        return noWarnUnsafeBitCast(self, to: RLMObject.self)
-    }
-}
-
 internal func coerceToNil(_ value: Any) -> Any? {
     if value is NSNull {
         return nil

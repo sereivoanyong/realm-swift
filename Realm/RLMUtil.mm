@@ -303,19 +303,9 @@ BOOL RLMIsObjectValidForProperty(__unsafe_unretained id const obj,
     return RLMValidateValue(obj, property.type, property.optional, property.collection, property.objectClassName) != nil;
 }
 
-NSDictionary *RLMDefaultValuesForObjectSchema(__unsafe_unretained RLMObjectSchema *const objectSchema) {
-    if (!objectSchema.isSwiftClass) {
-        return [objectSchema.objectClass defaultPropertyValues];
-    }
-
-    NSMutableDictionary *defaults = nil;
-    if ([objectSchema.objectClass isSubclassOfClass:RLMObject.class]) {
-        defaults = [NSMutableDictionary dictionaryWithDictionary:[objectSchema.objectClass defaultPropertyValues]];
-    }
-    else {
-        defaults = [NSMutableDictionary dictionary];
-    }
-    RLMObject *defaultObject = [[objectSchema.objectClass alloc] init];
+NSDictionary<NSString *, id> *RLMDefaultValuesForObjectSchema(__unsafe_unretained RLMObjectSchema *const objectSchema) {
+    NSMutableDictionary< NSString*, id> *defaults = [NSMutableDictionary dictionary];
+    RLMObjectBase *defaultObject = [[objectSchema.objectClass alloc] init];
     for (RLMProperty *prop in objectSchema.properties) {
         if (!defaults[prop.name] && defaultObject[prop.name]) {
             defaults[prop.name] = defaultObject[prop.name];

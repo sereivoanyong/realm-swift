@@ -22,7 +22,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @class RLMSchema;
 @class RLMArray;
-@class RLMObject;
+@class RLMObjectBase;
 
 /**
  A block type which provides both the old and new versions of an object in the Realm. Object
@@ -33,7 +33,7 @@ RLM_HEADER_AUDIT_BEGIN(nullability, sendability)
  @param oldObject The object from the original Realm (read-only).
  @param newObject The object from the migrated Realm (read-write).
 */
-typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject, RLMObject * __nullable newObject);
+typedef void (^RLMObjectMigrationBlock)(RLMObjectBase * __nullable oldObject, RLMObjectBase * __nullable newObject);
 
 /**
  `RLMMigration` instances encapsulate information intended to facilitate a schema migration.
@@ -89,7 +89,7 @@ NS_SWIFT_NAME(Migration)
  @param className   The name of the `RLMObject` class to create.
  @param value       The value used to populate the object.
  */
-- (RLMObject *)createObject:(NSString *)className withValue:(id)value NS_REFINED_FOR_SWIFT;
+- (RLMObjectBase *)createObject:(NSString *)className withValue:(id)value NS_REFINED_FOR_SWIFT;
 
 /**
  Deletes an object from a Realm during a migration.
@@ -98,7 +98,7 @@ NS_SWIFT_NAME(Migration)
 
  @param object  Object to be deleted from the Realm being migrated.
  */
-- (void)deleteObject:(RLMObject *)object NS_REFINED_FOR_SWIFT;
+- (void)deleteObject:(RLMObjectBase *)object NS_REFINED_FOR_SWIFT;
 
 /**
  Deletes the data for the class with the given name.

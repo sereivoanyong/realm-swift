@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#import <Realm/RLMObject.h>
+#import <Realm/RLMObjectBase.h>
 
 @class RLMObjectSchema, RLMRealm;
 

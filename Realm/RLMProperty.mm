@@ -20,7 +20,7 @@
 
 #import "RLMArray_Private.hpp"
 #import "RLMDictionary_Private.hpp"
-#import "RLMObject.h"
+#import "RLMObjectBase.h"
 #import "RLMObjectSchema_Private.hpp"
 #import "RLMObject_Private.h"
 #import "RLMSchema_Private.h"
@@ -444,7 +444,7 @@ static std::optional<RLMPropertyType> typeFromProtocolString(const char *type) {
                                 isIndexed:(BOOL)indexed
                    linkPropertyDescriptor:(RLMPropertyDescriptor *)linkPropertyDescriptor
                                  property:(objc_property_t)property
-                                 instance:(RLMObject *)obj {
+                                 instance:(RLMObjectBase *)obj {
     self = [super init];
     if (!self) {
         return nil;

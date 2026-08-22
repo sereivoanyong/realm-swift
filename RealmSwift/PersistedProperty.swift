@@ -297,7 +297,7 @@ extension Persisted: OptionalCodingWrapper where Value: ExpressibleByNilLiteral 
  are valid), optional enum properties will return `nil`, and non-optional
  properties will abort the process.
  */
-public protocol PersistableEnum: _PersistableInsideOptional, RawRepresentable, RealmEnum, _RealmCollectionValueInsideOptional, MinMaxType, Comparable {
+public protocol PersistableEnum: _PersistableInsideOptional, RawRepresentable, _RealmCollectionValueInsideOptional, MinMaxType {
 }
 
 extension PersistableEnum where Self: CaseIterable {

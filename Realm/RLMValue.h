@@ -20,7 +20,6 @@
 #import <Realm/RLMConstants.h>
 #import <Realm/RLMDecimal128.h>
 #import <Realm/RLMDictionary.h>
-#import <Realm/RLMObject.h>
 #import <Realm/RLMObjectBase.h>
 #import <Realm/RLMObjectId.h>
 #import <Realm/RLMProperty.h>

@@ -117,45 +117,6 @@ extension Object: _RealmCollectionValueInsideOptional {
     // MARK: Object Customization
 
     /**
-     Override this method to specify the name of a property to be used as the primary key.
-
-     Only properties of types `String`, `Int`, `ObjectId` and `UUID` can be
-     designated as the primary key. Primary key properties enforce uniqueness
-     for each value whenever the property is set, which incurs minor overhead.
-     Indexes are created automatically for primary key properties.
-
-     - warning: This function is only applicable to legacy property declarations
-                using `@objc`. When using `@Persisted`, use
-                `@Persisted(primaryKey: true)` instead.
-     - returns: The name of the property designated as the primary key, or
-                `nil` if the model has no primary key.
-     */
-    @objc open class func primaryKey() -> String? { return nil }
-
-    /**
-     Override this method to specify the names of properties to ignore. These
-     properties will not be managed by the Realm that manages the object.
-
-     - warning: This function is only applicable to legacy property declarations
-                using `@objc`. When using `@Persisted`, any properties not
-                marked with `@Persisted` are automatically ignored.
-     - returns: An array of property names to ignore.
-     */
-    @objc open class func ignoredProperties() -> [String] { return [] }
-
-    /**
-     Returns an array of property names for properties which should be indexed.
-
-     Only string, integer, boolean, `Date`, and `NSDate` properties are supported.
-
-     - warning: This function is only applicable to legacy property declarations
-                using `@objc`. When using `@Persisted`, use
-                `@Persisted(indexed: true)` instead.
-     - returns: An array of property names.
-     */
-    @objc open class func indexedProperties() -> [String] { return [] }
-
-    /**
      Override this method to specify a map of public-private property names.
      This will set a different persisted property name on the Realm, and allows using the public name
      for any operation with the property. (Ex: Queries, Sorting, ...).
@@ -200,10 +161,6 @@ extension Object: _RealmCollectionValueInsideOptional {
      - returns: A dictionary of public-private property names.
      */
     @objc open override class func propertiesMapping() -> [String: String] { return [:] }
-
-    /// :nodoc:
-    @available(*, unavailable, renamed: "propertiesMapping", message: "`_realmColumnNames` private API is unavailable in our Swift SDK, please use the override `.propertiesMapping()` instead.")
-    @objc open override class func _realmColumnNames() -> [String: String] { return [:] }
 
     // MARK: Key-Value Coding & Subscripting
 
@@ -506,32 +463,8 @@ public final class DynamicObject: Object {
     }
 }
 
-/**
- An enum type which can be stored on a Realm Object.
-
- Only `@objc` enums backed by an Int can be stored on a Realm object, and the
- enum type must explicitly conform to this protocol. For example:
-
- ```
- @objc enum MyEnum: Int, RealmEnum {
-    case first = 1
-    case second = 2
-    case third = 7
- }
-
- class MyModel: Object {
-    @objc dynamic enumProperty = MyEnum.first
-    let optionalEnumProperty = RealmOptional<MyEnum>()
- }
- ```
- */
-public protocol RealmEnum: _ObjcBridgeable, _RealmSchemaDiscoverable {
-}
-
-// MARK: - Implementation
-
 /// :nodoc:
-public extension RealmEnum where Self: RawRepresentable, Self.RawValue: _RealmSchemaDiscoverable & _ObjcBridgeable {
+public extension PersistableEnum where Self: RawRepresentable, Self.RawValue: _RealmSchemaDiscoverable & _ObjcBridgeable {
     var _rlmObjcValue: Any { rawValue._rlmObjcValue }
     static func _rlmFromObjc(_ value: Any, insideOptional: Bool) -> Self? {
         if let value = value as? Self {

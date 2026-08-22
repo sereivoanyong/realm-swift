@@ -548,7 +548,7 @@ import Realm.Private
      - parameter object: The object to be deleted.
      */
     public func delete(_ object: ObjectBase) {
-        rlmRealm.delete(object.unsafeCastToRLMObject())
+        rlmRealm.deleteObject(object)
     }
 
     /**

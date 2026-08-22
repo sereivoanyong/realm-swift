@@ -62,7 +62,7 @@ void RLMThrowTypeError(id obj, RLMObjectSchema *objectSchema, RLMProperty *prop)
 
 // gets default values for the given schema (+defaultPropertyValues)
 // merges with native property defaults if Swift class
-NSDictionary *RLMDefaultValuesForObjectSchema(RLMObjectSchema *objectSchema);
+NSDictionary<NSString *, id> *RLMDefaultValuesForObjectSchema(RLMObjectSchema *objectSchema);
 
 BOOL RLMIsDebuggerAttached();
 BOOL RLMIsRunningInPlayground();

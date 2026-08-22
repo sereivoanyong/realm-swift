@@ -177,7 +177,7 @@ void RLMInitializeWithValue(RLMObjectBase *self, id value, RLMSchema *schema) {
     }
 }
 
-id RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) {
+RLMObjectBase *RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) {
     RLMObjectBase *obj = [[cls alloc] init];
     obj->_info = info;
     obj->_realm = info->realm;
@@ -334,15 +334,7 @@ id RLMCreateManagedAccessor(Class cls, RLMClassInfo *info) {
     return RLMIsObjectSubclass(self);
 }
 
-+ (NSString *)primaryKey {
-    return nil;
-}
-
 + (NSString *)_realmObjectName {
-    return nil;
-}
-
-+ (NSDictionary *)_realmColumnNames {
     return nil;
 }
 
@@ -824,6 +816,14 @@ RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, RLMObjec
             block(false, properties);
         }
     });
+}
+
+BOOL RLMIsObjectOrSubclass(Class klass) {
+    return RLMIsKindOfClass(klass, RLMObjectBase.class);
+}
+
+BOOL RLMIsObjectSubclass(Class klass) {
+    return RLMIsKindOfClass(class_getSuperclass(class_getSuperclass(klass)), RLMObjectBase.class);
 }
 
 uint64_t RLMObjectBaseGetCombineId(__unsafe_unretained RLMObjectBase *const obj) {
