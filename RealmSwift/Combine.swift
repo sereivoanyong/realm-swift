@@ -66,11 +66,9 @@ extension ObjectKeyIdentifiable where Self: ProjectionObservable {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public protocol RealmSubscribable {
     /// :nodoc:
-    func _observe<S>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S)
-        -> NotificationToken where S: Subscriber, S.Input == Self
+    func _observe<S: Subscriber>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken where S.Input == Self
     /// :nodoc:
-    func _observe<S>(_ keyPaths: [String]?, _ subscriber: S)
-        -> NotificationToken where S: Subscriber, S.Input == Void
+    func _observe<S: Subscriber>(_ keyPaths: [String]?, _ subscriber: S) -> NotificationToken where S.Input == Void
 }
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
@@ -625,7 +623,7 @@ extension NSObjectProtocol where Self: ObjectBase & RealmSubscribable {
         }
     }
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]?, _ subscriber: S) -> NotificationToken where S: Subscriber, S.Input == Void {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]?, _ subscriber: S) -> NotificationToken where S.Input == Void {
         return _observe(keyPaths: keyPaths, { _ = subscriber.receive() })
     }
 }
@@ -707,8 +705,7 @@ extension Results: RealmSubscribable {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension SectionedResults: RealmSubscribable {
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S)
-        -> NotificationToken where S: Subscriber, S.Input == Self {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S) -> NotificationToken where S.Input == Self {
         return observe(keyPaths: keyPaths, on: queue) { change in
                 switch change {
                 case .initial(let collection):
@@ -755,8 +752,7 @@ extension SectionedResults: RealmSubscribable {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension ResultsSection: RealmSubscribable {
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S)
-    -> NotificationToken where S: Subscriber, S.Input == Self {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S) -> NotificationToken where S.Input == Self {
         return observe(keyPaths: keyPaths, on: queue) { change in
             switch change {
             case .initial(let collection):
@@ -805,8 +801,7 @@ extension ResultsSection: RealmSubscribable {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension RealmCollectionImpl {
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S)
-        -> NotificationToken where S: Subscriber, S.Input == Self {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]? = nil, on queue: DispatchQueue? = nil, _ subscriber: S) -> NotificationToken where S.Input == Self {
         var col: Self?
         return collection.addNotificationBlock({ collection, _ in
             if col == nil, let collection = collection as! Collection? {
@@ -833,8 +828,7 @@ extension AnyRealmCollection: RealmSubscribable {}
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension RealmKeyedCollection {
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]?, on queue: DispatchQueue? = nil, _ subscriber: S)
-        -> NotificationToken where S: Subscriber, S.Input == Self {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]?, on queue: DispatchQueue? = nil, _ subscriber: S) -> NotificationToken where S.Input == Self {
             // FIXME: we could skip some pointless work in converting the changeset to the Swift type here
             return observe(keyPaths: keyPaths, on: queue) { change in
                 switch change {
@@ -844,10 +838,6 @@ extension RealmKeyedCollection {
                     _ = subscriber.receive(collection)
                 }
             }
-    }
-    /// :nodoc:
-    public func _observe<S: Subscriber>(_ subscriber: S) -> NotificationToken where S.Input == Void {
-        return observe(keyPaths: nil, on: nil) { _ in _ = subscriber.receive() }
     }
     /// :nodoc:
     public func _observe<S: Subscriber>(_ keyPaths: [String]? = nil, _ subscriber: S) -> NotificationToken where S.Input == Void {

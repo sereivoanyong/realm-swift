@@ -924,7 +924,7 @@ extension Projection {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension ProjectionObservable {
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken where S: Subscriber, S.Input == Self {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]?, on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken where S.Input == Self {
         return observe(keyPaths: keyPaths ?? [], on: queue) { (change: ObjectChange<S.Input>) in
             switch change {
             case .change(let projection, _):
@@ -936,7 +936,7 @@ extension ProjectionObservable {
     }
 
     /// :nodoc:
-    public func _observe<S>(_ keyPaths: [String]?, _ subscriber: S) -> NotificationToken where S: Subscriber, S.Input == Void {
+    public func _observe<S: Subscriber>(_ keyPaths: [String]?, _ subscriber: S) -> NotificationToken where S.Input == Void {
         return observe(keyPaths: [PartialKeyPath<Self>](), { _ in _ = subscriber.receive() })
     }
 }
