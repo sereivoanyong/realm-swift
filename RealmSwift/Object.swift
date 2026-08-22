@@ -525,7 +525,7 @@ public final class DynamicObject: Object {
  }
  ```
  */
-public protocol RealmEnum: RealmOptionalType, _RealmSchemaDiscoverable {
+public protocol RealmEnum: _ObjcBridgeable, _RealmSchemaDiscoverable {
 }
 
 // MARK: - Implementation

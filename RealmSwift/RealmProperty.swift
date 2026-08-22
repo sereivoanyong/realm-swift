@@ -82,4 +82,4 @@ extension RealmProperty: Codable where Value: Codable {
 public protocol RealmPropertyType: _ObjcBridgeable, _RealmSchemaDiscoverable { }
 
 extension AnyRealmValue: RealmPropertyType { }
-extension Optional: RealmPropertyType where Wrapped: RealmOptionalType & _RealmSchemaDiscoverable { }
+extension Optional: RealmPropertyType where Wrapped: _ObjcBridgeable & _RealmSchemaDiscoverable { }

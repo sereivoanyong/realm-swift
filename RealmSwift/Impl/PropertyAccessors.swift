@@ -114,30 +114,6 @@ internal class LinkingObjectsAccessor<Element: ObjectBase>: RLMManagedPropertyAc
     }
 }
 
-@available(*, deprecated)
-internal class RealmOptionalAccessor<Value: RealmOptionalType>: RLMManagedPropertyAccessor {
-    private static func bound(_ property: Property, _ obj: ObjectBase) -> RealmOptional<Value> {
-        return ptr(property, obj).assumingMemoryBound(to: RealmOptional<Value>.self).pointee
-    }
-
-    @objc override class func initialize(_ property: Property, on parent: ObjectBase) {
-        RLMInitializeManagedSwiftValueStorage(bound(property, parent), parent, property)
-    }
-
-    @objc override class func observe(_ property: Property, on parent: ObjectBase) {
-        RLMInitializeUnmanagedSwiftValueStorage(bound(property, parent), parent, property)
-    }
-
-    @objc override class func get(_ property: Property, on parent: ObjectBase) -> Any {
-        let value = bound(property, parent).value
-        return value._rlmObjcValue
-    }
-
-    @objc override class func set(_ property: Property, on parent: ObjectBase, to value: Any) {
-        bound(property, parent).value = Value._rlmFromObjc(value)
-    }
-}
-
 internal class RealmPropertyAccessor<Value: RealmPropertyType>: RLMManagedPropertyAccessor {
     private static func bound(_ property: Property, _ obj: ObjectBase) -> RealmProperty<Value> {
         return ptr(property, obj).assumingMemoryBound(to: RealmProperty<Value>.self).pointee

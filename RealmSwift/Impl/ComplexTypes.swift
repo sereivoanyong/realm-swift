@@ -193,17 +193,6 @@ extension LinkingObjects: SchemaDiscoverable {
     }
 }
 
-@available(*, deprecated)
-extension RealmOptional: SchemaDiscoverable, _RealmSchemaDiscoverable where Value: _RealmSchemaDiscoverable {
-    public static var _rlmType: PropertyType { Value._rlmType }
-    public static var _rlmOptional: Bool { true }
-    public static var _rlmRequireObjc: Bool { false }
-    public static func _rlmPopulateProperty(_ prop: Property) {
-        Value._rlmPopulateProperty(prop)
-        prop.swiftAccessor = RealmOptionalAccessor<Value>.self
-    }
-}
-
 extension LinkingObjects: _HasPersistedType, _Persistable where Element: _Persistable {
     public typealias PersistedType = Self
     public static func _rlmDefaultValue() -> Self {
