@@ -1,4 +1,4 @@
-// swift-tools-version:6.2.1
+// swift-tools-version: 6.4
 
 import PackageDescription
 import Foundation
@@ -37,9 +37,9 @@ let testCxxSettings: [CXXSetting] = cxxSettings + [
 let package = Package(
     name: "Realm",
     platforms: [
-        .macOS(.v10_13),
-        .iOS(.v12),
-        .tvOS(.v12),
+        .macOS(.v12),
+        .iOS(.v15),
+        .tvOS(.v15),
         .watchOS(.v9)
     ],
     products: [
@@ -199,6 +199,6 @@ let package = Package(
             ]
         ),
     ],
-    swiftLanguageVersions: [.version("6")],
+    swiftLanguageModes: [.version("6")],
     cxxLanguageStandard: .cxx20
 )

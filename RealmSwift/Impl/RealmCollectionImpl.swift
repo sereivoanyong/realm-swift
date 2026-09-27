@@ -221,7 +221,7 @@ internal func with<A: Actor, Value: ThreadConfined>(
     }
 
     let tsr = ThreadSafeReference(to: value)
-    nonisolated(unsafe) let config = value.realm!.rlmRealm.configurationSharingSchema()
+    let config = value.realm!.rlmRealm.configurationSharingSchema()
     return try await actor.invoke { actor in
         if Task.isCancelled {
             return nil
