@@ -132,7 +132,7 @@ public struct Persisted<Value: _Persistable> {
     // Called via RLMInitializeSwiftAccessor() to initialize the wrapper on a
     // newly created managed accessor object.
     internal mutating func initialize(_ object: ObjectBase, key: PropertyKey) {
-        storage = .managed(key: key)
+        storage = .managed(.init(object), key: key)
     }
 
     // Collection types use this instead of the above because when promoting a
@@ -142,14 +142,14 @@ public struct Persisted<Value: _Persistable> {
     // skip initializing it on that read.
     internal mutating func initializeCollection(_ object: ObjectBase, key: PropertyKey) -> Value? {
         if case let .unmanaged(value, _, _) = storage {
-            storage = .managedCached(value: value, key: key)
+            storage = .managedCached(.init(object), value: value, key: key)
             return value
         }
         if case let .unmanagedObserved(value, _) = storage {
-            storage = .managedCached(value: value, key: key)
+            storage = .managedCached(.init(object), value: value, key: key)
             return value
         }
-        storage = .managed(key: key)
+        storage = .managed(.init(object), key: key)
         return nil
     }
 
@@ -176,17 +176,17 @@ public struct Persisted<Value: _Persistable> {
                 return Value._rlmDefaultValue()
             }
             return value
-        case let .managed(key):
+        case .managed(_, let key):
             let v = Value._rlmGetProperty(object, key)
             if Value._rlmRequiresCaching {
                 // Collection types are initialized once and stored on the
                 // object rather than on every access. Non-collection types
                 // cannot be cached without some mechanism for knowing when to
                 // reread them which we don't currently have.
-                storage = .managedCached(value: v, key: key)
+                storage = .managedCached(.init(object), value: v, key: key)
             }
             return v
-        case let .managedCached(value, _):
+        case .managedCached(_, let value, _):
             return value
         }
     }
@@ -202,7 +202,7 @@ public struct Persisted<Value: _Persistable> {
             object.willChangeValue(forKey: name)
             storage = .unmanagedObserved(value: value, key: key)
             object.didChangeValue(forKey: name)
-        case .managed(let key), .managedCached(_, let key):
+        case .managed(_, let key), .managedCached(_, _, let key):
             Value._rlmSetProperty(object, key, value)
         case .unmanaged, .unmanagedNoDefault:
             storage = .unmanaged(value: value, indexed: false, primaryKey: false)
@@ -227,6 +227,30 @@ public struct Persisted<Value: _Persistable> {
         }
         storage = .unmanagedObserved(value: value, key: PropertyKey(property.index))
     }
+
+    public var managingObject: ObjectBase? {
+        switch storage {
+        case .managed(let objectBox, _), .managedCached(let objectBox, _, _):
+            return objectBox.object
+        default:
+            return nil
+        }
+    }
+
+    public var value: Value {
+        switch storage {
+        case .unmanaged(let value, _, _):
+            return value
+        case .unmanagedNoDefault:
+            return Value._rlmDefaultValue()
+        case .unmanagedObserved(let value, _):
+            return value
+        case .managed(let objectBox, let key):
+            return Value._rlmGetProperty(objectBox.object, key)
+        case .managedCached(_, let value, _):
+            return value
+        }
+    }
 }
 
 extension Persisted: Decodable where Value: Decodable {
@@ -241,16 +265,14 @@ extension Persisted: Encodable where Value: Encodable {
         switch storage {
         case .unmanaged(let value, _, _):
             try container.encode(value)
-        case .unmanagedObserved(let value, _):
-            try container.encode(value)
         case .unmanagedNoDefault:
             try container.encode(Value._rlmDefaultValue())
-        default:
-            // We need a reference to the parent object to be able to read from
-            // a managed property. There's probably a way to do this with some
-            // sort of custom adapter that keeps track of the current parent
-            // at each level of recursion, but it's not trivial.
-            throw EncodingError.invalidValue(self, .init(codingPath: encoder.codingPath, debugDescription: "Only unmanaged Realm objects can be encoded using automatic Codable synthesis. You must explicitly define encode(to:) on your model class to support managed Realm objects."))
+        case .unmanagedObserved(let value, _):
+            try container.encode(value)
+        case .managed(let objectBox, let key):
+            try container.encode(Value._rlmGetProperty(objectBox.object, key))
+        case .managedCached(_, let value, _):
+            try container.encode(value)
         }
     }
 }
@@ -396,6 +418,15 @@ extension Persisted: DiscoverablePersistedProperty where Value: _Persistable {
     }
 }
 
+private struct UnownedObjectBox {
+
+    unowned let object: ObjectBase
+
+    init(_ object: ObjectBase) {
+        self.object = object
+    }
+}
+
 // The actual storage for modern properties on objects.
 //
 // A newly created @Persisted will be either .unmanaged or .unmanagedNoDefault
@@ -435,12 +466,12 @@ private enum PropertyStorage<T> {
 
     // The property is managed and so only needs to store the key to get/set
     // the value on the parent object.
-    case managed(key: PropertyKey)
+    case managed(_ objectBox: UnownedObjectBox, key: PropertyKey)
 
     // The property is managed and is storing a value which will be returned each
     // time. This is used only for collection properties, which are themselves
     // live objects and so only need to be created once. Caching them is both a
     // performance optimization (creating them involves a few memory allocations)
     // and is required for KVO to work correctly.
-    case managedCached(value: T, key: PropertyKey)
+    case managedCached(_ objectBox: UnownedObjectBox, value: T, key: PropertyKey)
 }
